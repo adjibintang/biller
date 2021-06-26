@@ -3,6 +3,9 @@ const express = require("express");
 const cors = require("cors");
 const logger = require("morgan");
 
+// Routes
+const auth = require("./routes/auth");
+
 const server = express();
 
 server.use(logger("dev"));
@@ -13,6 +16,11 @@ server.use(
     extended: false,
   })
 );
+
+server.use("/api/biller", auth);
+server.get("/", (req, res) => {
+  res.send({ message: "test" });
+});
 
 server.all("*", (req, res) => {
   res.status(404).json({

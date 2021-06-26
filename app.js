@@ -14,6 +14,11 @@ server.use(
   })
 );
 
+const electricityRoutes = require("./routes/electicityRoutes");
+const landlineRoutes = require("./routes/landlineRoutes");
+
+server.use(electricityRoutes, landlineRoutes);
+
 server.all("*", (req, res) => {
   res.status(404).json({
     statusText: "Not Found",

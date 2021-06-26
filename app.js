@@ -5,6 +5,7 @@ const logger = require("morgan");
 
 // Routes
 const auth = require("./routes/auth");
+const internetTV = require("./routes/internetTv");
 
 const server = express();
 
@@ -18,9 +19,7 @@ server.use(
 );
 
 server.use("/api/biller", auth);
-server.get("/", (req, res) => {
-  res.send({ message: "test" });
-});
+server.use("/api/biller", internetTV);
 
 server.all("*", (req, res) => {
   res.status(404).json({

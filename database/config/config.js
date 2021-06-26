@@ -15,6 +15,7 @@ module.exports = {
     database: DB_NAME_DEV,
     host: DB_HOST_DEV,
     dialect: DB_DIALECT_DEV,
+    dialectOptions: DB_DIALECT_OPTIONS_DEV
   },
   test: {
     username: "root",

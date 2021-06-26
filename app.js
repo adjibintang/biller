@@ -26,6 +26,14 @@ server.all("*", (req, res) => {
   });
 });
 
+server.get("/", (req, res) => {
+  res.send({
+    status_code: 200,
+    status_message: "Success",
+    message: "Welcome to Biller Indonesia",
+  });
+});
+
 server.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });

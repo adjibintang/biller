@@ -21,6 +21,11 @@ server.use(
 server.use("/api/biller", auth);
 server.use("/api/biller", internetTV);
 
+// test
+server.get("/", (req, res) => {
+  res.send("Hello!");
+});
+
 server.all("*", (req, res) => {
   res.status(404).json({
     statusText: "Not Found",

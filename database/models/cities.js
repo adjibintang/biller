@@ -3,7 +3,7 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Cities extends Model {
     static associate(models) {
-      this.hasOn(models.Pdams, {
+      this.hasOne(models.Pdams, {
         foreignKey: "city_id",
       });
     }

@@ -4,6 +4,9 @@ const cors = require("cors");
 const logger = require("morgan");
 
 const server = express();
+const port = process.env.PORT || 3000;
+
+const authRoute = require("./routes/authenticationRoute");
 
 server.use(logger("dev"));
 server.use(cors());
@@ -14,6 +17,8 @@ server.use(
   })
 );
 
+server.use("/api/biller", authRoute);
+
 server.all("*", (req, res) => {
   res.status(404).json({
     statusText: "Not Found",
@@ -21,6 +26,6 @@ server.all("*", (req, res) => {
   });
 });
 
-server.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });

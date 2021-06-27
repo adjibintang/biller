@@ -23,7 +23,7 @@ server.get("/", (req, res) => {
 });
 
 server.use("/api/biller", authRoute);
-server.use("/api/biller", internetTV);
+server.use("/api/biller/internet_TV", internetTV);
 
 server.all("*", (req, res) => {
   res.status(404).json({

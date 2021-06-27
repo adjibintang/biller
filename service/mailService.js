@@ -8,7 +8,10 @@ const transport = nodemailer.createTransport({
 });
 
 module.exports.sendConfirmationEmail = async (name, email) => {
-  const confirmationCode = await jwt.sign({ email }, process.env.SECRET_KEY);
+  const confirmationCode = await jwt.sign(
+    { email },
+    process.env.SECRET_ACCESS_KEY_DEV
+  );
   transport
     .sendMail({
       from: process.env.USER_EMAIL,

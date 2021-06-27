@@ -1,29 +1,19 @@
-const { Users } = require("../database/models");
-const nodemailer = require("../service/mailService");
+const mailService = require("../service/mailService");
+const userService = require("../service/userService");
+
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-require("dotenv").config();
 
 exports.signup = async (req, res) => {
-  const { first_name, last_name, email, password } = req.body;
   try {
-    const findUser = await Users.findOne({ where: { email } });
+    const findUser = await userService.findUserByEmail(req.body.email);
     if (!findUser) {
-      const newUser = await Users.create({
-        first_name,
-        last_name,
-        email,
-        password: bcrypt.hashSync(password, 10),
-      });
+      const newUser = await userService.createUser(req.body);
 
-      const sendEmail = await nodemailer.sendConfirmationEmail(
+      const sendEmail = await mailService.sendConfirmationEmail(
         newUser.first_name,
         newUser.email
       );
-      const token = await jwt.sign(
-        { first_name, last_name, email, isVerified: newUser.isVerified },
-        process.env.SECRET_KEY
-      );
+
       res.status(201).send({
         statusCode: 201,
         statusText: "Created",
@@ -50,9 +40,9 @@ exports.confirmUser = async (req, res) => {
   try {
     const data = await jwt.verify(
       req.params.confirmationCode,
-      process.env.SECRET_KEY
+      process.env.SECRET_ACCESS_KEY_DEV
     );
-    const findUser = await Users.findOne({ where: { email: data.email } });
+    const findUser = await userService.findUserByEmail(data.email);
 
     if (findUser) {
       findUser.is_verified = true;

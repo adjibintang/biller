@@ -1,10 +1,7 @@
 const internetTVController = require("../controller/internetTvController");
 const router = require("express").Router();
 
-router.get("/internet/options", internetTVController.getInternetTVOptions);
-router.get(
-  "/internet/information",
-  internetTVController.getInternetAccountInfo
-);
+router.get("/options/:service_id", internetTVController.getInternetTVOptions);
+router.get("/information", internetTVController.getInternetAccountInfo);
 
 module.exports = router;

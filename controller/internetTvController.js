@@ -1,15 +1,8 @@
-const { Internet_tvs, Options, Services } = require("../database/models");
+const internetTVService = require("../service/internetTVService");
 
 exports.getInternetTVOptions = async (req, res) => {
   try {
-    const findService = await Services.findOne({
-      where: { name: req.body.service },
-    });
-    const service_id = findService.dataValues.id;
-
-    const findOptions = await Options.findAll({ where: { service_id } });
-
-    const options = findOptions.map((x) => x.dataValues.name);
+    const options = await internetTVService.getOptions(req.params.service_id);
 
     res.status(200).send({
       statusCode: 200,
@@ -31,13 +24,11 @@ exports.getInternetTVOptions = async (req, res) => {
 
 exports.getInternetAccountInfo = async (req, res) => {
   try {
-    const { customer_number } = req.body;
+    const account = await internetTVService.getAccountInfo(
+      req.body.customer_number
+    );
 
-    const findInternetAccount = await Internet_tvs.findOne({
-      where: { customer_number },
-    });
-
-    if (!findInternetAccount) {
+    if (!account) {
       res.status(400).send({
         statusCode: 400,
         statusText: "Bad Request",
@@ -49,10 +40,10 @@ exports.getInternetAccountInfo = async (req, res) => {
         statusText: "Succes",
         message: "Success to Get Account Info",
         data: {
-          name: findInternetAccount.name,
-          customer_number,
-          provider: findInternetAccount.provider,
-          address: findInternetAccount.address,
+          name: account.name,
+          customer_number: account.customer_number,
+          provider: account.provider,
+          address: account.address,
         },
       });
     }

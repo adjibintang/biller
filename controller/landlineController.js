@@ -1,36 +1,32 @@
-const { Landlines } = require('../database/models');
+const landlineService = require("../service/landlineService");
 
 exports.getLandlineAccInfo = async (req, res) => {
   try {
-    const telephoneNumber = req.body.telnum;
+    const telephoneNumber = req.body.telephone_number;
 
     if(!telephoneNumber){
       res.status(400).json({
         statusText: "Bad Request",
-        message: "Please input telephone number",
+        message: "Failed To Get Landline Account Info",
       });
     }
 
-    const isLandlineExist = await Landlines.findOne({
-        where: {telephone_number: telephoneNumber}
+    const accInfo = await landlineService.getAccInfo(telephoneNumber);
+
+    res.status(200).json({
+      statusText: "OK",
+      message: "Success To Get Landline Account Info",
+      data: {
+        No_Telephone: accInfo.telephone_number,
+        Bill: 0,
+        Admin: 0,
+        Total: 0,
+      }
     });
-
-    if(!isLandlineExist){
-      res.status(404).json({
-        statusText: "Not Found",
-        message: "Telephone number not registered"
-      }); 
-    } else {
-      res.status(200).json({
-        statusText: "OK",
-        message: "Landline Confirmed",
-        data: isLandlineExist
-      });
-    }
   } catch (error) {
     res.status(500).json({
       statusText: "Internal Server Error",
-      message: error.message
+      message: "Failed To Get Landline Account Info"
     });
   }
 };

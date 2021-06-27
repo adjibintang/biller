@@ -18,15 +18,12 @@ server.use(
   })
 );
 
-server.use("/api/biller", electricityRoutes, landlineRoutes);
-
 server.get("/", (req, res) => {
-  res.send({
-    status_code: 200,
-    status_message: "Success",
-    message: "Welcome to Biller Indonesia",
-  });
+  res.send("Biller App");
 });
+
+server.use("/api/biller/electricity/bill", electricityRoutes);
+server.use("/api/biller/landline/bill", landlineRoutes);
 
 server.all("*", (req, res) => {
   res.status(404).json({

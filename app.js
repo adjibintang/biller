@@ -21,15 +21,23 @@ server.use(
 server.use("/api/biller", auth);
 server.use("/api/biller", internetTV);
 
-// test
-server.get("/", (req, res) => {
-  res.send("Hello!");
-});
+const electricityRoutes = require("./routes/electicityRoutes");
+const landlineRoutes = require("./routes/landlineRoutes");
+
+server.use(electricityRoutes, landlineRoutes);
 
 server.all("*", (req, res) => {
   res.status(404).json({
     statusText: "Not Found",
     message: "You Have Trying Reaching A Route That Doesn't Exist",
+  });
+});
+
+server.get("/", (req, res) => {
+  res.send({
+    status_code: 200,
+    status_message: "Success",
+    message: "Welcome to Biller Indonesia",
   });
 });
 

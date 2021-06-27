@@ -8,6 +8,9 @@ const port = process.env.PORT || 3000;
 
 const authRoute = require("./routes/authenticationRoute");
 const homeServiceRoute = require("./routes/homeserviceRoute");
+const mobileOptionroute = require("./routes/mobileoptionRoute");
+const packagesRoute = require("./routes/packagesroutes");
+const priceList = require("./routes/pricelistRoute");
 
 server.use(logger("dev"));
 server.use(cors());
@@ -20,6 +23,9 @@ server.use(
 
 server.use("/api/biller", authRoute);
 server.use("/api/biller", homeServiceRoute);
+server.use("/api/biller", mobileOptionroute);
+server.use("/api/biller", packagesRoute);
+server.use("/api/biller", priceList);
 
 server.all("*", (req, res) => {
   res.status(404).json({

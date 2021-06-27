@@ -6,7 +6,7 @@ const {
   DB_NAME_DEV,
   DB_HOST_DEV,
   DB_DIALECT_DEV,
-  DB_DIALECT_OPTIONS_DEV
+  DB_DIALECT_OPTIONS_DEV,
 } = process.env;
 
 module.exports = {
@@ -16,7 +16,9 @@ module.exports = {
     database: DB_NAME_DEV,
     host: DB_HOST_DEV,
     dialect: DB_DIALECT_DEV,
-    dialectOptions: DB_DIALECT_OPTIONS_DEV
+    dialectOptions: {
+      ssl: { rejectUnauthorized: false },
+    },
   },
   test: {
     username: "root",

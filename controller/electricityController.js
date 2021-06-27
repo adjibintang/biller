@@ -1,8 +1,7 @@
 const { Electricities, Users, Services, Options, Prices } = require('../database/models');
-const routes = {};
 const { Op } = require('sequelize');
 
-routes.getTagihanAccInfo = async (req, res) => {
+exports.getTagihanAccInfo = async (req, res) => {
   try {
     const idPel = req.body.id
     // const {serviceId, optionsId} = req.params
@@ -14,11 +13,11 @@ routes.getTagihanAccInfo = async (req, res) => {
         });
       } 
 
-    const isIdPelExist = await Electricities.findOne({
+    const isAccExist = await Electricities.findOne({
         where: {customer_number: idPel}
     });
 
-    if(!isIdPelExist){
+    if(!isAccExist){
       res.status(404).json({
           statusText: "Not Found",
           message: "Incorrect IDPEL"
@@ -27,7 +26,7 @@ routes.getTagihanAccInfo = async (req, res) => {
       res.status(200).json({
         statusText: "OK",
         message: "IDPEL Confirmed",
-        data: isIdPelExist
+        data: isAccExist
       });
     }
   } catch (error) {
@@ -38,19 +37,29 @@ routes.getTagihanAccInfo = async (req, res) => {
   };
 };
 
-routes.getElectricityOptions = async (req, res) => {
+exports.getElectricityOptions = async (req, res) => {
   try {
     const serviceId = req.params.id;
+
+    const isServiceIdExist = await Services.findOne({
+      where: {id: serviceId}
+    });
+
+    if(isServiceIdExist == null){
+      res.status(400).json({
+        statusText: "Bad Request"
+      });
+    }
 
     const electricityOptions = await Services.findAll({
       include: Options,
       where: {id: serviceId}
     });
-
+    
     res.status(200).json({
       statusText: "OK",
       message: "Electricity Options",
-      data: electricityOptions
+      data: electricityOptions[0].dataValues.Options
     });
   } catch (error) {
     res.status(500).json({
@@ -60,7 +69,7 @@ routes.getElectricityOptions = async (req, res) => {
   };
 };
 
-routes.getTokenPricelist = async (req, res) => {
+exports.getTokenPricelist = async (req, res) => {
   try {
     const {serviceId, optionsId} = req.query;
     if(serviceId == 1 && optionsId == 1){
@@ -85,10 +94,9 @@ routes.getTokenPricelist = async (req, res) => {
   }
 };
 
-routes.getTokenAccInfo = async (req, res) => {
+exports.getTokenAccInfo = async (req, res) => {
   try {
     const nomorMeter = req.body.no
-    console.log("🦄 ~ file: electricityBill.js ~ line 91 ~ routes.getTokenAccInfo= ~ nomorMeter", nomorMeter)
     // const {serviceId, optionsId} = req.params
 
     if(!nomorMeter) {
@@ -98,11 +106,11 @@ routes.getTokenAccInfo = async (req, res) => {
         });
       } 
 
-    const isNoMeter = await Electricities.findOne({
+    const isAccExist = await Electricities.findOne({
         where: {meter_number: nomorMeter}
     });
 
-    if(!isNoMeter){
+    if(!isAccExist){
       res.status(404).json({
           statusText: "Not Found",
           message: "Number not registered"
@@ -111,7 +119,7 @@ routes.getTokenAccInfo = async (req, res) => {
       res.status(200).json({
         statusText: "OK",
         message: "Nomor Meter Confirmed",
-        data: isNoMeter
+        data: isAccExist
       });
     }
   } catch (error) {
@@ -121,6 +129,4 @@ routes.getTokenAccInfo = async (req, res) => {
     });
   }
 };
-
-module.exports = routes;
 

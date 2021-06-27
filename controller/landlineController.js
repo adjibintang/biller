@@ -1,7 +1,6 @@
 const { Landlines } = require('../database/models');
-const routes = {};
 
-routes.getLandlineAccInfo = async (req, res) => {
+exports.getLandlineAccInfo = async (req, res) => {
   try {
     const telephoneNumber = req.body.telnum;
 
@@ -35,5 +34,3 @@ routes.getLandlineAccInfo = async (req, res) => {
     });
   }
 };
-
-module.exports = routes;

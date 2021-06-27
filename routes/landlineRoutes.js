@@ -1,8 +1,6 @@
-const express = require('express');
-const router = express.Router();
-
+const landlineRouter = require('express').Router();
 const { getLandlineAccInfo } = require('../controller/landlineController');
 
-router.get("/landline/receipt", getLandlineAccInfo);
+landlineRouter.get("/landline/receipt", getLandlineAccInfo);
 
-module.exports = router;
+module.exports = landlineRouter;

@@ -1,4 +1,4 @@
-const internetTVController = require("../controller/internetTv");
+const internetTVController = require("../controller/internetTvController");
 const router = require("express").Router();
 
 router.get("/internet/options", internetTVController.getInternetTVOptions);

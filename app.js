@@ -3,11 +3,11 @@ const express = require("express");
 const cors = require("cors");
 const logger = require("morgan");
 
-// Routes
-const auth = require("./routes/auth");
-const internetTV = require("./routes/internetTv");
-
 const server = express();
+const port = process.env.PORT || 3000;
+
+const authRoute = require("./routes/authenticationRoute");
+const internetTV = require("./routes/internetTvRoute");
 
 server.use(logger("dev"));
 server.use(cors());
@@ -18,20 +18,12 @@ server.use(
   })
 );
 
-server.use("/api/biller", auth);
-server.use("/api/biller", internetTV);
 server.get("/", (req, res) => {
-  res.send({
-    status_code: 200,
-    status_message: "Success",
-    message: "Welcome to Biller Indonesia",
-  });
+  res.send("Biller App");
 });
 
-const electricityRoutes = require("./routes/electicityRoutes");
-const landlineRoutes = require("./routes/landlineRoutes");
-
-server.use(electricityRoutes, landlineRoutes);
+server.use("/api/biller", authRoute);
+server.use("/api/biller", internetTV);
 
 server.all("*", (req, res) => {
   res.status(404).json({
@@ -40,6 +32,6 @@ server.all("*", (req, res) => {
   });
 });
 
-server.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });

@@ -57,11 +57,7 @@ exports.confirmUser = async (req, res) => {
     if (findUser) {
       findUser.is_verified = true;
       await findUser.save();
-
-      res.status(200).send({
-        message: "Succesfully activate User.",
-        findUser,
-      });
+      res.status(200).send({ message: "Succesfully activate User." });
     } else {
       res.status(404).send({ message: "User Not found." });
     }

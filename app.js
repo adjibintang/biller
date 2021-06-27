@@ -7,6 +7,7 @@ const server = express();
 const port = process.env.PORT || 3000;
 
 const authRoute = require("./routes/authenticationRoute");
+const homeServiceRoute = require("./routes/homeserviceRoute");
 
 server.use(logger("dev"));
 server.use(cors());
@@ -18,6 +19,7 @@ server.use(
 );
 
 server.use("/api/biller", authRoute);
+server.use("/api/biller", homeServiceRoute);
 
 server.all("*", (req, res) => {
   res.status(404).json({

@@ -17,7 +17,9 @@ module.exports.sendConfirmationEmail = async (name, email) => {
       html: `<h1>Email Confirmation</h1>
     <h2>Hello ${name}</h2>
     <p>Thank you for signing up!! To activate your account, please confirm your email by clicking on the following link</p>
-    <a href=http://localhost:8080/api/biller/confirm/${confirmationCode}> Click here</a>`,
+    <a href=https://biller-indonesia.herokuapp.com/api/biller/confirm/${confirmationCode}> Click here</a>
+    or
+    <a href=http://localhost:8080/api/biller/confirm/${confirmationCode}> Click here for local test only</a>`,
     })
     .catch((err) => console.log(err));
 };

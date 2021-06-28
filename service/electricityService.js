@@ -10,10 +10,10 @@ exports.getTagihanAccInfo = async(idPel) => {
 
 exports.getElectricityOptions = async(serviceId) => {
   const electricityOptions = await Options.findAll({
-    where: {service_id: serviceId}
+    where: {service_id: serviceId},
+    attributes: ['id', 'name']
   });
-  const options = electricityOptions.map((x) => x.dataValues.name);
-  return options;
+  return electricityOptions;
 };
 
 exports.getTokenPricelist = async(option_id) => {
@@ -22,8 +22,11 @@ exports.getTokenPricelist = async(option_id) => {
     where: {option_id: option_id}
   });
   const prices = tokenPricelist.map((x) => x.dataValues.Price);
-  const list = prices.map((x)=> x.dataValues.price);
-  return list;
+  for (let i= 0; i < prices.length; i++) {
+    prices[i] = { id: prices[i].id, price: prices[i].price};
+    };
+
+  return prices;
 };
 
 exports.getTokenAccInfo = async(nomorMeter) => {

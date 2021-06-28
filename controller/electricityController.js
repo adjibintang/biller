@@ -18,7 +18,7 @@ exports.getTagihanAccInfo = async (req, res) => {
       data: {
         IDPEL: accInfo.customer_number,
         Name: accInfo.name,
-        Tarif_Daya: `${accInfo.rates}/${accInfo.power}`,
+        Tarif_Daya: `R${accInfo.rates}/${accInfo.power} VA`,
         Bulan_Tahun: accInfo.createdAt.toLocaleString('default',{month: 'long'}) + " " + accInfo.createdAt.getFullYear(), 
         Stand_Meter: accInfo.this_month_stand_meter,
         Bill: 0,
@@ -37,12 +37,12 @@ exports.getTagihanAccInfo = async (req, res) => {
 exports.getElectricityOptions = async (req, res) => {
   try {
     const serviceId = req.params.id;
-    const electricityOptions = await electricityService.getElectricityOptions(serviceId);
+    const options = await electricityService.getElectricityOptions(serviceId);    
     
     res.status(200).json({
       statusText: "OK",
       message: "Electricity Options",
-      data: electricityOptions
+      data: options
     });
   } catch (error) {
     res.status(500).json({
@@ -55,13 +55,13 @@ exports.getElectricityOptions = async (req, res) => {
 exports.getTokenPricelist = async (req, res) => {
   try {
     const option_id = req.body.id
-    const tokenPricelist = await electricityService.getTokenPricelist(option_id);
+    const pricelist = await electricityService.getTokenPricelist(option_id);
 
-    if(tokenPricelist !== null) {
+    if(pricelist !== null) {
       res.status(200).json({
         statusText: "OK",
         message: "Success to Get Token Pricelist",
-        data: tokenPricelist
+        data: pricelist
       });
     } else {
       res.status(400).json({

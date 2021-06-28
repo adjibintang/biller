@@ -6,6 +6,8 @@ const logger = require("morgan");
 const server = express();
 const port = process.env.PORT || 3000;
 
+const authRoute = require("./routes/authenticationRoute");
+const internetTV = require("./routes/internetTvRoute");
 const electricityRoutes = require("./routes/electicityRoutes");
 const landlineRoutes = require("./routes/landlineRoutes");
 
@@ -22,6 +24,8 @@ server.get("/", (req, res) => {
   res.send("Biller App");
 });
 
+server.use("/api/biller", authRoute);
+server.use("/api/biller/internet_TV", internetTV);
 server.use("/api/biller/electricity/bill", electricityRoutes);
 server.use("/api/biller/landline/bill", landlineRoutes);
 

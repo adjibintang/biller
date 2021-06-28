@@ -20,6 +20,11 @@ const loginSchema = Joi.object({
     .required(),
 }).options({ abortEarly: false });
 
+const searchCitySchema = Joi.object({
+  city: Joi.string().required(),
+}).options({ abortEarly: false });
+
 module.exports = {
   loginSchema,
+  searchCitySchema,
 };

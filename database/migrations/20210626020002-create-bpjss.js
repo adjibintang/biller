@@ -10,6 +10,7 @@ module.exports = {
       },
       va_number: {
         type: Sequelize.STRING,
+        unique: true,
       },
       name: {
         type: Sequelize.STRING,

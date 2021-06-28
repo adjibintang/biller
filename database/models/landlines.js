@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   class Landlines extends Model {
     static associate(models) {
       // define association here
-    } 
+    }
   }
   Landlines.init(
     {
@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       name: DataTypes.STRING,
-      telephone_number: DataTypes.STRING,
+      telephone_number: { type: DataTypes.STRING, unique: true },
       address: DataTypes.STRING,
     },
     {

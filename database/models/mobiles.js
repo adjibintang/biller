@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
-      phone_number: DataTypes.STRING,
+      phone_number: { type: DataTypes.STRING, unique: true },
     },
     {
       sequelize,

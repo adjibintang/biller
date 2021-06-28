@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       name: DataTypes.STRING,
-      meter_number: DataTypes.STRING,
+      meter_number: { type: DataTypes.STRING, unique: true },
       customer_number: DataTypes.STRING,
       rates: DataTypes.DECIMAL,
       power: DataTypes.INTEGER,

@@ -14,7 +14,10 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      va_number: DataTypes.STRING,
+      va_number: {
+        type: DataTypes.STRING,
+        unique: true,
+      },
       name: DataTypes.STRING,
       branch: DataTypes.STRING,
       family_member: DataTypes.INTEGER,

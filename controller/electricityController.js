@@ -2,7 +2,7 @@ const electricityService = require('../service/electricityService');
 
 exports.getTagihanAccInfo = async (req, res) => {
   try {
-    const idPel = req.body.id
+    const idPel = req.body.idpel
 
     if(!idPel) {
       res.status(400).json({
@@ -36,7 +36,7 @@ exports.getTagihanAccInfo = async (req, res) => {
 
 exports.getElectricityOptions = async (req, res) => {
   try {
-    const serviceId = req.params.id;
+    const serviceId = req.params.service_id;
     const options = await electricityService.getElectricityOptions(serviceId);    
     
     res.status(200).json({
@@ -54,8 +54,8 @@ exports.getElectricityOptions = async (req, res) => {
 
 exports.getTokenPricelist = async (req, res) => {
   try {
-    const option_id = req.body.id
-    const pricelist = await electricityService.getTokenPricelist(option_id);
+    const optionId = req.body.option_id
+    const pricelist = await electricityService.getTokenPricelist(optionId);
 
     if(pricelist !== null) {
       res.status(200).json({
@@ -108,7 +108,7 @@ exports.getTokenAccInfo = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       statusText: "Internal Server Error",
-      message: "Failed To Get Active Subscription"
+      message: "Failed To Get Electricity Account Info"
     });
   }
 };

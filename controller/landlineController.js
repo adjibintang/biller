@@ -12,7 +12,12 @@ exports.getLandlineAccInfo = async (req, res) => {
     }
 
     const accInfo = await landlineService.getAccInfo(telephoneNumber);
-
+    
+    if(accInfo === null) {
+      res.status(204).json({
+        statusText: "No Content",
+      });
+    } else {
     res.status(200).json({
       statusText: "OK",
       message: "Success To Get Landline Account Info",
@@ -21,8 +26,9 @@ exports.getLandlineAccInfo = async (req, res) => {
         Bill: 0,
         Admin: 0,
         Total: 0,
-      }
-    });
+        }
+      });
+    }
   } catch (error) {
     res.status(500).json({
       statusText: "Internal Server Error",

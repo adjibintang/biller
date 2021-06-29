@@ -7,14 +7,19 @@ exports.getTagihanAccInfo = async (req, res) => {
     if(!idPel) {
       res.status(400).json({
         statusText: "Bad Request",
-        message: "Failed to Get Account Info"
+        message: "Failed to Get Electricity Account Info"
       });
     } 
     const accInfo = await electricityService.getTagihanAccInfo(idPel);
 
+    if(accInfo === null) {
+      res.status(204).json({
+        statusText: "No Content",
+      });
+    } else {
     res.status(200).json({
       statusText: "OK",
-      message: "Success to Get Account Info",
+      message: "Success to Get Electricity Account Info",
       data: {
         IDPEL: accInfo.customer_number,
         Name: accInfo.name,
@@ -24,12 +29,13 @@ exports.getTagihanAccInfo = async (req, res) => {
         Bill: 0,
         Admin: 0,
         Total: 0
-      }
-    });
+        }
+      });
+    }
   } catch (error) {
     res.status(500).json({
       statusText: "Internal Server Error",
-      message: "Failed to Get Account Info"
+      message: "Failed to Get Electricity Account Info"
     });
   };
 };
@@ -90,6 +96,11 @@ exports.getTokenAccInfo = async (req, res) => {
 
     const accInfo = await electricityService.getTokenAccInfo(nomorMeter);
 
+    if(accInfo === null) {
+      res.status(204).json({
+        statusText: "No Content",
+      });
+    } else {
     res.status(200).json({
       statusText: "OK",
       message: "Success Get Electricity Account Info",
@@ -104,7 +115,7 @@ exports.getTokenAccInfo = async (req, res) => {
         Total: 0
       }
       });
-    
+    }
   } catch (error) {
     res.status(500).json({
       statusText: "Internal Server Error",

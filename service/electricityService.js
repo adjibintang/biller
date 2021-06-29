@@ -8,7 +8,7 @@ exports.getTagihanAccInfo = async(idPel) => {
   return accInfo;
 };
 
-exports.getElectricityOptions = async(serviceId) => {
+exports.getElectricityOptions = async(serviceId, price) => {
   const electricityOptions = await Options.findAll({
     where: {service_id: serviceId},
     attributes: ['id', 'name']
@@ -33,6 +33,7 @@ exports.getTokenAccInfo = async(nomorMeter) => {
   const accInfo = await Electricities.findOne({
     where: {meter_number: nomorMeter}
   });
+  
   return accInfo;
 }
 

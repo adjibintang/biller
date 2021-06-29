@@ -26,9 +26,9 @@ exports.getTagihanAccInfo = async (req, res) => {
         Tarif_Daya: `R${accInfo.rates}/${accInfo.power} VA`,
         Bulan_Tahun: accInfo.createdAt.toLocaleString('default',{month: 'long'}) + " " + accInfo.createdAt.getFullYear(), 
         Stand_Meter: accInfo.this_month_stand_meter,
-        Bill: 0,
-        Admin: 0,
-        Total: 0
+        Bill: `Rp. 89.675,00`,
+        Admin: `Rp. 3.000,00`,
+        Total: `Rp. 92.675,00`
         }
       });
     }
@@ -85,7 +85,8 @@ exports.getTokenPricelist = async (req, res) => {
 
 exports.getTokenAccInfo = async (req, res) => {
   try {
-    const nomorMeter = req.body.nomor_meter
+    const nomorMeter = req.body.nomor_meter;
+    const price = req.body.price;
 
     if(!nomorMeter) {
       res.status(400).json({
@@ -94,7 +95,7 @@ exports.getTokenAccInfo = async (req, res) => {
       });
     } 
 
-    const accInfo = await electricityService.getTokenAccInfo(nomorMeter);
+    const accInfo = await electricityService.getTokenAccInfo(nomorMeter, price);
 
     if(accInfo === null) {
       res.status(204).json({
@@ -109,10 +110,10 @@ exports.getTokenAccInfo = async (req, res) => {
         IDPEL: accInfo.customer_number,
         Name: accInfo.name,
         Tarif_Daya: `R${accInfo.rates}/${accInfo.power} VA`,
-        Token: 0,
-        PPJ: 0,
-        Admin: 0,
-        Total: 0
+        Token: `Rp. ${price}`,
+        PPJ: `Rp. 3.704,00`,
+        Admin: `Rp. 1.500,00`,
+        Total: `Rp. 51.500,00`
       }
       });
     }

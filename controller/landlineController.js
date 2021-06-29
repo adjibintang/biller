@@ -23,9 +23,9 @@ exports.getLandlineAccInfo = async (req, res) => {
       message: "Success To Get Landline Account Info",
       data: {
         No_Telephone: accInfo.telephone_number,
-        Bill: 0,
-        Admin: 0,
-        Total: 0,
+        Bill: `Rp. 108.000,00`,
+        Admin: `Rp. 2.500,00`,
+        Total: `Rp. 110.500,00`,
         }
       });
     }

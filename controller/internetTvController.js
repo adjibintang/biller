@@ -4,6 +4,13 @@ exports.getInternetTVOptions = async (req, res) => {
   try {
     const options = await internetTVService.getOptions(req.params.service_id);
 
+    if (options.length <= 0) {
+      res.status(204).send({
+        statusCode: 204,
+        statusText: "No Content",
+      });
+    }
+
     res.status(200).send({
       statusCode: 200,
       statusText: "Succes",
@@ -29,10 +36,9 @@ exports.getInternetAccountInfo = async (req, res) => {
     );
 
     if (!account) {
-      res.status(400).send({
-        statusCode: 400,
-        statusText: "Bad Request",
-        message: "Failed to Get Account Info",
+      res.status(204).send({
+        statusCode: 204,
+        statusText: "No Content",
       });
     } else {
       res.status(200).send({

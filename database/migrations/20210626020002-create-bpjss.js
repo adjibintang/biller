@@ -21,6 +21,12 @@ module.exports = {
       family_member: {
         type: Sequelize.INTEGER,
       },
+      type: {
+        type: Sequelize.ENUM("Kelas I", "Kelas II", "Kelas III"),
+      },
+      cost: {
+        type: Sequelize.DECIMAL,
+      },
       address: {
         type: Sequelize.STRING,
       },

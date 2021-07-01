@@ -15,6 +15,12 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true,
       },
+      type: {
+        type: Sequelize.ENUM("Business", "Residential", "Social"),
+      },
+      abonemen: {
+        type: Sequelize.DECIMAL,
+      },
       address: {
         type: Sequelize.STRING,
       },

@@ -20,10 +20,13 @@ module.exports = {
         unique: true,
       },
       rates: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.STRING,
       },
       power: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
+      },
+      cost_per_kwh: {
+        type: Sequelize.DECIMAL,
       },
       last_month_stand_meter: {
         type: Sequelize.INTEGER,

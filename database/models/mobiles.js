@@ -25,6 +25,9 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       phone_number: { type: DataTypes.STRING, unique: true },
+      post_payment_fee: {
+        type: DataTypes.DECIMAL,
+      },
     },
     {
       sequelize,

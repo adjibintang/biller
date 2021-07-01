@@ -20,6 +20,9 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true,
       },
+      post_payment_fee: {
+        type: Sequelize.DECIMAL,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

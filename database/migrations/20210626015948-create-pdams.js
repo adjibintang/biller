@@ -29,6 +29,12 @@ module.exports = {
       this_month_stand_meter: {
         type: Sequelize.INTEGER,
       },
+      fixed_cost: {
+        type: Sequelize.DECIMAL,
+      },
+      stand_meter_maintenance_cost: {
+        type: Sequelize.DECIMAL,
+      },
       address: {
         type: Sequelize.STRING,
       },

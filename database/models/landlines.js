@@ -16,6 +16,12 @@ module.exports = (sequelize, DataTypes) => {
       },
       name: DataTypes.STRING,
       telephone_number: { type: DataTypes.STRING, unique: true },
+      type: {
+        type: DataTypes.ENUM("Business", "Residential", "Social"),
+      },
+      abonemen: {
+        type: DataTypes.DECIMAL,
+      },
       address: DataTypes.STRING,
     },
     {

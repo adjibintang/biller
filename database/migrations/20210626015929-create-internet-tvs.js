@@ -18,6 +18,9 @@ module.exports = {
       provider: {
         type: Sequelize.STRING,
       },
+      abonemen: {
+        type: Sequelize.DECIMAL,
+      },
       address: {
         type: Sequelize.STRING,
       },

@@ -13,11 +13,12 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: {
           model: "Mobile_providers",
-          keys: "id",
+          key: "id",
         },
       },
       prefix: {
         type: Sequelize.STRING,
+        unique: true,
       },
       name: {
         type: Sequelize.STRING,

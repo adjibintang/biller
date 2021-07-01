@@ -10,6 +10,7 @@ const authRoute = require("./routes/authenticationRoute");
 const internetTV = require("./routes/internetTvRoute");
 const electricityRoutes = require("./routes/electicityRoutes");
 const landlineRoutes = require("./routes/landlineRoutes");
+const pdamRoute = require("./routes/pdamRoute");
 
 server.use(logger("dev"));
 server.use(cors());
@@ -20,14 +21,11 @@ server.use(
   })
 );
 
-server.get("/", (req, res) => {
-  res.send("Biller App");
-});
-
 server.use("/api/biller", authRoute);
 server.use("/api/biller/internet_TV", internetTV);
 server.use("/api/biller/electricity/bill", electricityRoutes);
 server.use("/api/biller/landline/bill", landlineRoutes);
+server.use("/api/biller/pdam/bill", pdamRoute);
 
 server.all("*", (req, res) => {
   res.status(404).json({

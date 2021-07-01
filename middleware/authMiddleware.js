@@ -61,7 +61,6 @@ exports.userAuthorization = async (req, res, next) => {
       }
     );
   } catch (error) {
-    console.log(error);
     res.sendStatus(500);
   }
 };

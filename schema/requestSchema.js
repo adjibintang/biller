@@ -20,20 +20,11 @@ const loginSchema = Joi.object({
     .required(),
 }).options({ abortEarly: false });
 
-const registerSchema = Joi.object({
-  first_name: Joi.string().required(),
-  last_name: Joi.string().required(),
-  email: Joi.string()
-    .email({
-      minDomainSegments: 2,
-      tlds: { allow: ["com", "net"] },
-    })
-    .lowercase()
-    .required(),
-  password: passwordComplexity(complexityOptions),
-});
+const searchCitySchema = Joi.object({
+  city: Joi.string().required(),
+}).options({ abortEarly: false });
 
 module.exports = {
   loginSchema,
-  registerSchema,
+  searchCitySchema,
 };

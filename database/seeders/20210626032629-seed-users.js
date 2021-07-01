@@ -12,20 +12,6 @@ module.exports = {
           email: faker.internet.email(),
           password:
             "$2a$10$VxxcwIjckcgCME8xMQgK2OBd7oZAQMbViGlDO/UIWVv7P77FOjyF6", // Password123
-          phone_number: faker.phone.phoneNumber(),
-          image_url: faker.image.imageUrl(),
-          is_verified: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          first_name: faker.name.lastName(),
-          last_name: faker.name.firstName(),
-          email: faker.internet.email(),
-          password:
-            "$2a$10$VxxcwIjckcgCME8xMQgK2OBd7oZAQMbViGlDO/UIWVv7P77FOjyF6", // Password123
-          phone_number: faker.phone.phoneNumber(),
-          image_url: faker.image.imageUrl(),
           is_verified: false,
           createdAt: new Date(),
           updatedAt: new Date(),

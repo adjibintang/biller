@@ -1,5 +1,4 @@
-const faker = require("faker");
-("use strict");
+"use strict";
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -8,37 +7,31 @@ module.exports = {
       [
         {
           name: "Electricity",
-          image_url: faker.image.imageUrl(),
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           name: "Mobile",
-          image_url: faker.image.imageUrl(),
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           name: "Internet & TV",
-          image_url: faker.image.imageUrl(),
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           name: "Landline",
-          image_url: faker.image.imageUrl(),
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           name: "Bpjs",
-          image_url: faker.image.imageUrl(),
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           name: "PDAM",
-          image_url: faker.image.imageUrl(),
           createdAt: new Date(),
           updatedAt: new Date(),
         },

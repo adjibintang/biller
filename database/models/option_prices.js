@@ -36,15 +36,6 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
-      provider: {
-        type: DataTypes.STRING,
-      },
-      package_name: {
-        type: DataTypes.STRING,
-      },
-      description: {
-        type: DataTypes.TEXT,
-      },
     },
     {
       sequelize,

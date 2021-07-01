@@ -9,6 +9,8 @@ module.exports = {
         {
           name: faker.name.findName(),
           telephone_number: faker.phone.phoneNumber(),
+          type: "Business",
+          abonemen: 50000,
           address: faker.address.streetAddress(),
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -16,6 +18,8 @@ module.exports = {
         {
           name: faker.name.findName(),
           telephone_number: faker.phone.phoneNumber(),
+          type: "Residential",
+          abonemen: 40000,
           address: faker.address.streetAddress(),
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -23,6 +27,8 @@ module.exports = {
         {
           name: faker.name.findName(),
           telephone_number: faker.phone.phoneNumber(),
+          type: "Social",
+          abonemen: 30000,
           address: faker.address.streetAddress(),
           createdAt: new Date(),
           updatedAt: new Date(),

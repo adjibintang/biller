@@ -31,8 +31,10 @@ exports.searchRegion = async (req, res) => {
 exports.getPdamCustomerInfo = async (req, res) => {
   try {
     const accountInformationResult = await pdamService.getCustomerInfo(
-      req.params.customerNumber
+      req.body.customerNumber
     );
+
+    if (accountInformationResult === null) return res.sendStatus(204);
 
     return res.status(200).json({
       statusText: "Ok",

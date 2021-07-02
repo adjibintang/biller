@@ -34,7 +34,7 @@ module.exports = {
       usage: {
         type: Sequelize.INTEGER,
       },
-      bill: {
+      bill_fee: {
         type: Sequelize.DECIMAL,
       },
       admin_fee: {
@@ -44,6 +44,9 @@ module.exports = {
         type: Sequelize.DECIMAL,
       },
       stamp_cost: {
+        type: Sequelize.DECIMAL,
+      },
+      late_payment_fee: {
         type: Sequelize.DECIMAL,
       },
       total: {

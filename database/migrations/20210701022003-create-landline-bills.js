@@ -19,10 +19,13 @@ module.exports = {
       phone_number: {
         type: Sequelize.STRING,
       },
-      bill: {
+      bill_fee: {
         type: Sequelize.DECIMAL,
       },
       admin_fee: {
+        type: Sequelize.DECIMAL,
+      },
+      late_payment_fee: {
         type: Sequelize.DECIMAL,
       },
       total: {

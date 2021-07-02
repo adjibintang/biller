@@ -13,7 +13,7 @@ pdamRouter.get(
 );
 
 pdamRouter.get(
-  "/account/information/:customerNumber",
+  "/customer/info",
   userAuthorization,
   pdamController.getPdamCustomerInfo
 );

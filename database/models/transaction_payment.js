@@ -41,6 +41,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Transaction_payments",
+      tableName: "transaction_payments"
     }
   );
   return Transaction_payments;

@@ -20,16 +20,7 @@ exports.getTagihanAccInfo = async (req, res) => {
     res.status(200).json({
       statusText: "OK",
       message: "Success to Get Electricity Account Info",
-      data: {
-        IDPEL: accInfo.customer_number,
-        Name: accInfo.name,
-        Tarif_Daya: `R${accInfo.rates}/${accInfo.power} VA`,
-        Bulan_Tahun: accInfo.createdAt.toLocaleString('default',{month: 'long'}) + " " + accInfo.createdAt.getFullYear(), 
-        Stand_Meter: accInfo.this_month_stand_meter,
-        Bill: `Rp. 89.675,00`,
-        Admin: `Rp. 3.000,00`,
-        Total: `Rp. 92.675,00`
-        }
+      data: accInfo
       });
     }
   } catch (error) {
@@ -105,16 +96,7 @@ exports.getTokenAccInfo = async (req, res) => {
     res.status(200).json({
       statusText: "OK",
       message: "Success Get Electricity Account Info",
-      data: {
-        No_Meter: accInfo.meter_number,
-        IDPEL: accInfo.customer_number,
-        Name: accInfo.name,
-        Tarif_Daya: `R${accInfo.rates}/${accInfo.power} VA`,
-        Token: `Rp. ${price}`,
-        PPJ: `Rp. 3.704,00`,
-        Admin: `Rp. 1.500,00`,
-        Total: `Rp. 51.500,00`
-      }
+      data: accInfo
       });
     }
   } catch (error) {
@@ -125,3 +107,36 @@ exports.getTokenAccInfo = async (req, res) => {
   }
 };
 
+exports.postTagihanBill = async (req, res) => {
+  try {
+    const {idPel, payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url} = req.body; 
+    const user_id = req.user.id;
+
+    if(!idPel) {
+      res.status(400).json({
+        statusText: "Bad Request",
+        message: "Failed to Get Electricity Account Info"
+      });
+    } 
+    const accInfo = await electricityService.findTagihanBill(idPel);
+    let bankTransfer = await electricityService.createTagihanBill(user_id, payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url);
+    bankTransfer.Total = accInfo.Total;
+
+    if(accInfo === null || bankTransfer === null) {
+      res.status(204).json({
+        statusText: "No Content",
+      });
+    } else {
+      res.status(200).json({
+        statusText: "OK",
+        message: "Success to Get Electricity Account Info",
+        data: {accInfo, bankTransfer}
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      statusText: "Internal Server Error",
+      message: error.message
+    });
+  };
+};

@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Biller_bank_accounts",
+      tableName: "biller_bank_accounts"
     }
   );
   return Biller_bank_accounts;

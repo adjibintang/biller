@@ -23,7 +23,7 @@ module.exports = {
         },
         {
           user_id: 2,
-          // option_id: 3,
+          // option_id: 1,
           // date_billed: "2021-07-20",
           // due_date: "2021-07-21",
           createdAt: new Date(),

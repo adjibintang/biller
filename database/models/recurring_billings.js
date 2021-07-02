@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Recurring_billings",
+      tableName: "recurring_billings"
     }
   );
   return Recurring_billings;

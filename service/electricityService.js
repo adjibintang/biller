@@ -1,4 +1,4 @@
-const {Electricities,Pln_tagihan_bills, Bills, Recurring_billings, Transactions, Transaction_payments, Biller_bank_accounts, Bank_transfers } = require('../database/models');
+const {Electricities,pln_tagihan_bills, pln_token_bills, bills, recurring_billings, transactions, transaction_payments, biller_bank_accounts, bank_transfers } = require('../database/models');
 
 exports.getTagihanAccInfo = async(idPel) => {
   const accInfo = await Electricities.findOne({
@@ -62,7 +62,7 @@ exports.getTokenAccInfo = async(nomorMeter, price) => {
 }
 
 exports.findTagihanBill = async (idPel) => {
-  let accInfo = await Pln_tagihan_bills.findOne({
+  let accInfo = await pln_tagihan_bills.findOne({
     where: { customer_number: idPel }
   });
   accInfo = accInfo.dataValues;
@@ -72,44 +72,71 @@ exports.findTagihanBill = async (idPel) => {
     Tarif_Daya: `${accInfo.rates}/${accInfo.power}`,
     Bulan_Tahun: accInfo.tagihan_date.toLocaleString('default',{month: 'long'}) + " " + accInfo.tagihan_date.getFullYear(), 
     Stand_Meter: accInfo.this_month_stand_meter,
-    Bill: `Rp. ${accInfo.bill}`,
+    Bill: `Rp. ${accInfo.bill_fee}`,
     Admin: `Rp. ${accInfo.admin_fee}`,
+    Late_Payment_Fee: `Rp. ${accInfo.late_payment_fee}`,
     Total: `Rp. ${accInfo.total}`
   };
 
   return accInfo;
 }
 
+exports.findTokenBill = async (nomor_meter,price) => {
+  let accInfo = await pln_token_bills.findOne({
+    where: { meter_number: nomor_meter }
+  });
+  accInfo = accInfo.dataValues;
+  accInfo.PPJ = 0.074 * price;
+  accInfo.Stroom_Token = parseInt(price) - parseInt(accInfo.PPJ);
+  accInfo.Admin = 1500;
+  accInfo.Total = parseInt(price) + parseInt(accInfo.Admin);
+
+  accInfo = {
+    No_Meter: accInfo.meter_number,
+    IDPEL: accInfo.customer_number,
+    Name: accInfo.name,
+    Tarif_Daya: `${accInfo.rates}/${accInfo.power}`,
+    Stroom_Token: `Rp. ${accInfo.Stroom_Token}`,
+    Token: `Rp. ${price}`,
+    PPJ: `Rp. ${accInfo.PPJ}`,
+    Admin: `Rp. ${accInfo.Admin}`,
+    // Late_Payment_Fee: `Rp. ${accInfo.late_payment_fee}`,
+    Total: `Rp. ${accInfo.Total}`
+  };
+
+  return accInfo;
+}
+
 exports.createTagihanBill = async (userId, payment_type, period, dateBilled, bankAccName, bankAccNumber, bankName, url) => {
-  const billId = await Bills.findOne({
+  const billId = await bills.findOne({
     where: {user_id: userId}
   });
 
-  const recurringBilling = await Recurring_billings.create({
+  const recurringBilling = await recurring_billings.create({
     bill_id: billId.id,
     period: period,
     date_billed: dateBilled,
     is_delete: false
   });
 
-  const transaction = await Transactions.create({
+  const transaction = await transactions.create({
     bill_id: billId.id,
     transaction_date: new Date(),
     status: "Process",
   });
 
-  const transactionPayment = await Transaction_payments.create({
+  const transactionPayment = await transaction_payments.create({
     transaction_id: transaction.id,
     type: payment_type,
   });
 
-  const bankAccountInfo = await Biller_bank_accounts.create({
+  const bankAccountInfo = await biller_bank_accounts.create({
     account_name: bankAccName,
     account_number: bankAccNumber,
     account_bank: bankName,
   })
 
-  let bankTransfer = await Bank_transfers.create({
+  let bankTransfer = await bank_transfers.create({
     transaction_payment_id: transactionPayment.id,
     bank_destination_id: bankAccountInfo.id,
     account_name: bankAccountInfo.account_name,

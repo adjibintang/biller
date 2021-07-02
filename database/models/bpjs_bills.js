@@ -1,14 +1,14 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Bpjs_bills extends Model {
+  class bpjs_bills extends Model {
     static associate(models) {
-      this.belongsTo(models.Bills, {
+      this.belongsTo(models.bills, {
         foreignKey: "bill_id",
       });
     }
   }
-  Bpjs_bills.init(
+  bpjs_bills.init(
     {
       id: {
         allowNull: false,
@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "Bills",
+          model: "bills",
           key: "id",
         },
       },
@@ -28,14 +28,14 @@ module.exports = (sequelize, DataTypes) => {
       full_name: DataTypes.STRING,
       branch: DataTypes.STRING,
       payment_period: DataTypes.DATE,
-      bill: DataTypes.DECIMAL,
+      bill_fee: DataTypes.DECIMAL,
       admin_fee: { type: DataTypes.DECIMAL, defaultValue: 2500 },
       total: DataTypes.DECIMAL,
     },
     {
       sequelize,
-      modelName: "Bpjs_bills",
+      modelName: "bpjs_bills",
     }
   );
-  return Bpjs_bills;
+  return bpjs_bills;
 };

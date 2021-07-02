@@ -1,14 +1,14 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Biller_bank_accounts extends Model {
+  class biller_bank_accounts extends Model {
     static associate(models) {
-      this.hasMany(models.Bank_transfers, {
+      this.hasMany(models.bank_transfers, {
         foreignKey: "bank_destination_id",
       });
     }
   }
-  Biller_bank_accounts.init(
+  biller_bank_accounts.init(
     {
       id: {
         allowNull: false,
@@ -22,9 +22,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Biller_bank_accounts",
+      modelName: "biller_bank_accounts",
       tableName: "biller_bank_accounts"
     }
   );
-  return Biller_bank_accounts;
+  return biller_bank_accounts;
 };

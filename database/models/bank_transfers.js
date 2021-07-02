@@ -1,18 +1,18 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Bank_transfers extends Model {
+  class bank_transfers extends Model {
     static associate(models) {
-      this.belongsTo(models.Transaction_payments, {
+      this.belongsTo(models.transaction_payments, {
         foreignKey: "transaction_payment_id",
       });
 
-      this.belongsTo(models.Biller_bank_accounts, {
+      this.belongsTo(models.biller_bank_accounts, {
         foreignKey: "bank_destination_id",
       });
     }
   }
-  Bank_transfers.init(
+  bank_transfers.init(
     {
       id: {
         allowNull: false,
@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "Transactions",
+          model: "transactions",
           key: "id",
         },
       },
@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "Biller_bank_accounts",
+          model: "biller_bank_accounts",
           key: "id",
         },
       },
@@ -43,9 +43,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Bank_transfers",
+      modelName: "bank_transfers",
       tableName: "bank_transfers"
     }
   );
-  return Bank_transfers;
+  return bank_transfers;
 };

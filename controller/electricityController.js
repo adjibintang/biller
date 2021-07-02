@@ -140,3 +140,37 @@ exports.postTagihanBill = async (req, res) => {
     });
   };
 };
+
+exports.postTokenBill = async (req,res) => {
+  try {
+    const {nomor_meter, price, payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url} = req.body; 
+    const user_id = req.user.id;
+
+    if(!nomor_meter) {
+      res.status(400).json({
+        statusText: "Bad Request",
+        message: "Failed to Get Electricity Account Info"
+      });
+    } 
+    const accInfo = await electricityService.findTokenBill(nomor_meter, price);
+    let bankTransfer = await electricityService.createTagihanBill(user_id, payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url);
+    bankTransfer.Total = accInfo.Total;
+
+    if(accInfo === null || bankTransfer === null) {
+      res.status(204).json({
+        statusText: "No Content",
+      });
+    } else {
+      res.status(200).json({
+        statusText: "OK",
+        message: "Success to Get Electricity Account Info",
+        data: {accInfo, bankTransfer}
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      statusText: "Internal Server Error",
+      message: error.message
+    });
+  }
+}

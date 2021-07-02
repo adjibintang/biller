@@ -6,22 +6,6 @@ module.exports = {
       "bills",
       [
         {
-          user_id: 1,
-          // option_id: 1,
-          // date_billed: "2021-07-20",
-          // due_date: "2021-07-21",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          user_id: 1,
-          // option_id: 2,
-          // date_billed: "2021-07-20",
-          // due_date: "2021-07-21",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
           user_id: 2,
           // option_id: 1,
           // date_billed: "2021-07-20",
@@ -29,14 +13,30 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
-        {
-          user_id: 2,
-          // option_id: 3,
-          // date_billed: "2021-07-20",
-          // due_date: "2021-07-21",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+        // {
+        //   user_id: 1,
+        //   // option_id: 2,
+        //   // date_billed: "2021-07-20",
+        //   // due_date: "2021-07-21",
+        //   createdAt: new Date(),
+        //   updatedAt: new Date(),
+        // },
+        // {
+        //   user_id: 2,
+        //   // option_id: 1,
+        //   // date_billed: "2021-07-20",
+        //   // due_date: "2021-07-21",
+        //   createdAt: new Date(),
+        //   updatedAt: new Date(),
+        // },
+        // {
+        //   user_id: 2,
+        //   // option_id: 3,
+        //   // date_billed: "2021-07-20",
+        //   // due_date: "2021-07-21",
+        //   createdAt: new Date(),
+        //   updatedAt: new Date(),
+        // },
       ],
       {}
     );

@@ -1,7 +1,7 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Bills extends Model {
+  class bills extends Model {
     static associate(models) {
       this.belongsTo(models.Users, {
         foreignKey: "user_id",
@@ -11,44 +11,44 @@ module.exports = (sequelize, DataTypes) => {
       //   foreignKey: "option_id",
       // });
 
-      this.hasOne(models.Recurring_billings, {
+      this.hasOne(models.recurring_billings, {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.Pln_token_bills, {
+      this.hasOne(models.pln_token_bills, {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.Pln_tagihan_bills, {
+      this.hasOne(models.pln_tagihan_bills, {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.Mobile_bills, {
+      this.hasOne(models.mobile_bills, {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.Landline_bills, {
+      this.hasOne(models.landline_bills, {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.Internet_tv_bills, {
+      this.hasOne(models.internet_tv_bills, {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.Pdam_bills, {
+      this.hasOne(models.pdam_bills, {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.Bpjs_bills, {
+      this.hasOne(models.bpjs_bills, {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.Transactions, {
+      this.hasOne(models.transactions, {
         foreignKey: "bill_id",
       });
     }
   }
-  Bills.init(
+  bills.init(
     {
       id: {
         allowNull: false,
@@ -77,8 +77,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Bills",
+      modelName: "bills",
     }
   );
-  return Bills;
+  return bills;
 };

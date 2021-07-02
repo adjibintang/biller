@@ -1,18 +1,18 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Transactions extends Model {
+  class transactions extends Model {
     static associate(models) {
       this.hasOne(models.Transaction_payments, {
         foreignKey: "transaction_id",
       });
 
-      this.belongsTo(models.Bills, {
+      this.belongsTo(models.bills, {
         foreignKey: "bill_id",
       });
     }
   }
-  Transactions.init(
+  transactions.init(
     {
       id: {
         allowNull: false,
@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "Bills",
+          model: "bills",
           key: "id",
         },
       },
@@ -36,8 +36,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Transactions",
+      modelName: "transactions",
     }
   );
-  return Transactions;
+  return transactions;
 };

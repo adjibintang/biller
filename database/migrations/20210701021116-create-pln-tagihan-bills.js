@@ -37,10 +37,13 @@ module.exports = {
       this_month_stand_meter: {
         type: Sequelize.INTEGER,
       },
-      bill: {
+      bill_fee: {
         type: Sequelize.DECIMAL,
       },
       admin_fee: {
+        type: Sequelize.DECIMAL,
+      },
+      late_payment_fee: {
         type: Sequelize.DECIMAL,
       },
       total: {

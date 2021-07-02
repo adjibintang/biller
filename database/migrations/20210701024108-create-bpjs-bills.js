@@ -28,7 +28,7 @@ module.exports = {
       payment_period: {
         type: Sequelize.DATE,
       },
-      bill: {
+      bill_fee: {
         type: Sequelize.DECIMAL,
       },
       admin_fee: {

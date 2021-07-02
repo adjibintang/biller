@@ -28,7 +28,7 @@ module.exports = {
       description: {
         type: Sequelize.TEXT,
       },
-      bill: {
+      bill_fee: {
         type: Sequelize.DECIMAL,
       },
       admin_fee: {

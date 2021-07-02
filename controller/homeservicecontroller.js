@@ -7,7 +7,7 @@ homeServiveController.getAllService = async (req, res) => {
 
     const respayload = {
       statusText: "Ok",
-      message: "Login Success",
+      message: "Get Home Success",
       statusCode: 200,
       result: getservice,
     };
@@ -15,7 +15,7 @@ homeServiveController.getAllService = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       statusText: "Internal Server Error",
-      message: "Error",
+      message: "Error Get Home",
       result: error,
     });
   }

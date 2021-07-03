@@ -62,27 +62,76 @@ exports.getInternetAccountInfo = async (req, res) => {
   }
 };
 
-const {
-  internet_tvs,
-  bills,
-  internet_tv_bills,
-} = require("../database/models");
-
 exports.createInternetTVBill = async (req, res) => {
   try {
-    const createBill = await bills.create({
-      user_id: req.user.dataValues.id,
-    });
+    const bill = await internetTVService.createBill(req.user.dataValues.id);
 
-    const createInternetTVBill = await internet_tv_bills.create({
-      bill_id: createBill.id,
-      customer_number: req.body.customer_number,
-      provider: req.body.provider,
-      bill_fee: req.body.abonemen,
-      late_payment_fee: 0,
-      total: parseInt(req.body.abonemen) + 2500 + 0,
-    });
-    res.send({ createInternetTVBill });
+    const account = await internetTVService.getAccountInfo(
+      req.body.customer_number
+    );
+
+    const { customer_number, provider, abonemen } = account;
+
+    const internetTVBill = await internetTVService.createInternetTVBill(
+      bill.id,
+      customer_number,
+      provider,
+      abonemen
+    );
+
+    const transaction = await internetTVService.createTransaction(bill.id);
+
+    const { type, account_name, account_number, account_bank } =
+      req.body.payment;
+
+    const transactionPayment = await internetTVService.createTransactionPayment(
+      transaction.id,
+      type
+    );
+
+    if (transactionPayment.type === "Bank Transfer") {
+      let bankAccountInfo = await internetTVService.findBankAccountInfo(
+        account_number
+      );
+
+      if (!bankAccountInfo) {
+        bankAccountInfo = await internetTVService.createBankAccountInfo(
+          account_name,
+          account_number,
+          account_bank
+        );
+      }
+
+      const bankTransfer = await internetTVService.createBankTransfer(
+        transactionPayment.id,
+        bankAccountInfo.id,
+        account_name,
+        account_number,
+        account_bank
+      );
+    }
+
+    let recurringBilling;
+
+    if (req.body.recurring_billing.status === true) {
+      recurringBilling = await internetTVService.findRecurringBilling(bill.id);
+
+      if (!recurringBilling) {
+        recurringBilling = await internetTVService.createRecurringBilling(
+          bill.id,
+          req.body.recurring_billing.period,
+          req.body.recurring_billing.date
+        );
+      } else {
+        recurringBilling = await internetTVService.updateRecurringBilling(
+          bill.id,
+          req.body.recurring_billing.period,
+          req.body.recurring_billing.date
+        );
+      }
+    }
+
+    res.send({ account, internetTVBill, recurringBilling });
   } catch (error) {
     console.log(error);
     res.status(500).send({

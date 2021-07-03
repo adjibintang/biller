@@ -133,6 +133,8 @@ exports.createInternetTVBill = async (req, res) => {
         account_number: bankAccountInfo.account_number,
       },
       bill_details: {
+        no_customer: account.customer_number,
+        name: account.name,
         period: `${moment(recurringBilling.due_date).format("M")}/${moment(
           recurringBilling.due_date
         ).format("YYYY")}`,

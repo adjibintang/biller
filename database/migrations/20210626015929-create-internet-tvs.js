@@ -24,6 +24,9 @@ module.exports = {
       address: {
         type: Sequelize.STRING,
       },
+      period: {
+        type: Sequelize.DATE,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

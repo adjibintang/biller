@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DECIMAL,
       },
       address: DataTypes.STRING,
+      period: DataTypes.DATE,
     },
     {
       sequelize,

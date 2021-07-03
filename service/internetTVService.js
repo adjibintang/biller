@@ -13,7 +13,11 @@ exports.getOptions = async (service_id) => {
   let findOptions = await Options.findAll({ where: { service_id } });
 
   for (let i = 0; i < findOptions.length; i++) {
-    findOptions[i] = { id: findOptions[i].id, option: findOptions[i].name };
+    findOptions[i] = {
+      id: findOptions[i].id,
+      option: findOptions[i].name,
+      image: findOptions[i].image_url,
+    };
   }
 
   return findOptions;

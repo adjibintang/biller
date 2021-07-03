@@ -12,6 +12,7 @@ module.exports = {
           provider: "Indihome",
           abonemen: 300000,
           address: faker.address.streetAddress(),
+          period: new Date(2021, 06, 20),
           createdAt: new Date(),
           updatedAt: new Date(),
         },

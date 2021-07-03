@@ -40,15 +40,25 @@ exports.createInternetTVBill = async (
   bill_id,
   customer_number,
   provider,
-  bill_fee
+  bill_fee,
+  latePaymentcheck
 ) => {
+  let late_payment;
+  if (latePaymentcheck < 1) {
+    late_payment = 0;
+  } else if (latePaymentcheck == 1) {
+    late_payment = parseInt(bill_fee) * 0.05;
+  } else if (latePaymentcheck == 2) {
+    late_payment = parseInt(bill_fee) * 0.1;
+  }
+
   const internetTVBill = await internet_tv_bills.create({
     bill_id,
     customer_number,
     provider,
     bill_fee,
-    late_payment_fee: 0,
-    total: parseInt(bill_fee) + 2500 + 0,
+    late_payment_fee: late_payment,
+    total: parseInt(bill_fee) + 2500 + late_payment,
   });
 
   return internetTVBill;
@@ -159,4 +169,20 @@ exports.updateRecurringBilling = async (bill_id, period, date_billed) => {
   );
 
   return recurringBilling[1];
+};
+
+exports.latePaymentcheck = async (lastPayment) => {
+  function monthDiff(d1, d2) {
+    var months;
+    months = (d2.getFullYear() - d1.getFullYear()) * 12;
+    months -= d1.getMonth() + 1;
+    months += d2.getMonth();
+    // edit: increment months if d2 comes later in its month than d1 in its month
+    if (d2.getDate() >= d1.getDate()) months++;
+    // end edit
+    return months <= 0 ? 0 : months;
+  }
+  const gap = await monthDiff(lastPayment, new Date());
+
+  return gap;
 };

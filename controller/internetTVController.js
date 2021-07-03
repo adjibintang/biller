@@ -47,6 +47,7 @@ exports.getInternetAccountInfo = async (req, res) => {
           name: account.name,
           customer_number: account.customer_number,
           provider: account.provider,
+          abonemen: account.abonemen,
           address: account.address,
         },
       });
@@ -62,22 +63,28 @@ exports.getInternetAccountInfo = async (req, res) => {
 };
 
 const {
-  Internet_tvs,
-  Bills,
-  Internet_tv_bills,
+  internet_tvs,
+  bills,
+  internet_tv_bills,
 } = require("../database/models");
 
 exports.createInternetTVBill = async (req, res) => {
   try {
-    const { option_id } = req.body;
-    console.log(option_id);
-    const createBill = await Bills.create({
-      user_id: req.user.id,
-      //   option_id: 1,
+    const createBill = await bills.create({
+      user_id: req.user.dataValues.id,
     });
-    res.send("You're in");
+
+    const createInternetTVBill = await internet_tv_bills.create({
+      bill_id: createBill.id,
+      customer_number: req.body.customer_number,
+      provider: req.body.provider,
+      bill_fee: req.body.abonemen,
+      late_payment_fee: 0,
+      total: parseInt(req.body.abonemen) + 2500 + 0,
+    });
+    res.send({ createInternetTVBill });
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     res.status(500).send({
       statusCode: 500,
       statusText: "Internal Server Error",

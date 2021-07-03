@@ -67,9 +67,9 @@ exports.createTransactionPayment = async (transaction_id, type) => {
   return transactionPayment;
 };
 
-exports.findBankAccountInfo = async (account_number) => {
+exports.findBankAccountInfo = async (account_bank) => {
   const bankAccountInfo = await biller_bank_accounts.findOne({
-    where: { account_number },
+    where: { account_bank },
   });
 
   return bankAccountInfo;

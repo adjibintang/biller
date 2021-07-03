@@ -1,4 +1,5 @@
 const internetTVService = require("../service/internetTVService");
+const moment = require("moment");
 
 exports.getInternetTVOptions = async (req, res) => {
   try {
@@ -89,18 +90,11 @@ exports.createInternetTVBill = async (req, res) => {
       type
     );
 
+    let bankAccountInfo;
     if (transactionPayment.type === "Bank Transfer") {
-      let bankAccountInfo = await internetTVService.findBankAccountInfo(
-        account_number
+      bankAccountInfo = await internetTVService.findBankAccountInfo(
+        account_bank
       );
-
-      if (!bankAccountInfo) {
-        bankAccountInfo = await internetTVService.createBankAccountInfo(
-          account_name,
-          account_number,
-          account_bank
-        );
-      }
 
       const bankTransfer = await internetTVService.createBankTransfer(
         transactionPayment.id,
@@ -131,7 +125,23 @@ exports.createInternetTVBill = async (req, res) => {
       }
     }
 
-    res.send({ account, internetTVBill, recurringBilling });
+    res.send({
+      payment_details: {
+        total: internetTVBill.total,
+        bank: bankAccountInfo.account_bank,
+        account_name: bankAccountInfo.account_name,
+        account_number: bankAccountInfo.account_number,
+      },
+      bill_details: {
+        period: `${moment(recurringBilling.due_date).format("M")}/${moment(
+          recurringBilling.due_date
+        ).format("YYYY")}`,
+        provider: internetTVBill.provider,
+        bill: internetTVBill.bill_fee,
+        admin: internetTVBill.admin_fee,
+        total: internetTVBill.total,
+      },
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send({

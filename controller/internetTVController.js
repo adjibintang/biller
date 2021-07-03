@@ -33,6 +33,7 @@ exports.getInternetAccountInfo = async (req, res) => {
     const account = await internetTVService.getAccountInfo(
       req.body.customer_number
     );
+    console.log(account);
 
     if (!account) {
       return res.status(204).send({
@@ -50,6 +51,7 @@ exports.getInternetAccountInfo = async (req, res) => {
           provider: account.provider,
           abonemen: account.abonemen,
           address: account.address,
+          admin_fee: 2500,
         },
       });
     }

@@ -9,8 +9,8 @@ const port = process.env.PORT || 3000;
 const authRoute = require("./routes/authenticationRoute");
 // const internetTV = require("./routes/internetTvRoute");
 const electricityRoutes = require("./routes/electicityRoutes");
-const landlineRoutes = require("./routes/landlineRoutes");
-const pdamRoute = require("./routes/pdamRoute");
+// const landlineRoutes = require("./routes/landlineRoutes");
+// const pdamRoute = require("./routes/pdamRoute");
 
 server.use(logger("dev"));
 server.use(cors());
@@ -24,8 +24,8 @@ server.use(
 server.use("/api/biller", authRoute);
 // server.use("/api/biller/internet_TV", internetTV);
 server.use("/api/biller/electricity/bill", electricityRoutes);
-server.use("/api/biller/landline/bill", landlineRoutes);
-server.use("/api/biller/pdam/bill", pdamRoute);
+// server.use("/api/biller/landline/bill", landlineRoutes);
+// server.use("/api/biller/pdam/bill", pdamRoute);
 
 server.all("*", (req, res) => {
   res.status(404).json({

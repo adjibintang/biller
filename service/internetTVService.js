@@ -43,6 +43,8 @@ exports.createInternetTVBill = async (
   bill_fee,
   latePaymentcheck
 ) => {
+  bill_fee = bill_fee * (latePaymentcheck + 1);
+
   let late_payment;
   if (latePaymentcheck < 1) {
     late_payment = 0;

@@ -3,6 +3,7 @@ const electricityService = require('../service/electricityService');
 exports.getTagihanAccInfo = async (req, res) => {
   try {
     const idPel = req.body.idpel
+    const user_id = req.user.id
 
     if(!idPel) {
       res.status(400).json({
@@ -10,7 +11,13 @@ exports.getTagihanAccInfo = async (req, res) => {
         message: "Failed to Get Electricity Account Info"
       });
     } 
-    const accInfo = await electricityService.getTagihanAccInfo(idPel);
+    const {data: accInfo, error} = await electricityService.getTagihanAccInfo(idPel,user_id);
+    if(error !== null){
+      res.status(500).json({
+        statusText: "Internal Server Error",
+        message: error
+      });
+    }
 
     if(accInfo === null) {
       res.status(204).json({
@@ -26,7 +33,7 @@ exports.getTagihanAccInfo = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       statusText: "Internal Server Error",
-      message: "Failed to Get Electricity Account Info"
+      message: error.message
     });
   };
 };
@@ -42,6 +49,7 @@ exports.getElectricityOptions = async (req, res) => {
       data: options
     });
   } catch (error) {
+    console.log("🦄 ~ file: electricityController.js ~ line 54 ~ exports.getElectricityOptions= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: "Failed to Get Electricity Options"
@@ -67,6 +75,7 @@ exports.getTokenPricelist = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log("🦄 ~ file: electricityController.js ~ line 80 ~ exports.getTokenPricelist= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: "Failed to Get Token Pricelist"
@@ -85,6 +94,12 @@ exports.getTokenAccInfo = async (req, res) => {
         message: "Number not registered",
       });
     } 
+    if(!price) {
+      res.status(400).json({
+        statusText: "Bad Request",
+        message: "Must input price",
+      });
+    }
 
     const accInfo = await electricityService.getTokenAccInfo(nomorMeter, price);
 
@@ -109,17 +124,32 @@ exports.getTokenAccInfo = async (req, res) => {
 
 exports.postTagihanBill = async (req, res) => {
   try {
-    const {idPel, payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url} = req.body; 
+    const {
+      IDPEL, Name, Tarif_Daya, Bulan_Tahun, Stand_Meter, Bill, Admin, Late_Payment_Fee, Total,
+      payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url
+    } = req.body; 
     const user_id = req.user.id;
 
-    if(!idPel) {
+    if(!IDPEL) {
       res.status(400).json({
         statusText: "Bad Request",
         message: "Failed to Get Electricity Account Info"
       });
     } 
-    const accInfo = await electricityService.findTagihanBill(idPel);
-    let bankTransfer = await electricityService.createTagihanBill(user_id, payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url);
+
+    if(!bankAccNumber || !bankAccName) {
+      res.status(400).json({
+        statusText: "Bad Request",
+        message: "Failed to Get Electricity Account Info"
+      });
+    }
+
+    let {data: accInfo, bankTransfer} = await electricityService.createTagihanBill(
+      user_id,
+      payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url,
+      IDPEL, Name, Tarif_Daya, Bulan_Tahun, Stand_Meter, Bill, Admin, Late_Payment_Fee, Total
+      );
+
     bankTransfer.Total = accInfo.Total;
 
     if(accInfo === null || bankTransfer === null) {
@@ -143,17 +173,32 @@ exports.postTagihanBill = async (req, res) => {
 
 exports.postTokenBill = async (req,res) => {
   try {
-    const {nomor_meter, price, payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url} = req.body; 
+    const {
+      payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url,
+      No_Meter, IDPEL, Name, Tarif_Daya, Token, PPJ, Admin, Total
+    } = req.body; 
     const user_id = req.user.id;
 
-    if(!nomor_meter) {
+    if(!No_Meter) {
       res.status(400).json({
         statusText: "Bad Request",
         message: "Failed to Get Electricity Account Info"
       });
     } 
-    const accInfo = await electricityService.findTokenBill(nomor_meter, price);
-    let bankTransfer = await electricityService.createTagihanBill(user_id, payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url);
+
+    if(!bankAccNumber || !bankAccName) {
+      res.status(400).json({
+        statusText: "Bad Request",
+        message: "Failed to Get Electricity Account Info"
+      });
+    }
+
+    let {data: accInfo, bankTransfer} = await electricityService.createTokenBill(
+      user_id,
+      payment_type, period, date_billed, bankAccName, bankAccNumber, bankName, url,
+      No_Meter, IDPEL, Name, Tarif_Daya, Token, PPJ, Admin, Total
+      );
+
     bankTransfer.Total = accInfo.Total;
 
     if(accInfo === null || bankTransfer === null) {
@@ -172,5 +217,5 @@ exports.postTokenBill = async (req,res) => {
       statusText: "Internal Server Error",
       message: error.message
     });
-  }
-}
+  };
+};

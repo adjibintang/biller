@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       last_month_stand_meter: DataTypes.INTEGER,
       this_month_stand_meter: DataTypes.INTEGER,
       address: DataTypes.STRING,
+      period: DataTypes.DATE
     },
     {
       sequelize,

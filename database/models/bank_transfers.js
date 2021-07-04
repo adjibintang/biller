@@ -37,7 +37,9 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       account_name: DataTypes.STRING,
-      account_number: DataTypes.STRING,
+      account_number: {
+        type: DataTypes.STRING,
+        allowNull: false},
       account_bank: DataTypes.STRING,
       receipt_url: DataTypes.STRING,
     },

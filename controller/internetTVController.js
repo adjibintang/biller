@@ -1,5 +1,6 @@
 const internetTVService = require("../service/internetTVService");
 const moment = require("moment");
+const { DATE } = require("sequelize");
 
 exports.getInternetTVOptions = async (req, res) => {
   try {
@@ -40,21 +41,13 @@ exports.getInternetAccountInfo = async (req, res) => {
         statusText: "No Content",
       });
     } else {
-      let lastPaymentDeadline;
-      const now = new Date();
-      if (account.provider === "Indihome") {
-        lastPaymentDeadline = new Date(
-          now.getFullYear(),
-          now.getMonth() - 1,
-          20
-        );
-      } else {
-        lastPaymentDeadline = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          account.period.getDate()
-        );
-      }
+      const payment_due = account.payment_due;
+      const lastPaymentDeadline = new DATE(
+        account.payment_due.getFullYear(),
+        account.payment_due.getMonth(),
+        account.payment_due.getDate()
+      );
+
       if (account.period - lastPaymentDeadline < 0) {
         return res.status(200).send({
           statusCode: 200,

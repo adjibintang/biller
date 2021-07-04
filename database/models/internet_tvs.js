@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       address: DataTypes.STRING,
       period: DataTypes.DATE,
+      payment_due: DataTypes.DATE,
     },
     {
       sequelize,

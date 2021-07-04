@@ -27,6 +27,9 @@ module.exports = {
       period: {
         type: Sequelize.DATE,
       },
+      payment_due: {
+        type: Sequelize.DATE,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

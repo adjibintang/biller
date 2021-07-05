@@ -27,17 +27,28 @@ exports.uploadFile = async (req, res) => {
         });
   
         blobWriter.end(req.file.buffer);
-        }
-
-    const result = await bank_transfers.save({
-      receipt_url: imageURL
-    });
-
-    res.send({
-      status: 200,
-      data: result
-    });
+      }
     
+    let bank_transfers_details = await bank_transfers.findOne({
+      where: {transaction_payment_id: req.body.payment_transaction_id}
+    });
+
+    if(!bank_transfers_details){
+      res.status(400).json({
+        statusText: "Bad Request",
+        message: "Failed",
+      });
+    }
+
+    bank_transfers_details = bank_transfers_details.dataValues;
+    bank_transfers_details.receipt_url = imageURL;
+    const updateBankTransfer = await bank_transfers.update(bank_transfers_details,
+      {where: {transaction_payment_id: req.body.payment_transaction_id} });
+
+    res.status(200).json({
+      statusText: "OK",
+      message: "Success",
+    });
   } catch (error) {
     res.status(500).json({
       statusText: "Internal Server Error",

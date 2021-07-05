@@ -188,3 +188,19 @@ exports.latePaymentcheck = async (lastPayment) => {
 
   return gap;
 };
+
+exports.updatePeriod = async (provider, payment_due) => {
+  if (provider === "Indihome") {
+    const now = new Date();
+    const updateInternetTV = await Internet_tvs.update({
+      period: now,
+      payment_due: new Date(now.getFullYear(), now.getMonth() + 1, 20),
+    });
+  } else {
+    const now = new Date();
+    const updateInternetTV = await Internet_tvs.update({
+      period: now,
+      payment_due: moment(payment_due).add(30, "days"),
+    });
+  }
+};

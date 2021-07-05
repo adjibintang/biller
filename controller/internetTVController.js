@@ -1,6 +1,5 @@
 const internetTVService = require("../service/internetTVService");
 const moment = require("moment");
-const { DATE } = require("sequelize");
 
 exports.getInternetTVOptions = async (req, res) => {
   try {
@@ -41,7 +40,7 @@ exports.getInternetAccountInfo = async (req, res) => {
         statusText: "No Content",
       });
     } else {
-      const lastPaymentDeadline = new DATE(
+      const lastPaymentDeadline = new Date(
         account.payment_due.getFullYear(),
         account.payment_due.getMonth(),
         account.payment_due.getDate()
@@ -83,13 +82,13 @@ exports.createInternetTVBill = async (req, res) => {
       req.body.customer_number
     );
 
-    const lastPaymentDeadline = new DATE(
+    const lastPaymentDeadline = new Date(
       account.payment_due.getFullYear(),
-      account.payment_due.getMonth(),
+      account.payment_due.getMonth() - 1,
       account.payment_due.getDate()
     );
 
-    if (account.period - lastPaymentDeadline < 0) {
+    if (account.period - account.payment_due < 0) {
       const checklatePayment = await internetTVService.latePaymentcheck(
         account.period
       );
@@ -158,6 +157,11 @@ exports.createInternetTVBill = async (req, res) => {
             );
           }
         }
+
+        const updatePeriodAndPaymentDue = await internetTVService.updatePeriod(
+          account.provider,
+          account.payment_due
+        );
 
         res.send({
           payment_details: {

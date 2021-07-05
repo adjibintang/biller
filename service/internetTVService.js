@@ -9,6 +9,8 @@ const {
   bank_transfers,
 } = require("../database/models");
 
+const { Op } = require("sequelize");
+
 exports.getOptions = async (service_id) => {
   let findOptions = await Options.findAll({ where: { service_id } });
 
@@ -43,8 +45,6 @@ exports.createInternetTVBill = async (
   bill_fee,
   latePaymentcheck
 ) => {
-  bill_fee = bill_fee * (latePaymentcheck + 1);
-
   let late_payment;
   if (latePaymentcheck < 1) {
     late_payment = 0;
@@ -62,6 +62,30 @@ exports.createInternetTVBill = async (
     late_payment_fee: late_payment,
     total: parseInt(bill_fee) + 2500 + late_payment,
   });
+
+  if (latePaymentcheck >= 1) {
+    const internetTVBill2 = await internet_tv_bills.create({
+      bill_id,
+      customer_number,
+      provider,
+      bill_fee,
+      late_payment_fee: late_payment,
+      total: parseInt(bill_fee) + 2500 + late_payment,
+    });
+  } else if (latePaymentcheck == 2) {
+    const internetTVBill3 = await internet_tv_bills.create({
+      bill_id,
+      customer_number,
+      provider,
+      bill_fee,
+      late_payment_fee: late_payment,
+      total: parseInt(bill_fee) + 2500 + late_payment,
+    });
+  }
+
+  // const findAllInternetTVBill = await internet_tv_bills.findAll({
+  //   where: { [Op.and]: [{ bill_id }, { customer_number }] },
+  // });
 
   return internetTVBill;
 };
@@ -91,33 +115,13 @@ exports.findBankAccountInfo = async (account_bank) => {
   return bankAccountInfo;
 };
 
-exports.createBankAccountInfo = async (
-  account_name,
-  account_number,
-  account_bank
-) => {
-  const newBankAccountInfo = await biller_bank_accounts.create({
-    account_name,
-    account_number,
-    account_bank,
-  });
-
-  return newBankAccountInfo;
-};
-
 exports.createBankTransfer = async (
   transaction_payment_id,
-  bank_destination_id,
-  account_name,
-  account_number,
-  account_bank
+  bank_destination_id
 ) => {
   const bankTransfer = await bank_transfers.create({
     transaction_payment_id,
     bank_destination_id,
-    account_name,
-    account_number,
-    account_bank,
   });
 
   return bankTransfer;
@@ -189,18 +193,24 @@ exports.latePaymentcheck = async (lastPayment) => {
   return gap;
 };
 
-exports.updatePeriod = async (provider, payment_due) => {
-  if (provider === "Indihome") {
-    const now = new Date();
-    const updateInternetTV = await Internet_tvs.update({
-      period: now,
-      payment_due: new Date(now.getFullYear(), now.getMonth() + 1, 20),
-    });
-  } else {
-    const now = new Date();
-    const updateInternetTV = await Internet_tvs.update({
-      period: now,
-      payment_due: moment(payment_due).add(30, "days"),
-    });
-  }
-};
+// exports.updatePeriod = async (bill_id, provider, payment_due) => {
+//   if (provider === "Indihome") {
+//     const now = new Date();
+//     const updateInternetTV = await Internet_tvs.update(
+//       {
+//         period: now,
+//         payment_due: new Date(now.getFullYear(), now.getMonth() + 1, 20),
+//       },
+//       { where: { bill_id }, returning: true, plain: true }
+//     );
+//   } else {
+//     const now = new Date();
+//     const updateInternetTV = await Internet_tvs.update(
+//       {
+//         period: now,
+//         payment_due: moment(payment_due).add(30, "days"),
+//       },
+//       { where: { bill_id }, returning: true, plain: true }
+//     );
+//   }
+// };

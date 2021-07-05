@@ -59,7 +59,13 @@ exports.getInternetAccountInfo = async (req, res) => {
               parseInt(account.abonemen)
             )},00`,
             address: account.address,
+            bill: `Rp ${new Intl.NumberFormat("id").format(
+              parseInt(account.bill_fee)
+            )},00`,
             admin_fee: "Rp 2.500,00",
+            total: `Rp ${new Intl.NumberFormat("id").format(
+              parseInt(account.bill_fee) + 2500
+            )},00`,
           },
         });
       } else {
@@ -136,6 +142,16 @@ exports.createInternetTVBill = async (req, res) => {
           );
         }
 
+        // const updatePeriodAndPaymentDue = await internetTVService.updatePeriod(
+        //   bill.id,
+        //   account.provider,
+        //   account.payment_due
+        // );
+
+        // const updatedAccount = await internetTVService.getAccountInfo(
+        //   req.body.customer_number
+        // );
+
         let recurringBilling;
 
         if (req.body.recurring_billing.status === true) {
@@ -157,11 +173,6 @@ exports.createInternetTVBill = async (req, res) => {
             );
           }
         }
-
-        const updatePeriodAndPaymentDue = await internetTVService.updatePeriod(
-          account.provider,
-          account.payment_due
-        );
 
         res.send({
           payment_details: {
@@ -190,7 +201,10 @@ exports.createInternetTVBill = async (req, res) => {
               parseInt(internetTVBill.late_payment_fee)
             )},00`,
             total: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.total)
+              parseInt(internetTVBill.bill_fee) * (checklatePayment + 1) +
+                parseInt(internetTVBill.late_payment_fee) *
+                  (checklatePayment + 1) +
+                parseInt(internetTVBill.admin_fee)
             )},00`,
           },
         });

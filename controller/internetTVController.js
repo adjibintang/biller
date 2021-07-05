@@ -163,13 +163,13 @@ exports.createInternetTVBill = async (req, res) => {
             recurringBilling = await internetTVService.createRecurringBilling(
               bill.id,
               req.body.recurring_billing.period,
-              req.body.recurring_billing.date
+              account.payment_due.getDate()
             );
           } else {
             recurringBilling = await internetTVService.updateRecurringBilling(
               bill.id,
               req.body.recurring_billing.period,
-              req.body.recurring_billing.date
+              account.payment_due.getDate()
             );
           }
         }

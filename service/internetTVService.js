@@ -137,38 +137,38 @@ exports.findRecurringBilling = async (bill_id) => {
 
 const moment = require("moment");
 
-exports.createRecurringBilling = async (bill_id, period, date_billed) => {
+exports.createRecurringBilling = async (bill_id, period, payment_due) => {
+  const now = new Date();
+
+  const date_billed = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    now.getDate()
+  );
+
+  const due_date = new Date(now.getFullYear(), now.getMonth() + 1, payment_due);
+
   const newRecurringBilling = await recurring_billings.create({
     bill_id,
     period,
     date_billed,
+    due_date,
     is_delete: false,
   });
-  let due_date;
-  if (period === "Week") {
-    due_date = moment(date_billed).add(7, "days");
-  } else if (period === "Month") {
-    due_date = moment(date_billed).add(30, "days");
-  } else if (period === "Year") {
-    due_date = moment(date_billed).add(365, "days");
-  }
-  const recurringBilling = await recurring_billings.update(
-    { due_date },
-    { where: { bill_id }, returning: true, plain: true }
-  );
 
-  return recurringBilling[1];
+  return newRecurringBilling;
 };
 
-exports.updateRecurringBilling = async (bill_id, period, date_billed) => {
-  let due_date;
-  if (period === "Week") {
-    due_date = moment(date_billed).add(7, "days");
-  } else if (period === "Month") {
-    due_date = moment(date_billed).add(30, "days");
-  } else if (period === "Year") {
-    due_date = moment(date_billed).add(365, "days");
-  }
+exports.updateRecurringBilling = async (bill_id, period, payment_due) => {
+  const now = new Date();
+
+  const date_billed = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    now.getDate()
+  );
+
+  const due_date = new Date(now.getFullYear(), now.getMonth() + 1, payment_due);
   const recurringBilling = await recurring_billings.update(
     { period, due_date, date_billed },
     { where: { bill_id }, returning: true, plain: true }
@@ -193,24 +193,24 @@ exports.latePaymentcheck = async (lastPayment) => {
   return gap;
 };
 
-// exports.updatePeriod = async (bill_id, provider, payment_due) => {
-//   if (provider === "Indihome") {
-//     const now = new Date();
-//     const updateInternetTV = await Internet_tvs.update(
-//       {
-//         period: now,
-//         payment_due: new Date(now.getFullYear(), now.getMonth() + 1, 20),
-//       },
-//       { where: { bill_id }, returning: true, plain: true }
-//     );
-//   } else {
-//     const now = new Date();
-//     const updateInternetTV = await Internet_tvs.update(
-//       {
-//         period: now,
-//         payment_due: moment(payment_due).add(30, "days"),
-//       },
-//       { where: { bill_id }, returning: true, plain: true }
-//     );
-//   }
-// };
+exports.updatePeriod = async (bill_id, provider, payment_due) => {
+  if (provider === "Indihome") {
+    const now = new Date();
+    const updateInternetTV = await Internet_tvs.update(
+      {
+        period: now,
+        payment_due: new Date(now.getFullYear(), now.getMonth() + 1, 20),
+      },
+      { where: { bill_id }, returning: true, plain: true }
+    );
+  } else {
+    const now = new Date();
+    const updateInternetTV = await Internet_tvs.update(
+      {
+        period: now,
+        payment_due: moment(payment_due).add(30, "days"),
+      },
+      { where: { bill_id }, returning: true, plain: true }
+    );
+  }
+};

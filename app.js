@@ -6,8 +6,9 @@ const logger = require("morgan");
 const server = express();
 const port = process.env.PORT || 3000;
 
-const electricityRoutes = require("./routes/electicityRoutes");
-const landlineRoutes = require("./routes/landlineRoutes");
+// const electricityRoutes = require("./routes/electicityRoutes");
+// const landlineRoutes = require("./routes/landlineRoutes");
+const uploadFileRoute = require("./routes/uploadFileRoutes")
 
 server.use(logger("dev"));
 server.use(cors());
@@ -22,8 +23,9 @@ server.get("/", (req, res) => {
   res.send("Biller App");
 });
 
-server.use("/api/biller/electricity/bill", electricityRoutes);
-server.use("/api/biller/landline/bill", landlineRoutes);
+// server.use("/api/biller/electricity/bill", electricityRoutes);
+// server.use("/api/biller/landline/bill", landlineRoutes);
+server.use("/api/biller", uploadFileRoute);
 
 server.all("*", (req, res) => {
   res.status(404).json({

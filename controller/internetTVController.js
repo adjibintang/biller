@@ -42,7 +42,7 @@ exports.getInternetAccountInfo = async (req, res) => {
     } else {
       const lastPaymentDeadline = new Date(
         account.payment_due.getFullYear(),
-        account.payment_due.getMonth(),
+        account.payment_due.getMonth() - 1,
         account.payment_due.getDate()
       );
 

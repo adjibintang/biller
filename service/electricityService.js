@@ -1,11 +1,11 @@
 const faker = require('faker');
+const moment = require('moment');
 const {Electricities,pln_tagihan_bills, pln_token_bills, bills, recurring_billings, transactions, transaction_payments, biller_bank_accounts, bank_transfers, Options, Option_prices, Prices } = require('../database/models');
 
 exports.getTagihanAccInfo = async(idPel, userId) => {
   let accInfo = await Electricities.findOne({
   where: {customer_number: idPel}
   });
-  let error = null;
   accInfo = accInfo.dataValues;
 
   // cek ada tunggakan atau ga
@@ -25,12 +25,6 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
       latePaymentFee = 10000;
     } 
   };
-
-  // cek apakah user dalam rentang waktu pembayaran atau tidak
-  const now = new Date().getDate();
-  if(now < 4 || now > 20){
-    error = "User tidak sedang dalam rentang waktu pembayaran";
-  }
 
   const kwH = accInfo.this_month_stand_meter - accInfo.last_month_stand_meter;
   const bill = kwH * accInfo.cost_per_kwh;
@@ -52,29 +46,23 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
     Total: `Rp. ${new Intl.NumberFormat("id").format(total)},00`
   };
 
-  return {
-    data: accInfo,
-    error
-  };
+  return accInfo;
 };
 
 exports.getElectricityOptions = async(serviceId) => {
   const electricityOptions = await Options.findAll({
     where: {service_id: serviceId},
-    attributes: ['id', 'name']
+    attributes: ['id', 'name', 'image_url']
   });
   return electricityOptions;
 };
 
 exports.getTokenPricelist = async(option_id) => {
   const tokenPricelist = await Option_prices.findAll({
-    include: Prices,
-    where: {option_id: option_id}
+    include: { model: Prices, attributes: ["id", "price"] },
+    where: {option_id: option_id},
   });
   const prices = tokenPricelist.map((x) => x.dataValues.Price);
-  for (let i= 0; i < prices.length; i++) {
-    prices[i] = { id: prices[i].id, price: prices[i].price};
-    };
 
   return prices;
 };
@@ -102,9 +90,18 @@ exports.getTokenAccInfo = async(nomorMeter, price) => {
   return accInfo;
 }
 
+exports.checkRangePaymentDate = async() => {
+  let error = null;
+  const now = new Date().getDate();
+  if(now > 20){
+    error = "User tidak sedang dalam rentang waktu pembayaran";
+  }
+  return error;
+}
+
 exports.createTagihanBill = async (
   userId,
-  payment_type, period, dateBilled, bankAccName, bankAccNumber, bankName, url,
+  payment_type, period, dateBilled, bank_destination_id,
   IDPEL, Name, Tarif_Daya, Bulan_Tahun, Stand_Meter, Bill, Admin, Late_Payment_Fee, Total
   ) => {
   const bill = await bills.create({
@@ -138,10 +135,19 @@ exports.createTagihanBill = async (
     Total: `Rp. ${new Intl.NumberFormat("id").format(Total)},00`
   };
 
+  // cek apakah sudah ada recurring billing. pasti ga ada sih, kan bill.id nya baru terus.
+  const checkRecurring = await recurring_billings.findOne({
+    where: {bill_id: bill.id}
+  });
+
+  const date_billed = moment(dateBilled).add(1, "M").calendar();
+  const due_date = new Date().setDate(20);
+
   const recurringBilling = await recurring_billings.create({
     bill_id: bill.id,
     period: period,
-    date_billed: dateBilled,
+    date_billed,
+    due_date,
     is_delete: false
   });
 
@@ -156,51 +162,35 @@ exports.createTagihanBill = async (
     type: payment_type,
   });
 
-  // cek apakah user sudah punya bank account atau belum
-  const isBankAccExist = await bank_transfers.findOne({
-    where: {account_number: bankAccNumber}
-  });
-  let bankTransfer = {};
-  if(isBankAccExist){
-    bankTransfer = isBankAccExist;
-  } else {
-    const bankAccountInfo = await biller_bank_accounts.create({
-      account_name: bankAccName,
-      account_number: bankAccNumber,
-      account_bank: bankName,
-    });
-
-    bankTransfer = await bank_transfers.create({
+  let bankTransferDetails = await bank_transfers.create({
       transaction_payment_id: transactionPayment.id,
-      bank_destination_id: bankAccountInfo.id,
-      account_name: bankAccountInfo.account_name,
-      account_number: bankAccountInfo.account_number,
-      account_bank: bankAccountInfo.account_bank,
-      receipt_url: url
+      bank_destination_id,
     });
-  }
+  
+  const bankAccountDetails = await biller_bank_accounts.findOne({
+    where: {id: bank_destination_id}
+  })
 
-  bankTransfer = bankTransfer.dataValues;
-  bankTransfer = {
+  bankTransferDetails = bankTransferDetails.dataValues;
+  bankTransferDetails = {
     Total: 0,
-    account_bank: bankTransfer.account_bank,
-    account_name: bankTransfer.account_name,
-    account_number: bankTransfer.account_number,
-    receipt_url: url
+    account_bank: bankAccountDetails.account_bank,
+    account_name: bankAccountDetails.account_name,
+    account_number: bankAccountDetails.account_number,
+    // receipt_url: ""
   };
 
-  return {data: tagihan_bill_details, bankTransfer};
+  return {data: tagihan_bill_details, bankTransferDetails};
 };
 
 exports.createTokenBill = async (
   userId,
-  payment_type, period, dateBilled, bankAccName, bankAccNumber, bankName, url,
+  payment_type, period, dateBilled, bank_destination_id,
   No_Meter, IDPEL, Name, Tarif_Daya, Token, PPJ, Admin, Total
 ) => {
   const bill = await bills.create({
     user_id: userId
   });
-
 
   // kalkulasi kwh
   const splitArr = Tarif_Daya.split('/');
@@ -229,6 +219,7 @@ exports.createTokenBill = async (
     ref: faker.datatype.uuid(),
     kwh: kwH,
     stroom_per_token: stroomToken,
+    token: Token,
     ppj: PPJ,
     admin_fee: Admin,
     total: Total,
@@ -247,10 +238,23 @@ exports.createTokenBill = async (
     Total: `Rp. ${new Intl.NumberFormat("id").format(Total)},00`
   };
 
+  // cek apakah sudah ada recurring billing. pasti ga ada sih, kan bill.id nya baru terus.
+  const checkRecurring = await recurring_billings.findOne({
+    where: {bill_id: bill.id}
+  });
+
+  let date_billed = null;
+  if(period === "Month") {
+    date_billed = moment(dateBilled).add(1, "M").calendar();
+  } else if(period === "Week"){
+    date_billed = moment(dateBilled).add(7, "d").calendar();
+  }
+  
   const recurringBilling = await recurring_billings.create({
     bill_id: bill.id,
     period: period,
-    date_billed: dateBilled,
+    date_billed,
+    // due_date: "",
     is_delete: false
   });
 
@@ -265,39 +269,24 @@ exports.createTokenBill = async (
     type: payment_type,
   });
 
-  // cek apakah user sudah punya bank account atau belum
-  const isBankAccExist = await bank_transfers.findOne({
-    where: {account_number: bankAccNumber}
-  });
-  let bankTransfer = {};
-  if(isBankAccExist){
-    bankTransfer = isBankAccExist;
-  } else {
-    const bankAccountInfo = await biller_bank_accounts.create({
-      account_name: bankAccName,
-      account_number: bankAccNumber,
-      account_bank: bankName,
-    });
-
-    bankTransfer = await bank_transfers.create({
+  let bankTransferDetails = await bank_transfers.create({
       transaction_payment_id: transactionPayment.id,
-      bank_destination_id: bankAccountInfo.id,
-      account_name: bankAccountInfo.account_name,
-      account_number: bankAccountInfo.account_number,
-      account_bank: bankAccountInfo.account_bank,
-      receipt_url: url
+      bank_destination_id,
     });
-  }
+  
+  const bankAccountDetails = await biller_bank_accounts.findOne({
+    where: {id: bank_destination_id}
+  })
 
-  bankTransfer = bankTransfer.dataValues;
-  bankTransfer = {
+  bankTransferDetails = bankTransferDetails.dataValues;
+  bankTransferDetails = {
     Total: 0,
-    account_bank: bankTransfer.account_bank,
-    account_name: bankTransfer.account_name,
-    account_number: bankTransfer.account_number,
-    receipt_url: url
+    account_bank: bankAccountDetails.account_bank,
+    account_name: bankAccountDetails.account_name,
+    account_number: bankAccountDetails.account_number,
+    // receipt_url: ""
   };
 
-  return {data: token_bill_details, bankTransfer};
+  return {data: token_bill_details, bankTransferDetails};
 }
 

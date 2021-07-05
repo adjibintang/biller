@@ -1,4 +1,4 @@
-const {paymentMethod} = require('../database/models');
+const bank_transfers = require('../database/models/bank_transfers');
 const firebase = require('../middleware/firebase');
 
 exports.uploadFile = async (req, res) => {
@@ -29,13 +29,9 @@ exports.uploadFile = async (req, res) => {
         blobWriter.end(req.file.buffer);
         }
 
-      const result = await paymentMethod.create({
-        total,
-        bank,
-        accountName: accName,
-        accountNo: accNo,
-        receipt: imageURL
-      });
+    const result = await bank_transfers.save({
+      receipt_url: imageURL
+    });
 
     res.send({
       status: 200,

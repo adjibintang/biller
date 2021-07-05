@@ -25,9 +25,15 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       name: DataTypes.STRING,
-      customer_number: DataTypes.STRING,
+      customer_number: { type: DataTypes.STRING, unique: true },
       last_month_stand_meter: DataTypes.INTEGER,
       this_month_stand_meter: DataTypes.INTEGER,
+      fixed_cost: {
+        type: DataTypes.DECIMAL,
+      },
+      stand_meter_maintenance_cost: {
+        type: DataTypes.DECIMAL,
+      },
       address: DataTypes.STRING,
     },
     {

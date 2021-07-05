@@ -9,6 +9,8 @@ const port = process.env.PORT || 3000;
 // const electricityRoutes = require("./routes/electicityRoutes");
 // const landlineRoutes = require("./routes/landlineRoutes");
 const uploadFileRoute = require("./routes/uploadFileRoutes")
+// const authRoute = require("./routes/authenticationRoute");
+// const pdamRoute = require("./routes/pdamRoute");
 
 server.use(logger("dev"));
 server.use(cors());
@@ -25,7 +27,9 @@ server.get("/", (req, res) => {
 
 // server.use("/api/biller/electricity/bill", electricityRoutes);
 // server.use("/api/biller/landline/bill", landlineRoutes);
-server.use("/api/biller", uploadFileRoute);
+server.use("/api/biller/file", uploadFileRoute);
+server.use("/api/biller", authRoute);
+server.use("/api/biller/pdam/bill", pdamRoute);
 
 server.all("*", (req, res) => {
   res.status(404).json({

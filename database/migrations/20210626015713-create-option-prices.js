@@ -24,6 +24,15 @@ module.exports = {
           key: "id",
         },
       },
+      provider: {
+        type: Sequelize.STRING,
+      },
+      package_name: {
+        type: Sequelize.STRING,
+      },
+      description: {
+        type: Sequelize.TEXT,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

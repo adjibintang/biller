@@ -20,11 +20,14 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         type: DataTypes.INTEGER,
         references: {
-          model: "Mobile_cards",
+          model: "mobile_cards",
           key: "id",
         },
       },
-      phone_number: DataTypes.STRING,
+      phone_number: { type: DataTypes.STRING, unique: true },
+      post_payment_fee: {
+        type: DataTypes.DECIMAL,
+      },
     },
     {
       sequelize,

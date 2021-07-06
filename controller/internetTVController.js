@@ -214,8 +214,7 @@ exports.createInternetTVBill = async (req, res) => {
               total: `Rp ${new Intl.NumberFormat("id").format(
                 parseInt(internetTVBill.bill_fee) +
                   parseInt(internetTVBill.bill_fee) * checklatePayment +
-                  parseInt(internetTVBill.late_payment_fee) *
-                    (checklatePayment + 1) +
+                  parseInt(internetTVBill.late_payment_fee) * checklatePayment +
                   parseInt(internetTVBill.admin_fee)
               )},00`,
             },

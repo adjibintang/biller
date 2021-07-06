@@ -45,14 +45,7 @@ exports.createInternetTVBill = async (
   bill_fee,
   latePaymentcheck
 ) => {
-  let late_payment;
-  if (latePaymentcheck < 1) {
-    late_payment = 0;
-  } else if (latePaymentcheck == 1) {
-    late_payment = parseInt(bill_fee) * 0.05;
-  } else if (latePaymentcheck == 2) {
-    late_payment = parseInt(bill_fee) * 0.1;
-  }
+  let late_payment = 0;
 
   const internetTVBill = await internet_tv_bills.create({
     bill_id,
@@ -64,6 +57,13 @@ exports.createInternetTVBill = async (
   });
 
   if (latePaymentcheck >= 1) {
+    if (latePaymentcheck < 1) {
+      late_payment = 0;
+    } else if (latePaymentcheck == 1) {
+      late_payment = parseInt(bill_fee) * 0.05;
+    } else if (latePaymentcheck == 2) {
+      late_payment = parseInt(bill_fee) * 0.1;
+    }
     const internetTVBill2 = await internet_tv_bills.create({
       bill_id,
       customer_number,
@@ -73,6 +73,13 @@ exports.createInternetTVBill = async (
       total: parseInt(bill_fee) + 2500 + late_payment,
     });
   } else if (latePaymentcheck == 2) {
+    if (latePaymentcheck < 1) {
+      late_payment = 0;
+    } else if (latePaymentcheck == 1) {
+      late_payment = parseInt(bill_fee) * 0.05;
+    } else if (latePaymentcheck == 2) {
+      late_payment = parseInt(bill_fee) * 0.1;
+    }
     const internetTVBill3 = await internet_tv_bills.create({
       bill_id,
       customer_number,

@@ -88,129 +88,142 @@ exports.createInternetTVBill = async (req, res) => {
       req.body.customer_number
     );
 
-    const lastPaymentDeadline = new Date(
-      account.payment_due.getFullYear(),
-      account.payment_due.getMonth() - 1,
-      account.payment_due.getDate()
-    );
-
-    if (account.period - account.payment_due < 0) {
-      const checklatePayment = await internetTVService.latePaymentcheck(
-        account.period
+    if (!account) {
+      return res.status(204).send({
+        statusCode: 204,
+        statusText: "No Content",
+      });
+    } else {
+      const lastPaymentDeadline = new Date(
+        account.payment_due.getFullYear(),
+        account.payment_due.getMonth() - 1,
+        account.payment_due.getDate()
       );
 
-      if (checklatePayment >= 3) {
-        return res.send(
-          "Your service is inactive. Please contact your provider for further information"
-        );
-      } else {
-        const bill = await internetTVService.createBill(req.user.dataValues.id);
-
-        const { customer_number, provider, abonemen } = account;
-
-        const internetTVBill = await internetTVService.createInternetTVBill(
-          bill.id,
-          customer_number,
-          provider,
-          abonemen,
-          checklatePayment
+      if (account.period - account.payment_due < 0) {
+        const checklatePayment = await internetTVService.latePaymentcheck(
+          account.period
         );
 
-        const transaction = await internetTVService.createTransaction(bill.id);
-
-        const { type, account_name, account_number, account_bank } =
-          req.body.payment;
-
-        const transactionPayment =
-          await internetTVService.createTransactionPayment(
-            transaction.id,
-            type
+        if (checklatePayment >= 3) {
+          return res.send(
+            "Your service is inactive. Please contact your provider for further information"
+          );
+        } else {
+          const bill = await internetTVService.createBill(
+            req.user.dataValues.id
           );
 
-        let bankAccountInfo;
-        if (transactionPayment.type === "Bank Transfer") {
-          bankAccountInfo = await internetTVService.findBankAccountInfo(
-            account_bank
+          const { customer_number, provider, abonemen } = account;
+
+          const internetTVBill = await internetTVService.createInternetTVBill(
+            bill.id,
+            customer_number,
+            provider,
+            abonemen,
+            checklatePayment
           );
 
-          const bankTransfer = await internetTVService.createBankTransfer(
-            transactionPayment.id,
-            bankAccountInfo.id,
-            account_name,
-            account_number,
-            account_bank
-          );
-        }
-
-        // const updatePeriodAndPaymentDue = await internetTVService.updatePeriod(
-        //   bill.id,
-        //   account.provider,
-        //   account.payment_due
-        // );
-
-        // const updatedAccount = await internetTVService.getAccountInfo(
-        //   req.body.customer_number
-        // );
-
-        let recurringBilling;
-
-        if (req.body.recurring_billing.status === true) {
-          recurringBilling = await internetTVService.findRecurringBilling(
+          const transaction = await internetTVService.createTransaction(
             bill.id
           );
 
-          if (!recurringBilling) {
-            recurringBilling = await internetTVService.createRecurringBilling(
-              bill.id,
-              req.body.recurring_billing.period,
-              account.payment_due.getDate()
+          const { type, account_name, account_number, account_bank } =
+            req.body.payment;
+
+          const transactionPayment =
+            await internetTVService.createTransactionPayment(
+              transaction.id,
+              type
             );
-          } else {
-            recurringBilling = await internetTVService.updateRecurringBilling(
-              bill.id,
-              req.body.recurring_billing.period,
-              account.payment_due.getDate()
+
+          let bankAccountInfo;
+          if (transactionPayment.type === "Bank Transfer") {
+            bankAccountInfo = await internetTVService.findBankAccountInfo(
+              account_bank
+            );
+
+            const bankTransfer = await internetTVService.createBankTransfer(
+              transactionPayment.id,
+              bankAccountInfo.id,
+              account_name,
+              account_number,
+              account_bank
             );
           }
-        }
 
-        res.send({
-          payment_details: {
-            total: internetTVBill.total,
-            bank: bankAccountInfo.account_bank,
-            account_name: bankAccountInfo.account_name,
-            account_number: bankAccountInfo.account_number,
-          },
-          bill_details: {
-            bill: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.bill_fee)
-            )},00`,
-            no_customer: account.customer_number,
-            name: account.name,
-            period: `${moment(recurringBilling.due_date).format("M")}/${moment(
-              recurringBilling.due_date
-            ).format("YYYY")}`,
-            provider: internetTVBill.provider,
-            bill: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.bill_fee)
-            )},00`,
-            admin: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.admin_fee)
-            )},00`,
-            late_payment: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.late_payment_fee) * (checklatePayment + 1)
-            )},00`,
-            total: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.bill_fee) * (checklatePayment + 1) +
-                parseInt(internetTVBill.late_payment_fee) *
-                  (checklatePayment + 1) +
+          // const updatePeriodAndPaymentDue = await internetTVService.updatePeriod(
+          //   bill.id,
+          //   account.provider,
+          //   account.payment_due
+          // );
+
+          // const updatedAccount = await internetTVService.getAccountInfo(
+          //   req.body.customer_number
+          // );
+
+          let recurringBilling;
+
+          if (req.body.recurring_billing.status === true) {
+            recurringBilling = await internetTVService.findRecurringBilling(
+              bill.id
+            );
+
+            if (!recurringBilling) {
+              recurringBilling = await internetTVService.createRecurringBilling(
+                bill.id,
+                req.body.recurring_billing.period,
+                account.payment_due.getDate()
+              );
+            } else {
+              recurringBilling = await internetTVService.updateRecurringBilling(
+                bill.id,
+                req.body.recurring_billing.period,
+                account.payment_due.getDate()
+              );
+            }
+          }
+
+          res.send({
+            payment_details: {
+              total: internetTVBill.total,
+              bank: bankAccountInfo.account_bank,
+              account_name: bankAccountInfo.account_name,
+              account_number: bankAccountInfo.account_number,
+            },
+            bill_details: {
+              bill: `Rp ${new Intl.NumberFormat("id").format(
+                parseInt(internetTVBill.bill_fee)
+              )},00`,
+              no_customer: account.customer_number,
+              name: account.name,
+              period: `${moment(recurringBilling.due_date).format(
+                "M"
+              )}/${moment(recurringBilling.due_date).format("YYYY")}`,
+              provider: internetTVBill.provider,
+              bill: `Rp ${new Intl.NumberFormat("id").format(
+                parseInt(internetTVBill.bill_fee)
+              )},00`,
+              admin: `Rp ${new Intl.NumberFormat("id").format(
                 parseInt(internetTVBill.admin_fee)
-            )},00`,
-          },
-        });
+              )},00`,
+              late_payment: `Rp ${new Intl.NumberFormat("id").format(
+                parseInt(internetTVBill.late_payment_fee) *
+                  (checklatePayment + 1)
+              )},00`,
+              total: `Rp ${new Intl.NumberFormat("id").format(
+                parseInt(internetTVBill.bill_fee) +
+                  parseInt(internetTVBill.bill_fee) * checklatePayment +
+                  parseInt(internetTVBill.late_payment_fee) *
+                    (checklatePayment + 1) +
+                  parseInt(internetTVBill.admin_fee)
+              )},00`,
+            },
+          });
+        }
+      } else {
+        return res.send("Already paid for this month fee");
       }
-    } else {
-      return res.send("Already paid for this month fee");
     }
   } catch (error) {
     console.log(error);

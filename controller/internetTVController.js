@@ -59,12 +59,9 @@ exports.getInternetAccountInfo = async (req, res) => {
               parseInt(account.abonemen)
             )},00`,
             address: account.address,
-            bill: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(account.bill_fee)
-            )},00`,
             admin_fee: "Rp 2.500,00",
             total: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(account.bill_fee) + 2500
+              parseInt(account.abonemen) + 2500
             )},00`,
           },
         });

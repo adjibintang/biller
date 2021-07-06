@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.pdam_bills, {
+      this.hasMany(models.pdam_bills, {
         foreignKey: "bill_id",
       });
 
@@ -64,14 +64,14 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
-      option_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Options",
-          key: "id",
-        },
-      },
+      // option_id: {
+      //   type: DataTypes.INTEGER,
+      //   allowNull: false,
+      //   references: {
+      //     model: "Options",
+      //     key: "id",
+      //   },
+      // },
       // date_billed: DataTypes.DATE,
       // due_date: DataTypes.DATE,
     },

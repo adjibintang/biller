@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const Models = require("../database/models");
 const jwt = require("jsonwebtoken");
-const { reset } = require("nodemon");
 
 exports.login = async (req, res, next) => {
   try {

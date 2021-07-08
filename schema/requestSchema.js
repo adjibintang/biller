@@ -35,6 +35,10 @@ const registerSchema = Joi.object({
     .lowercase()
     .required(),
   password: passwordComplexity(complexityOptions),
+  pin: Joi.string()
+    .length(6)
+    .pattern(/^[0-9]+$/)
+    .required(),
 });
 
 module.exports = {

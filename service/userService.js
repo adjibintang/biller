@@ -25,12 +25,13 @@ exports.findUserByEmail = async (email) => {
 };
 
 exports.createUser = async (input) => {
-  const { first_name, last_name, email, password } = input;
+  const { first_name, last_name, email, password, pin } = input;
   const newUser = await Models.Users.create({
     first_name,
     last_name,
     email,
     password: bcrypt.hashSync(password, 10),
+    pin: pin,
   });
   return newUser;
 };

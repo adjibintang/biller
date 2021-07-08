@@ -31,7 +31,7 @@ exports.createUser = async (input) => {
     last_name,
     email,
     password: bcrypt.hashSync(password, 10),
-    pin: pin,
+    pin: bcrypt.hashSync(pin, 10),
   });
   return newUser;
 };

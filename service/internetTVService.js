@@ -22,6 +22,8 @@ exports.getOptions = async (service_id) => {
     };
   }
 
+  // const options = findOptions.map((x) => x.name);
+
   return findOptions;
 };
 
@@ -93,6 +95,11 @@ exports.createInternetTVBill = async (
   // const findAllInternetTVBill = await internet_tv_bills.findAll({
   //   where: { [Op.and]: [{ bill_id }, { customer_number }] },
   // });
+  if (latePaymentcheck == 1) {
+    internetTVBill.late_payment_fee = parseInt(bill_fee) * 0.05;
+  } else if (latePaymentcheck == 2) {
+    internetTVBill.late_payment_fee = parseInt(bill_fee) * 0.1;
+  }
 
   return internetTVBill;
 };

@@ -151,13 +151,14 @@ exports.findRecurringBilling = async (bill_id) => {
 
 const moment = require("moment");
 
-exports.createRecurringBilling = async (bill_id, period, payment_due) => {
+exports.createRecurringBilling = async (bill_id, period, date, payment_due) => {
   const now = new Date();
+  const billingDate = new Date(date);
 
   const date_billed = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    now.getDate()
+    billingDate.getFullYear(),
+    billingDate.getMonth() + 1,
+    billingDate.getDate()
   );
 
   const due_date = new Date(now.getFullYear(), now.getMonth() + 1, payment_due);
@@ -173,13 +174,14 @@ exports.createRecurringBilling = async (bill_id, period, payment_due) => {
   return newRecurringBilling;
 };
 
-exports.updateRecurringBilling = async (bill_id, period, payment_due) => {
+exports.updateRecurringBilling = async (bill_id, period, date, payment_due) => {
   const now = new Date();
+  const billingDate = new Date(date);
 
   const date_billed = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    now.getDate()
+    billingDate.getFullYear(),
+    billingDate.getMonth() + 1,
+    billingDate.getDate()
   );
 
   const due_date = new Date(now.getFullYear(), now.getMonth() + 1, payment_due);

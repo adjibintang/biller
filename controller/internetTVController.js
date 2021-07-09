@@ -213,6 +213,11 @@ exports.createInternetTVBill = async (req, res) => {
 
         let recurring_billing;
         if (req.body.recurringBilling.status === true) {
+          if (req.body.recurringBilling.period != "Month")
+            return res.send({
+              message:
+                "Wrong input for period recurring billing. This service can only be paid once a month",
+            });
           recurring_billing = await internetTVService.findRecurringBilling(
             bill.id
           );

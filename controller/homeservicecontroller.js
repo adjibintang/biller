@@ -3,7 +3,9 @@ const homeServiveController = {};
 
 homeServiveController.getAllService = async (req, res) => {
   try {
-    const getservice = await models.Services.findAll({attributes:["id","name"]});
+    const getservice = await models.Services.findOne({
+      attributes: ["id", "name", "image_url"],
+    });
 
     const respayload = {
       statusText: "Ok",

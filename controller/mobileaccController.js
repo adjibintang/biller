@@ -5,7 +5,8 @@ const account = {};
 account.getmobileacc = async (req, res) => {
   try {
     const account = await models.Mobiles.findOne({
-      attributes: ["mobile_card_id", "phone_number"],
+      attributes: ["phone_number"],
+      include: { model: models.Mobile_cards, attributes: ["name"] },
       where: { phone_number: req.body.phone_number },
     });
 
@@ -22,6 +23,7 @@ account.getmobileacc = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error);
     return res.sendStatus(500);
   }
 };

@@ -4,8 +4,8 @@ const mobileOption = {};
 mobileOption.getAllMobile = async (req, res) => {
   try {
     const getmobile = await models.Options.findAll({
-      where: {service_id:2},
-      attributes: ["id", "name"],
+      where: { service_id: 2 },
+      attributes: ["id", "name", "image_url"],
     });
 
     const respayload = {

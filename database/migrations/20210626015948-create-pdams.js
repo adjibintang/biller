@@ -21,12 +21,19 @@ module.exports = {
       },
       customer_number: {
         type: Sequelize.STRING,
+        unique: true,
       },
       last_month_stand_meter: {
         type: Sequelize.INTEGER,
       },
       this_month_stand_meter: {
         type: Sequelize.INTEGER,
+      },
+      fixed_cost: {
+        type: Sequelize.DECIMAL,
+      },
+      stand_meter_maintenance_cost: {
+        type: Sequelize.DECIMAL,
       },
       address: {
         type: Sequelize.STRING,

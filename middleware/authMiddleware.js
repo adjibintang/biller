@@ -45,12 +45,12 @@ exports.userAuthorization = async (req, res, next) => {
       process.env.SECRET_ACCESS_KEY_DEV,
       async (err, data) => {
         if (err) {
-          if (err.name === "JsonWebTokenError") {
-            return res.status(401).json({
-              message: "Unauthorized",
-            });
-          } else {
-            return res.sendStatus(400);
+          if (
+            err.name === "JsonWebTokenError" ||
+            err.name === "TokenExpiredError" ||
+            err.name === "NotBeforeError"
+          ) {
+            return res.sendStatus(401);
           }
         }
 
@@ -61,7 +61,6 @@ exports.userAuthorization = async (req, res, next) => {
       }
     );
   } catch (error) {
-    console.log(error);
     res.sendStatus(500);
   }
 };

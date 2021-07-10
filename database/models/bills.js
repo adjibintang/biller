@@ -7,10 +7,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "user_id",
       });
 
-      // this.belongsTo(models.Options, {
-      //   foreignKey: "option_id",
-      // });
-
       this.hasOne(models.recurring_billings, {
         foreignKey: "bill_id",
       });
@@ -64,16 +60,18 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
-      // option_id: {
-      //   type: DataTypes.INTEGER,
-      //   allowNull: false,
-      //   references: {
-      //     model: "Options",
-      //     key: "id",
-      //   },
-      // },
-      // date_billed: DataTypes.DATE,
-      // due_date: DataTypes.DATE,
+      bill_type: {
+        allowNull: false,
+        type: DataTypes.ENUM(
+          "Listrik-Token",
+          "Listrik-Tagihan",
+          "Mobile",
+          "Landline",
+          "Internet-TV",
+          "PDAM",
+          "BPJS"
+        ),
+      },
     },
     {
       sequelize,

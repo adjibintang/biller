@@ -24,7 +24,12 @@ const searchCitySchema = Joi.object({
   city: Joi.string().required(),
 }).options({ abortEarly: false });
 
+const customerNumberSchema = Joi.object({
+  customerNumber: Joi.string().required(),
+}).options({ abortEarly: false });
+
 module.exports = {
   loginSchema,
   searchCitySchema,
+  customerNumberSchema,
 };

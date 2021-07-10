@@ -1,14 +1,14 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Mobiles extends Model {
+  class landline_bills extends Model {
     static associate(models) {
-      this.belongsTo(models.Mobile_cards, {
-        foreignKey: "mobile_card_id",
+      this.belongsTo(models.bills, {
+        foreignKey: "bill_id",
       });
     }
   }
-  Mobiles.init(
+  landline_bills.init(
     {
       id: {
         allowNull: false,
@@ -16,20 +16,24 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      mobile_card_id: {
-        allowNull: false,
+      bill_id: {
         type: DataTypes.INTEGER,
+        allowNull: false,
         references: {
-          model: "mobile_cards",
+          model: "bills",
           key: "id",
         },
       },
       phone_number: DataTypes.STRING,
+      bill_fee: DataTypes.DECIMAL,
+      admin_fee: { type: DataTypes.DECIMAL, defaultValue: 2500 },
+      late_payment_fee: DataTypes.DECIMAL,
+      total: DataTypes.DECIMAL,
     },
     {
       sequelize,
-      modelName: "Mobiles",
+      modelName: "landline_bills",
     }
   );
-  return Mobiles;
+  return landline_bills;
 };

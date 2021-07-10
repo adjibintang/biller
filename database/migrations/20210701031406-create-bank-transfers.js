@@ -1,40 +1,40 @@
 "use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Users", {
+    await queryInterface.createTable("bank_transfers", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      first_name: {
+      transaction_payment_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "transaction_payments",
+          key: "id",
+        },
+      },
+      bank_destination_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "biller_bank_accounts",
+          key: "id",
+        },
+      },
+      account_name: {
         type: Sequelize.STRING,
       },
-      last_name: {
+      account_number: {
         type: Sequelize.STRING,
       },
-      email: {
-        type: Sequelize.STRING,
-        unique: true,
-      },
-      password: {
+      account_bank: {
         type: Sequelize.STRING,
       },
-      pin: {
+      receipt_url: {
         type: Sequelize.STRING,
-      },
-      phone_number: {
-        type: Sequelize.STRING,
-      },
-      pin: {
-        type: Sequelize.STRING,
-      },
-      image_url: {
-        type: Sequelize.STRING,
-      },
-      is_verified: {
-        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,
@@ -47,6 +47,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Users");
+    await queryInterface.dropTable("bank_transfers");
   },
 };

@@ -12,8 +12,8 @@ authRouter.post(
   userController.getToken
 );
 
-authRouter.post("/signup", validate(registerSchema), authController.signup);
+authRouter.post("/signup", validate(registerSchema), userController.signup);
 
-authRouter.get("/confirm/:confirmationCode", authController.confirmUser);
+authRouter.get("/confirm/:confirmationCode", userController.confirmUser);
 
 module.exports = authRouter;

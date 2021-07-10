@@ -18,6 +18,8 @@ module.exports = (sequelize, DataTypes) => {
       customer_number: DataTypes.STRING,
       provider: DataTypes.STRING,
       address: DataTypes.STRING,
+      period: DataTypes.DATE,
+      payment_due: DataTypes.DATE,
     },
     {
       sequelize,

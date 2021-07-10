@@ -1,40 +1,41 @@
 "use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Users", {
+    await queryInterface.createTable("bpjs_bills", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      first_name: {
+      bill_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "bills",
+          key: "id",
+        },
+      },
+      va_number: {
         type: Sequelize.STRING,
       },
-      last_name: {
+      full_name: {
         type: Sequelize.STRING,
       },
-      email: {
-        type: Sequelize.STRING,
-        unique: true,
-      },
-      password: {
+      branch: {
         type: Sequelize.STRING,
       },
-      pin: {
-        type: Sequelize.STRING,
+      payment_period: {
+        type: Sequelize.DATE,
       },
-      phone_number: {
-        type: Sequelize.STRING,
+      bill_fee: {
+        type: Sequelize.DECIMAL,
       },
-      pin: {
-        type: Sequelize.STRING,
+      admin_fee: {
+        type: Sequelize.DECIMAL,
       },
-      image_url: {
-        type: Sequelize.STRING,
-      },
-      is_verified: {
-        type: Sequelize.BOOLEAN,
+      total: {
+        type: Sequelize.DECIMAL,
       },
       createdAt: {
         allowNull: false,
@@ -47,6 +48,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Users");
+    await queryInterface.dropTable("bpjs_bills");
   },
 };

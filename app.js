@@ -7,6 +7,10 @@ const server = express();
 const port = process.env.PORT || 3000;
 
 const authRoute = require("./routes/authenticationRoute");
+const pdamRoute = require("./routes/pdamRoute");
+const bpjsRoute = require("./routes/bpjsRoute");
+const paymentRoute = require("./routes/paymentRoute");
+const receiptRoute = require("./routes/receiptRoute");
 
 server.use(logger("dev"));
 server.use(cors());
@@ -18,6 +22,10 @@ server.use(
 );
 
 server.use("/api/biller", authRoute);
+server.use("/api/biller/pdam/bill", pdamRoute);
+server.use("/api/biller/bpjs/bill", bpjsRoute);
+server.use("/api/biller/payment", paymentRoute);
+server.use("/api/biller/receipt", receiptRoute);
 
 server.all("*", (req, res) => {
   res.status(404).json({

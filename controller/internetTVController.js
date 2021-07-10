@@ -74,7 +74,22 @@ exports.getInternetAccountInfo = async (req, res) => {
       }
 
       let result = [];
+      const period_arr = [];
       for (let i = 0; i <= checklatePayment; i++) {
+        const monthPeriod = account.payment_due.getMonth() + i;
+
+        const periodDate = new Date(
+          account.payment_due.getFullYear(),
+          monthPeriod,
+          account.payment_due.getDate()
+        );
+
+        const formattedPeriod = `${moment(periodDate).format("MMM")} ${moment(
+          periodDate
+        ).format("YYYY")}`;
+
+        period_arr.push(formattedPeriod);
+
         if (i == checklatePayment) {
           result.push({
             month: account.payment_due.getMonth() + i + 1,
@@ -100,6 +115,7 @@ exports.getInternetAccountInfo = async (req, res) => {
           late_payment: result[i].late_payment,
         };
       }
+
       res.status(200).send({
         statusCode: 200,
         statusText: "Succes",
@@ -109,10 +125,9 @@ exports.getInternetAccountInfo = async (req, res) => {
           customer_number: account.customer_number,
           provider: account.provider,
           address: account.address,
-          last_payment: account.period,
-          payment_due: account.payment_due,
-          bill: [...result],
-          total_late_payment: `Rp ${new Intl.NumberFormat("id").format(
+          payment_period: period_arr,
+          bill: `Rp ${new Intl.NumberFormat("id").format(account.abonemen)},00`,
+          late_payment: `Rp ${new Intl.NumberFormat("id").format(
             late_payment_arr.reduce(function (a, b) {
               return a + b;
             }, 0)
@@ -253,9 +268,7 @@ exports.createInternetTVBill = async (req, res) => {
             )},00`,
             no_customer: account.customer_number,
             name: account.name,
-            period: `${moment(recurringBilling.due_date).format("M")}/${moment(
-              recurringBilling.due_date
-            ).format("YYYY")}`,
+            period: req.body.data.payment_period,
             provider: internetTVBill.provider,
             bill: `Rp ${new Intl.NumberFormat("id").format(
               parseInt(internetTVBill.bill_fee)

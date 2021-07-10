@@ -1,56 +1,67 @@
 const faker = require('faker');
 const moment = require('moment');
-const {Electricities,pln_tagihan_bills, pln_token_bills, bills, recurring_billings, transactions, transaction_payments, biller_bank_accounts, bank_transfers, Options, Option_prices, Prices } = require('../database/models');
+const Models = require('../database/models');
 
 exports.getTagihanAccInfo = async(idPel, userId) => {
-  let accInfo = await Electricities.findOne({
+  let accInfo = await Models.Electricities.findOne({
   where: {customer_number: idPel}
   });
   accInfo = accInfo.dataValues;
+  let error = null;
 
-  // cek ada tunggakan atau ga
-  const diffMonth = new Date().getMonth() - accInfo.period.getMonth();
-  if(diffMonth >= 3) {
-    error = "Aliran listrik diputus";
-  } 
+  const canPay = await checkRangePaymentDate();
+  if(canPay !== null) error = canPay;
 
-  // kalkulasi late payment fee (denda)
-  let latePaymentFee = 0;
-  if(diffMonth > 1){
-    if(accInfo.power == "450V" || accInfo.power == "900V"){
-      latePaymentFee = 3000;
-    } else if(accInfo.power == "1300V"){
-      latePaymentFee = 5000;
-    } else if(accInfo.power == "2200V"){
-      latePaymentFee = 10000;
-    } 
-  };
+  const lastPeriod = await findLastBill(idPel);
+
+  let period = [];
+  let countMonth = await monthDiff(accInfo.period, new Date());
+    if (lastPeriod !== null) {
+      countMonth = await monthDiff(lastPeriod.tagihan_date, new Date());
+    }
+    if (countMonth !== 0) {
+      for (let i = 0; i < countMonth; i++) {
+        period.push(
+          `${new Date().getFullYear()}-${new Date().getMonth() - i}-20`
+        );
+      }
+    }
+    
+  const activeStatus = await isActive(countMonth);
+  if(activeStatus !== null) error = activeStatus;
+
+  const late_payment_fee = await calcPaymentFee(countMonth, accInfo.power);
 
   const kwH = accInfo.this_month_stand_meter - accInfo.last_month_stand_meter;
   const bill = kwH * accInfo.cost_per_kwh;
-  const fixBill = diffMonth * bill;
+
+  let fixBill = 0;
+  (countMonth !== 0) ? fixBill = countMonth * bill : fixBill = bill ;
+  
   const admin_fee = 3000;
-  const denda = diffMonth * latePaymentFee; 
-  const total = fixBill + admin_fee + denda; 
+  const total = fixBill + admin_fee + late_payment_fee; 
+
+  const pin = await findPin(userId);
 
   accInfo = {
     IDPEL: accInfo.customer_number,
     Name: accInfo.name,
     Tarif_Daya: `${accInfo.rates}/${accInfo.power}`,
     // Bulan_Tahun: `${accInfo.period.toLocaleString('default',{month: 'long'})} ${accInfo.period.getFullYear()} - `,
-    Bulan_Tahun: `${accInfo.period.toLocaleDateString()}`,  
+    Bulan_Tahun: `${period}`,  
     Stand_Meter: `${accInfo.this_month_stand_meter}-${accInfo.last_month_stand_meter}`,
     Bill: `Rp. ${new Intl.NumberFormat("id").format(fixBill)},00`,
     Admin: `Rp. ${new Intl.NumberFormat("id").format(admin_fee)},00`,
-    Late_Payment_Fee: `Rp. ${new Intl.NumberFormat("id").format(denda)},00`,
-    Total: `Rp. ${new Intl.NumberFormat("id").format(total)},00`
+    Late_Payment_Fee: `Rp. ${new Intl.NumberFormat("id").format(late_payment_fee)},00`,
+    Total: `Rp. ${new Intl.NumberFormat("id").format(total)},00`,
+    PIN: `${pin.dataValues.pin}`
   };
 
-  return accInfo;
+  return {data: accInfo, error};
 };
 
 exports.getElectricityOptions = async(serviceId) => {
-  const electricityOptions = await Options.findAll({
+  const electricityOptions = await Models.Options.findAll({
     where: {service_id: serviceId},
     attributes: ['id', 'name', 'image_url']
   });
@@ -58,8 +69,9 @@ exports.getElectricityOptions = async(serviceId) => {
 };
 
 exports.getTokenPricelist = async(option_id) => {
-  const tokenPricelist = await Option_prices.findAll({
-    include: { model: Prices, attributes: ["id", "price"] },
+  const tokenPricelist = await Models.Option_prices.findAll({
+    // attributes: [],
+    include: { model: Models.Prices, attributes: ["id", "price"] },
     where: {option_id: option_id},
   });
   const prices = tokenPricelist.map((x) => x.dataValues.Price);
@@ -67,15 +79,18 @@ exports.getTokenPricelist = async(option_id) => {
   return prices;
 };
 
-exports.getTokenAccInfo = async(nomorMeter, price) => {
-  let accInfo = await Electricities.findOne({
+exports.getTokenAccInfo = async(nomorMeter, price, userId) => {
+  let accInfo = await Models.Electricities.findOne({
     where: {meter_number: nomorMeter}
   });
   accInfo = accInfo.dataValues;
-  accInfo.PPJ = 0.074 * price;
-  const token = price - accInfo.PPJ;
-  accInfo.Admin = 1500;
-  accInfo.Total = token + parseInt(accInfo.Admin) + accInfo.PPJ;
+  const PPJ = 0.074 * price;
+  const token = price - PPJ;
+  const Admin = 1500;
+  const Total = token + parseInt(Admin) + PPJ;
+
+  // find pin user
+  const pin = await findPin(userId);
 
   accInfo = {
     No_Meter: accInfo.meter_number,
@@ -83,93 +98,105 @@ exports.getTokenAccInfo = async(nomorMeter, price) => {
     Name: accInfo.name,
     Tarif_Daya: `${accInfo.rates}/${accInfo.power}`,
     Token: `Rp. ${new Intl.NumberFormat("id").format(token)},00`,
-    PPJ: `Rp. ${new Intl.NumberFormat("id").format(accInfo.PPJ)},00`,
-    Admin: `Rp. ${new Intl.NumberFormat("id").format(accInfo.Admin)},00`,
-    Total: `Rp. ${new Intl.NumberFormat("id").format(accInfo.Total)},00`
+    PPJ: `Rp. ${new Intl.NumberFormat("id").format(PPJ)},00`,
+    Admin: `Rp. ${new Intl.NumberFormat("id").format(Admin)},00`,
+    Total: `Rp. ${new Intl.NumberFormat("id").format(Total)},00`,
+    PIN: `${pin.dataValues.pin}`
   };
   return accInfo;
 }
 
-exports.checkRangePaymentDate = async() => {
-  let error = null;
-  const now = new Date().getDate();
-  if(now > 20){
-    error = "User tidak sedang dalam rentang waktu pembayaran";
-  }
-  return error;
-}
+exports.createTagihanBill = async(obj, userId) => {
+    let error = null;
+    const user = await Models.Electricities.findOne({where: {id: userId}});
+    if(!user) error = "User not found";
 
-exports.createTagihanBill = async (
-  userId,
-  payment_type, period, dateBilled, bank_destination_id,
-  IDPEL, Name, Tarif_Daya, Bulan_Tahun, Stand_Meter, Bill, Admin, Late_Payment_Fee, Total
-  ) => {
-  const bill = await bills.create({
-    user_id: userId
-  });
+    const bill = await Models.bills.create({
+      user_id: userId,
+      bill_type: "Listrik-Tagihan"
+    });
+    
+    const bill_fee = obj.data.Bill.replace("Rp. ", "").replace(".", "").replace(",00", "");
+    const admin_fee = obj.data.Admin.replace("Rp. ", "").replace(".", "").replace(",00", "");
+    const late_payment_fee = obj.data.Late_Payment_Fee.replace("Rp. ", "").replace(".", "").replace(",00", "");
+    const total = obj.data.Total.replace("Rp. ", "").replace(".", "").replace(",00", "");
 
-  let tagihan_bill_details = await pln_tagihan_bills.create({
-    bill_id: bill.id,
-    customer_number: IDPEL,
-    name: Name,
-    rates: Tarif_Daya.slice(0,2),
-    power: Tarif_Daya.slice(-4),
-    tagihan_date: Bulan_Tahun,
-    last_month_stand_meter: Stand_Meter.slice(0,4),
-    this_month_stand_meter: Stand_Meter.slice(-4),
-    bill_fee: Bill,
-    admin_fee: Admin,
-    late_payment_fee: Late_Payment_Fee,
-    total: Total,
-  }) 
-  tagihan_bill_details = tagihan_bill_details.dataValues;
+    let tagihan_bill_details = {};
+    for (let i = 0; i < obj.data.Bulan_Tahun.length; i++) {
+        tagihan_bill_details = await Models.pln_tagihan_bills.create({
+        bill_id: bill.id,
+        customer_number: obj.data.IDPEL,
+        name: obj.data.Name,
+        rates: obj.data.Tarif_Daya.slice(0,2),
+        power: obj.data.Tarif_Daya.slice(-4),
+        tagihan_date: new Date(obj.data.Bulan_Tahun[i]),
+        last_month_stand_meter: obj.data.Stand_Meter.slice(0,4),
+        this_month_stand_meter: obj.data.Stand_Meter.slice(-4),
+        bill_fee,
+        admin_fee,
+        late_payment_fee,
+        total,
+      });
+    }
+
   tagihan_bill_details = {
-    IDPEL,
-    Name,
-    Tarif_Daya,
-    Bulan_Tahun,  
-    Stand_Meter,
-    Bill: `Rp. ${new Intl.NumberFormat("id").format(Bill)},00`,
-    Admin: `Rp. ${new Intl.NumberFormat("id").format(Admin)},00`,
-    Late_Payment_Fee: `Rp. ${new Intl.NumberFormat("id").format(Late_Payment_Fee)},00`,
-    Total: `Rp. ${new Intl.NumberFormat("id").format(Total)},00`
+    IDPEL: obj.data.IDPEL,
+    Name: obj.data.Name,
+    Tarif_Daya: obj.data.Tarif_Daya,
+    Bulan_Tahun: obj.data.Bulan_Tahun,  
+    Stand_Meter: obj.data.Stand_Meter,
+    Bill: obj.data.Bill,
+    Admin: obj.data.Admin,
+    Late_Payment_Fee: obj.data.Late_Payment_Fee,
+    Total: obj.data.Total,
+    notificationMessage: "Payment Created",
   };
 
-  // cek apakah sudah ada recurring billing. pasti ga ada sih, kan bill.id nya baru terus.
-  const checkRecurring = await recurring_billings.findOne({
-    where: {bill_id: bill.id}
-  });
-
-  const date_billed = moment(dateBilled).add(1, "M").calendar();
-  const due_date = new Date().setDate(20);
-
-  const recurringBilling = await recurring_billings.create({
-    bill_id: bill.id,
-    period: period,
-    date_billed,
-    due_date,
-    is_delete: false
-  });
-
-  const transaction = await transactions.create({
+  const transaction = await Models.transactions.create({
     bill_id: bill.id,
     transaction_date: new Date(),
     status: "Process",
   });
 
-  const transactionPayment = await transaction_payments.create({
+  if (obj.recurringBilling.status === true) {
+    let date_billed = await getRecurringDate (obj.recurringBilling.period, obj.recurringBilling.dayOfWeek)
+    const due_date = new Date(date_billed).setDate(20);
+
+    const checkLastRecurring = await findLastRecurringBill(bill.id);
+    if(!checkLastRecurring) {
+      const createRecurring = await Models.recurring_billings.create({
+        bill_id: bill.id,
+        period: obj.recurringBilling.period,
+        date_billed,
+        due_date,
+        is_delete: false
+      });
+    } else {
+      const updateRecurring = await Models.recurring_billings.update(
+        {
+          bill_id: bill.id,
+          period: obj.recurringBilling.period,
+          date_billed,
+          due_date,
+        },
+        { 
+          where: {id: checkLastRecurring.id} 
+        }
+      );
+    }
+  }
+
+  const transactionPayment = await Models.transaction_payments.create({
     transaction_id: transaction.id,
-    type: payment_type,
+    type: obj.payment.type,
   });
 
-  let bankTransferDetails = await bank_transfers.create({
+  let bankTransferDetails = await Models.bank_transfers.create({
       transaction_payment_id: transactionPayment.id,
-      bank_destination_id,
+      bank_destination_id: obj.payment.bank_destination_id,
     });
   
-  const bankAccountDetails = await biller_bank_accounts.findOne({
-    where: {id: bank_destination_id}
-  })
+  const bankAccountDetails = await Models.biller_bank_accounts.findOne({where: {id: obj.payment.bank_destination_id}})
 
   bankTransferDetails = bankTransferDetails.dataValues;
   bankTransferDetails = {
@@ -183,17 +210,18 @@ exports.createTagihanBill = async (
   return {data: tagihan_bill_details, bankTransferDetails};
 };
 
-exports.createTokenBill = async (
-  userId,
-  payment_type, period, dateBilled, bank_destination_id,
-  No_Meter, IDPEL, Name, Tarif_Daya, Token, PPJ, Admin, Total
-) => {
-  const bill = await bills.create({
-    user_id: userId
+exports.createTokenBill = async (obj, userId) => {
+  let error = null;
+  const user = await Models.Electricities.findOne({where: {id: userId}});
+  if(!user) error = "User not found";
+
+  const bill = await Models.bills.create({
+    user_id: userId,
+    bill_type: "Listrik-Token"
   });
 
   // kalkulasi kwh
-  const splitArr = Tarif_Daya.split('/');
+  const splitArr = obj.data.Tarif_Daya.split('/');
   const power = splitArr[1].replace("V", "");
   let tarif_per_kwh = 0;
   if(power >= "200" && power <= "450") {
@@ -206,76 +234,72 @@ exports.createTokenBill = async (
     tarif_per_kwh = 996.74;
   }
   
-  const stroomToken = Token - PPJ;
+  const token = obj.data.Token.replace("Rp. ", "").replace(".", "").replace(",00", "");
+  const ppj = obj.data.PPJ.replace("Rp. ", "").replace(".", "").replace(",00", "");
+  const admin_fee = obj.data.Admin.replace("Rp. ", "").replace(".", "").replace(",00", "");
+  const total = obj.data.Total.replace("Rp. ", "").replace(".", "").replace(",00", "");
+
+  const stroomToken = token - ppj;
   const kwH = stroomToken/tarif_per_kwh;
   
-  let token_bill_details = await pln_token_bills.create({
+  let token_bill_details = await Models.pln_token_bills.create({
     bill_id: bill.id,
-    meter_number: No_Meter,
-    customer_number: IDPEL,
-    name: Name,
-    rates: Tarif_Daya.slice(0,2),
-    power: Tarif_Daya.slice(-4),
+    meter_number: obj.data.No_Meter,
+    customer_number: obj.data.IDPEL,
+    name: obj.data.Name,
+    rates: obj.data.Tarif_Daya.slice(0,2),
+    power: obj.data.Tarif_Daya.slice(-4),
     ref: faker.datatype.uuid(),
     kwh: kwH,
     stroom_per_token: stroomToken,
-    token: Token,
-    ppj: PPJ,
-    admin_fee: Admin,
-    total: Total,
+    token,
+    ppj,
+    admin_fee,
+    total,
     stroom_code: Math.floor(100000 + Math.random() * 90000000000000000000),
   });
   
-  token_bill_details = token_bill_details.dataValues;
-  token_bill_details = {
-    No_Meter,
-    IDPEL,
-    Name,
-    Tarif_Daya,
-    Token:`Rp ${new Intl.NumberFormat("id").format(Token)},00`,
-    PPJ: `Rp. ${new Intl.NumberFormat("id").format(PPJ)},00`,
-    Admin: `Rp. ${new Intl.NumberFormat("id").format(Admin)},00`,
-    Total: `Rp. ${new Intl.NumberFormat("id").format(Total)},00`
-  };
+  if (obj.recurringBilling.status === true) {
+    let date_billed = await getRecurringDate(obj.recurringBilling.period, obj.recurringBilling.dayOfWeek)
 
-  // cek apakah sudah ada recurring billing. pasti ga ada sih, kan bill.id nya baru terus.
-  const checkRecurring = await recurring_billings.findOne({
-    where: {bill_id: bill.id}
-  });
-
-  let date_billed = null;
-  if(period === "Month") {
-    date_billed = moment(dateBilled).add(1, "M").calendar();
-  } else if(period === "Week"){
-    date_billed = moment(dateBilled).add(7, "d").calendar();
+    const checkLastRecurring = await findLastRecurringBill(bill.id);
+    if(!checkLastRecurring) {
+      const createRecurring = await Models.recurring_billings.create({
+        bill_id: bill.id,
+        period: obj.recurringBilling.period,
+        date_billed
+      });
+    } else {
+      const updateRecurring = await Models.recurring_billings.update(
+        {
+          bill_id: bill.id,
+          period: obj.recurringBilling.period,
+          date_billed
+        },
+        { 
+          where: {id: checkLastRecurring.id} 
+        }
+      );
+    }
   }
-  
-  const recurringBilling = await recurring_billings.create({
-    bill_id: bill.id,
-    period: period,
-    date_billed,
-    // due_date: "",
-    is_delete: false
-  });
-
-  const transaction = await transactions.create({
+  const transaction = await Models.transactions.create({
     bill_id: bill.id,
     transaction_date: new Date(),
     status: "Process",
   });
 
-  const transactionPayment = await transaction_payments.create({
+  const transactionPayment = await Models.transaction_payments.create({
     transaction_id: transaction.id,
-    type: payment_type,
+    type: obj.payment.type,
   });
 
-  let bankTransferDetails = await bank_transfers.create({
+  let bankTransferDetails = await Models.bank_transfers.create({
       transaction_payment_id: transactionPayment.id,
-      bank_destination_id,
+      bank_destination_id: obj.payment.bank_destination_id
     });
   
-  const bankAccountDetails = await biller_bank_accounts.findOne({
-    where: {id: bank_destination_id}
+  const bankAccountDetails = await Models.biller_bank_accounts.findOne({
+    where: {id: obj.payment.bank_destination_id}
   })
 
   bankTransferDetails = bankTransferDetails.dataValues;
@@ -284,9 +308,125 @@ exports.createTokenBill = async (
     account_bank: bankAccountDetails.account_bank,
     account_name: bankAccountDetails.account_name,
     account_number: bankAccountDetails.account_number,
-    // receipt_url: ""
+  };
+
+  token_bill_details = token_bill_details.dataValues;
+  token_bill_details = {
+    No_Meter: obj.data.No_Meter,
+    IDPEL: obj.data.IDPEL,
+    Name: obj.data.Name,
+    Tarif_Daya: obj.data.Tarif_Daya,
+    Token: obj.data.Token,
+    PPJ: obj.data.PPJ,
+    Admin: obj.data.Admin,
+    Total: obj.data.Total,
+    notificationMessage: "Payment Created",
   };
 
   return {data: token_bill_details, bankTransferDetails};
+}
+
+const checkRangePaymentDate = async() => {
+  let message = null
+  const now = new Date().getDate();
+  if(now > 20){
+    message = "User tidak sedang dalam rentang waktu pembayaran";
+  }
+  return message;
+}
+
+const findLastRecurringBill = async(billId) => {
+  const recurringBills = await Models.recurring_billings.findOne({
+    where: {bill_id: billId},
+    include: {
+      model: Models.bills,
+      attributes: [],
+      include: {
+        model: Models.transactions,
+        attributes: [],
+        where: {status: "Success"}
+      },
+    },
+  })
+    if(recurringBills !== null) return recurringBills; 
+  };
+
+const findLastBill = async(customer_number) => {
+  let tagihanBills = await Models.pln_tagihan_bills.findOne({
+    attributes: ["tagihan_date"],
+    where: {customer_number: customer_number},
+    order: [["tagihan_date","DESC"]],
+    include: {
+      model: Models.bills,
+      attributes: [],
+      include: {
+        model: Models.transactions,
+        attributes: [],
+        where: { status: "Success"}
+      }
+    }
+  });
+  if (tagihanBills === null) return null;
+  return tagihanBills;
+}
+
+const monthDiff = async(d1, d2) => {
+  let date1 = moment(d1);
+  let date2 = moment(d2);
+  let diff = date2.diff(date1, 'months');
+
+  return diff;
+}
+
+const isActive = async(diffMonth) => {
+  let message = null
+  if(diffMonth >= 3) {
+    message = "Aliran listrik diputus";
+  } 
+  return message;
+}
+
+const calcPaymentFee = async(diffMonth, power) => {
+  let latePaymentFee = 0;
+  if(diffMonth > 1){
+    if(power == "450V" || power == "900V") return latePaymentFee = 3000 * diffMonth;
+    if(power == "1300V") return latePaymentFee = 5000 * diffMonth;
+    if(power == "2200V") return latePaymentFee = 10000 * diffMonth;
+    if(power == "3500V" || power == "5500V") return latePaymentFee = 50000 * diffMonth;
+    if(power == "6600V" || power == "14000V") return latePaymentFee = 75000 * diffMonth;
+    return latePaymentFee = 100000 * diffMonth;
+  };
+  return latePaymentFee;
+}
+
+const findPin = async(userId) => {
+  const pin = await Models.Users.findOne({
+    attributes: ["pin"],
+    where: {id: userId}
+  })
+  if(pin === null) return null;
+  return pin;
+}
+
+const getRecurringDate = async(period, day) => {
+  let date_billed = null;
+  if(period === "Year") date_billed = moment(new Date()).add(1, "y").format("YYYY/MM/DD");
+  if(period === "Month") date_billed = moment(new Date()).add(1, "M").format("YYYY/MM/DD");
+  if(period === "Week") {
+    let dayNow = new Date().getDay();
+    let diff = 0;
+    let calcDate;
+    if(dayNow > day) {
+      diff = dayNow - day;
+      calcDate = 7 - diff;
+    } 
+    if(dayNow < day) { 
+      diff = day - dayNow;
+      calcDate = 7 + diff;
+    }
+    if(dayNow == day) calcDate = 7;
+  date_billed = moment(new Date()).add(calcDate, "d").format("YYYY/MM/DD") 
+  };
+  return date_billed;
 }
 

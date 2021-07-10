@@ -64,6 +64,15 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
+      bill_type: DataTypes.ENUM(
+        "Listrik-Token",
+        "Listrik-Tagihan",
+        "Mobile",
+        "Landline",
+        "Internet-TV",
+        "PDAM",
+        "BPJS"
+      ),
       // option_id: {
       //   type: DataTypes.INTEGER,
       //   allowNull: false,

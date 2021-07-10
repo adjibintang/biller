@@ -12,7 +12,7 @@ module.exports = {
           email: faker.internet.email(),
           password:
             "$2a$10$VxxcwIjckcgCME8xMQgK2OBd7oZAQMbViGlDO/UIWVv7P77FOjyF6", // Password123
-          pin: "$2y$10$dnCBIc34gGzt4n6OqXf2x.kwVLcrH4SKaISWP3mIud9lUKXDFE20u", //123456
+          pin: "$2b$10$UNdqLSiTZ0j0qayDsZ4cjulNqGqdjmUCHMfPQ3lrYW6gfmoorXu06", // 123456
           phone_number: faker.phone.phoneNumber(),
           image_url: faker.image.imageUrl(),
           is_verified: false,
@@ -25,7 +25,7 @@ module.exports = {
           email: faker.internet.email(),
           password:
             "$2a$10$VxxcwIjckcgCME8xMQgK2OBd7oZAQMbViGlDO/UIWVv7P77FOjyF6", // Password123
-          pin: "$2y$10$dnCBIc34gGzt4n6OqXf2x.kwVLcrH4SKaISWP3mIud9lUKXDFE20u", //123456
+          pin: "$2b$10$UNdqLSiTZ0j0qayDsZ4cjulNqGqdjmUCHMfPQ3lrYW6gfmoorXu06", // 123456
           phone_number: faker.phone.phoneNumber(),
           image_url: faker.image.imageUrl(),
           is_verified: false,

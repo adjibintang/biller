@@ -1,6 +1,6 @@
 const authRouter = require("express").Router();
 const { validate } = require("../middleware/validateRequestMiddleware");
-const { loginSchema } = require("../schema/requestSchema");
+const { loginSchema, registerSchema } = require("../schema/requestSchema");
 const { login } = require("../middleware/authMiddleware");
 const userController = require("../controller/userController");
 
@@ -10,5 +10,9 @@ authRouter.post(
   login,
   userController.getToken
 );
+
+authRouter.post("/signup", validate(registerSchema), userController.signup);
+
+authRouter.get("/confirm/:confirmationCode", userController.confirmUser);
 
 module.exports = authRouter;

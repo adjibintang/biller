@@ -7,7 +7,6 @@ const server = express();
 const port = process.env.PORT || 3000;
 
 const authRoute = require("./routes/authenticationRoute");
-const pdamRoute = require("./routes/pdamRoute");
 
 server.use(logger("dev"));
 server.use(cors());
@@ -19,7 +18,6 @@ server.use(
 );
 
 server.use("/api/biller", authRoute);
-server.use("/api/biller/pdam/bill", pdamRoute);
 
 server.all("*", (req, res) => {
   res.status(404).json({

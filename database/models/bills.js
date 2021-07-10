@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.internet_tv_bills, {
+      this.hasMany(models.internet_tv_bills, {
         foreignKey: "bill_id",
       });
 

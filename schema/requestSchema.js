@@ -28,8 +28,26 @@ const customerNumberSchema = Joi.object({
   customerNumber: Joi.string().required(),
 }).options({ abortEarly: false });
 
+const registerSchema = Joi.object({
+  first_name: Joi.string().required(),
+  last_name: Joi.string().required(),
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ["com", "net"] },
+    })
+    .lowercase()
+    .required(),
+  password: passwordComplexity(complexityOptions),
+  pin: Joi.string()
+    .length(6)
+    .pattern(/^[0-9]+$/)
+    .required(),
+});
+
 module.exports = {
   loginSchema,
   searchCitySchema,
   customerNumberSchema,
+  registerSchema,
 };

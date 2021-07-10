@@ -257,7 +257,12 @@ exports.createInternetTVBill = async (req, res) => {
 
         res.send({
           payment_details: {
-            total: internetTVBill.total,
+            total: `Rp ${new Intl.NumberFormat("id").format(
+              parseInt(internetTVBill.bill_fee) +
+                parseInt(internetTVBill.bill_fee) * checklatePayment +
+                parseInt(internetTVBill.late_payment_fee) * checklatePayment +
+                parseInt(internetTVBill.admin_fee)
+            )},00`,
             bank: bankAccountInfo.account_bank,
             account_name: bankAccountInfo.account_name,
             account_number: bankAccountInfo.account_number,
@@ -268,8 +273,9 @@ exports.createInternetTVBill = async (req, res) => {
             )},00`,
             no_customer: account.customer_number,
             name: account.name,
-            period: req.body.data.payment_period,
+            address: account.address,
             provider: internetTVBill.provider,
+            period: req.body.data.payment_period,
             bill: `Rp ${new Intl.NumberFormat("id").format(
               parseInt(internetTVBill.bill_fee)
             )},00`,

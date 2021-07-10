@@ -14,19 +14,10 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      va_number: {
-        type: DataTypes.STRING,
-        unique: true,
-      },
+      va_number: DataTypes.STRING,
       name: DataTypes.STRING,
       branch: DataTypes.STRING,
       family_member: DataTypes.INTEGER,
-      type: {
-        type: DataTypes.ENUM("Kelas I", "Kelas II", "Kelas III"),
-      },
-      cost: {
-        type: DataTypes.DECIMAL,
-      },
       address: DataTypes.STRING,
     },
     {

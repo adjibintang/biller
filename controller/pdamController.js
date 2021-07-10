@@ -45,3 +45,22 @@ exports.getPdamCustomerInfo = async (req, res) => {
     return res.sendStatus(500);
   }
 };
+
+exports.payPdamBill = async (req, res) => {
+  try {
+    const payPdamBillRessult = await pdamService.postNewPdamBill(
+      req.body,
+      req.user.id
+    );
+
+    if (payPdamBillRessult === null) return res.sendStatus(204);
+
+    return res.status(200).json({
+      statusText: "Ok",
+      message: "PDAM Account Information",
+      data: payPdamBillRessult,
+    });
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};

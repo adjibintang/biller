@@ -15,6 +15,9 @@ module.exports = {
     database: DB_NAME_DEV,
     host: DB_HOST_DEV,
     dialect: DB_DIALECT_DEV,
+    dialectOptions: {
+      ssl: { rejectUnauthorized: false },
+    },
   },
   test: {
     username: "root",

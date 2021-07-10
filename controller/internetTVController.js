@@ -42,7 +42,7 @@ exports.getInternetAccountInfo = async (req, res) => {
     } else {
       const lastPaymentDeadline = new Date(
         account.payment_due.getFullYear(),
-        account.payment_due.getMonth() - 1,
+        account.payment_due.getMonth(),
         account.payment_due.getDate()
       );
 
@@ -53,7 +53,7 @@ exports.getInternetAccountInfo = async (req, res) => {
       const checklatePayment = await internetTVService.latePaymentcheck(
         account.period
       );
-
+      console.log(checklatePayment);
       if (checklatePayment >= 3) {
         return res.send({
           name: account.name,

@@ -24,6 +24,10 @@ const searchCitySchema = Joi.object({
   city: Joi.string().required(),
 }).options({ abortEarly: false });
 
+const customerNumberSchema = Joi.object({
+  customerNumber: Joi.string().required(),
+}).options({ abortEarly: false });
+
 const registerSchema = Joi.object({
   first_name: Joi.string().required(),
   last_name: Joi.string().required(),
@@ -35,10 +39,15 @@ const registerSchema = Joi.object({
     .lowercase()
     .required(),
   password: passwordComplexity(complexityOptions),
+  pin: Joi.string()
+    .length(6)
+    .pattern(/^[0-9]+$/)
+    .required(),
 });
 
 module.exports = {
   loginSchema,
   searchCitySchema,
+  customerNumberSchema,
   registerSchema,
 };

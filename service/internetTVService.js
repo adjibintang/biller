@@ -36,7 +36,7 @@ exports.getAccountInfo = async (customer_number) => {
 };
 
 exports.createBill = async (user_id) => {
-  const bill = await bills.create({ user_id });
+  const bill = await bills.create({ user_id, bill_type: "Internet-TV" });
   return bill;
 };
 
@@ -206,7 +206,7 @@ exports.latePaymentcheck = async (lastPayment) => {
   }
   const gap = await monthDiff(lastPayment, new Date());
 
-  return gap;
+  return gap - 1;
 };
 
 exports.updatePeriod = async (bill_id, provider, payment_due) => {

@@ -16,6 +16,18 @@ module.exports = {
           key: "id",
         },
       },
+      bill_type: {
+        allowNull: false,
+        type: Sequelize.ENUM(
+          "Listrik-Token",
+          "Listrik-Tagihan",
+          "Mobile",
+          "Landline",
+          "Internet-TV",
+          "PDAM",
+          "BPJS"
+        ),
+      },
       // option_id: {
       //   type: Sequelize.INTEGER,
       //   allowNull: false,

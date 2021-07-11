@@ -13,7 +13,6 @@ module.exports = {
       },
       customer_number: {
         type: Sequelize.STRING,
-        unique: true,
       },
       provider: {
         type: Sequelize.STRING,

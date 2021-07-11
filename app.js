@@ -22,6 +22,10 @@ server.use(
   })
 );
 
+server.get("/", (req, res) => {
+  res.send("Biller App");
+});
+
 server.use("/api/biller", authRoute);
 server.use("/api/biller/pdam/bill", pdamRoute);
 server.use("/api/biller/bpjs/bill", bpjsRoute);

@@ -42,7 +42,7 @@ exports.getInternetAccountInfo = async (req, res) => {
     } else {
       const lastPaymentDeadline = new Date(
         account.payment_due.getFullYear(),
-        account.payment_due.getMonth(),
+        account.payment_due.getMonth() - 1,
         account.payment_due.getDate()
       );
 
@@ -116,11 +116,14 @@ exports.getInternetAccountInfo = async (req, res) => {
         };
       }
 
+      const pin = await internetTVService.findPin(req.user.dataValues.id);
+
       res.status(200).send({
         statusCode: 200,
         statusText: "Succes",
         message: "Success to Get Account Info",
         data: {
+          pin,
           name: account.name,
           customer_number: account.customer_number,
           provider: account.provider,
@@ -292,6 +295,7 @@ exports.createInternetTVBill = async (req, res) => {
                 parseInt(internetTVBill.admin_fee)
             )},00`,
           },
+          pin: req.body.data.pin,
         });
       }
     }

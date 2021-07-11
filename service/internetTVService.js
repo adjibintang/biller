@@ -1,4 +1,4 @@
-const { Internet_tvs, Options } = require("../database/models");
+const { Users, Internet_tvs, Options } = require("../database/models");
 const {
   bills,
   internet_tv_bills,
@@ -229,4 +229,13 @@ exports.updatePeriod = async (bill_id, provider, payment_due) => {
       { where: { bill_id }, returning: true, plain: true }
     );
   }
+};
+
+exports.findPin = async (user_id) => {
+  const pin = await Users.findOne({
+    attributes: ["pin"],
+    where: { id: user_id },
+  });
+
+  return pin.pin;
 };

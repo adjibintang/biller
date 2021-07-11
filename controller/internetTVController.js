@@ -76,7 +76,7 @@ exports.getInternetAccountInfo = async (req, res) => {
       let result = [];
       const period_arr = [];
       for (let i = 0; i <= checklatePayment; i++) {
-        const monthPeriod = account.payment_due.getMonth() + i;
+        const monthPeriod = account.payment_due.getMonth() - i;
 
         const periodDate = new Date(
           account.payment_due.getFullYear(),
@@ -92,13 +92,13 @@ exports.getInternetAccountInfo = async (req, res) => {
 
         if (i == checklatePayment) {
           result.push({
-            month: account.payment_due.getMonth() + i + 1,
+            month: account.payment_due.getMonth() - i + 1,
             amount: parseInt(account.abonemen),
             late_payment: 0,
           });
         } else {
           result.push({
-            month: account.payment_due.getMonth() + i + 1,
+            month: account.payment_due.getMonth() - i + 1,
             amount: parseInt(account.abonemen),
             late_payment: parseInt(late_payment),
           });

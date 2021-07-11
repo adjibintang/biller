@@ -149,6 +149,7 @@ exports.createTagihanBill = async(obj, userId) => {
     Admin: obj.data.Admin,
     Late_Payment_Fee: obj.data.Late_Payment_Fee,
     Total: obj.data.Total,
+    PIN: obj.data.PIN,
     notificationMessage: "Payment Created",
   };
 
@@ -320,6 +321,7 @@ exports.createTokenBill = async (obj, userId) => {
     PPJ: obj.data.PPJ,
     Admin: obj.data.Admin,
     Total: obj.data.Total,
+    PIN: obj.data.PIN,
     notificationMessage: "Payment Created",
   };
 

@@ -1,4 +1,5 @@
 const firebase = require("../middleware/firebaseMiddleware");
+const fs = require('fs')
 
 exports.uploadFile = async (imageFile) => {
   try {
@@ -26,3 +27,18 @@ exports.uploadFile = async (imageFile) => {
     return error.message;
   }
 };
+
+exports.deleteFile = async (path) => {
+  
+  fs.unlink(path, (err) => {
+    if (err) {
+      console.error(err)
+      return
+    }
+  
+    //file removed
+  })
+};
+
+
+

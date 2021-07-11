@@ -2,7 +2,7 @@ const admin = require("firebase-admin");
 const multer = require("multer");
 
 // Initialize firebase admin SDK
-admin.initializeApp({
+const app = admin.initializeApp({
   credential: admin.credential.cert({
     type: process.env.FIREBASE_TYPE,
     project_id: process.env.FIREBASE_PROJECT_ID,
@@ -21,6 +21,7 @@ admin.initializeApp({
 
 // Cloud storage
 const bucket = admin.storage().bucket();
+const storage = admin.storage();
 
 //Upload Middleware
 const upload = multer({
@@ -30,4 +31,6 @@ const upload = multer({
 module.exports = {
   bucket,
   upload,
+  storage,
+  app
 };

@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "option_id",
       });
 
-      this.hasMany(models.Packages, {
-        foreignKey: "option_id",
-      });
+      // this.hasMany(models.Bills, {
+      //   foreignKey: "option_id",
+      // });
     }
   }
   Options.init(

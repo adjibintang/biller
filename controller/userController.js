@@ -1,5 +1,6 @@
 const userService = require("../service/userService");
 const mailService = require("../service/mailService");
+const storageService = require("../service/storageService");
 const jwt = require("jsonwebtoken");
 
 exports.getToken = async (req, res) => {
@@ -71,3 +72,57 @@ exports.confirmUser = async (req, res) => {
     res.status(500).send({ message: error });
   }
 };
+
+exports.update = async (req, res) => {
+  try {
+    const findUser = await userService.findUserByEmail(req.body.email);
+    if (findUser) {
+      const updateUser = await userService.updateUser(req.body);
+
+      const sendEmail = await mailService.sendNotificationEmail(
+        updateUser.first_name,
+        updateUser.email
+      );
+
+      res.status(200).send({
+        statusCode: 200,
+        statusText: "OK",
+        message: "Update Success",
+      });
+    } else {
+      res.status(400).send({
+        statusCode: 400,
+        statusText: "Bad Request",
+        message: "Update Failed",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      statusCode: 500,
+      statusText: "Internal Server Error",
+      message: "Update Failed",
+    });
+  }
+};
+
+exports.updatePhoto = async (req, res) => {
+  try {
+    const findUser = await userService.findUserByEmail(req.body.email);
+    if (findUser) {
+      const updateUser = await userService.updatePhoto(req.body.email, req.file);
+    }
+    res.status(200).send({
+      statusCode: 200,
+      statusText: "OK",
+      message: "Update Success",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      statusCode: 500,
+      statusText: "Internal Server Error",
+      message: "Update Failed",
+    });
+  }
+}

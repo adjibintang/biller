@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       customer_number: DataTypes.STRING,
       rates: DataTypes.DECIMAL,
       power: DataTypes.INTEGER,
+      cost_per_kwh: DataTypes.INTEGER,
       last_month_stand_meter: DataTypes.INTEGER,
       this_month_stand_meter: DataTypes.INTEGER,
       address: DataTypes.STRING,

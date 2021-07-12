@@ -31,6 +31,7 @@ exports.getTagihanAccInfo = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log("🦄 ~ file: electricityController.js ~ line 35 ~ exports.getTagihanAccInfo= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: error.message

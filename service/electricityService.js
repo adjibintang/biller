@@ -35,8 +35,8 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
   const kwH = accInfo.this_month_stand_meter - accInfo.last_month_stand_meter;
   const bill = kwH * accInfo.cost_per_kwh;
 
-  let fixBill = 0;
-  (countMonth !== 0) ? fixBill = countMonth * bill : fixBill = bill ;
+  let fixBill = 1;
+  (countMonth !== 0) ? fixBill = countMonth * bill : fixBill =  bill ;
   
   const admin_fee = 3000;
   const total = fixBill + admin_fee + late_payment_fee; 

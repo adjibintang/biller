@@ -1,24 +1,16 @@
-const models = require("../database/models");
-const homeServiveController = {};
+const homeService = require("../service/homeService");
 
-homeServiveController.getAllService = async (req, res) => {
+exports.getAllService = async (req, res) => {
   try {
-    const getservice = await models.Services.findAll({attributes:["id","name"]});
+    const getservice = await homeService.getAllService();
 
     const respayload = {
       statusText: "Ok",
-      message: "Login Success",
-      statusCode: 200,
+      message: "Success Get Services",
       result: getservice,
     };
-    res.json(respayload);
+    res.status(200).json(respayload);
   } catch (error) {
-    res.status(500).json({
-      statusText: "Internal Server Error",
-      message: "Error",
-      result: error,
-    });
+    return res.sendStatus(500);
   }
 };
-
-module.exports = homeServiveController;

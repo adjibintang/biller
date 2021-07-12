@@ -18,11 +18,18 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       branch: DataTypes.STRING,
       family_member: DataTypes.INTEGER,
+      type: {
+        type: DataTypes.ENUM("Kelas I", "Kelas II", "Kelas III"),
+      },
+      cost: {
+        type: DataTypes.DECIMAL,
+      },
       address: DataTypes.STRING,
     },
     {
       sequelize,
       modelName: "Bpjss",
+      freezeTableName: true,
     }
   );
   return Bpjss;

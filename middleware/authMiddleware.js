@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const Models = require("../database/models");
 const jwt = require("jsonwebtoken");
-const { reset } = require("nodemon");
 
 exports.login = async (req, res, next) => {
   try {
@@ -45,12 +44,12 @@ exports.userAuthorization = async (req, res, next) => {
       process.env.SECRET_ACCESS_KEY_DEV,
       async (err, data) => {
         if (err) {
-          if (err.name === "JsonWebTokenError") {
-            return res.status(401).json({
-              message: "Unauthorized",
-            });
-          } else {
-            return res.sendStatus(400);
+          if (
+            err.name === "JsonWebTokenError" ||
+            err.name === "TokenExpiredError" ||
+            err.name === "NotBeforeError"
+          ) {
+            return res.sendStatus(401);
           }
         }
 

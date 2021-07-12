@@ -1,36 +1,45 @@
-'use strict';
+"use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Internet_tvs', {
+    await queryInterface.createTable("Internet_tvs", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       customer_number: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       provider: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+      },
+      abonemen: {
+        type: Sequelize.DECIMAL,
       },
       address: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+      },
+      period: {
+        type: Sequelize.DATE,
+      },
+      payment_due: {
+        type: Sequelize.DATE,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Internet_tvs');
-  }
+    await queryInterface.dropTable("Internet_tvs");
+  },
 };

@@ -3,7 +3,13 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Users extends Model {
     static associate(models) {
-      // define association here
+      this.hasMany(models.payment_cards, {
+        foreignKey: "user_id",
+      });
+
+      this.hasMany(models.bills, {
+        foreignKey: "user_id",
+      });
     }
   }
   Users.init(
@@ -21,6 +27,15 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
       },
       password: DataTypes.STRING,
+      pin: DataTypes.STRING,
+      phone_number: {
+        allowNull: true,
+        type: DataTypes.STRING,
+      },
+      image_url: {
+        allowNull: true,
+        type: DataTypes.STRING,
+      },
       is_verified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

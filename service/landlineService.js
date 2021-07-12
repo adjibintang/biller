@@ -29,7 +29,7 @@ exports.getAccInfo = async(telephoneNumber, userId) => {
   const activeStatus = await isActive(countMonth);
   if(activeStatus !== null) error = activeStatus;
 
-  let fixBill = 0;
+  let fixBill = 1;
   (countMonth !== 0) ? fixBill = countMonth * accInfo.abonemen : fixBill = accInfo.abonemen ;
   
   const late_payment_fee = await calcPaymentFee(countMonth, accInfo.abonemen);

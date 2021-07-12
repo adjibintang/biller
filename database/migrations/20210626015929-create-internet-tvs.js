@@ -13,7 +13,6 @@ module.exports = {
       },
       customer_number: {
         type: Sequelize.STRING,
-        unique: true,
       },
       provider: {
         type: Sequelize.STRING,
@@ -23,6 +22,12 @@ module.exports = {
       },
       address: {
         type: Sequelize.STRING,
+      },
+      period: {
+        type: Sequelize.DATE,
+      },
+      payment_due: {
+        type: Sequelize.DATE,
       },
       createdAt: {
         allowNull: false,

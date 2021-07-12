@@ -1,53 +1,48 @@
-"use strict";
+'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Electricities", {
+    await queryInterface.createTable('Electricities', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       name: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       meter_number: {
-        type: Sequelize.STRING,
-        unique: true,
+        type: Sequelize.STRING
       },
       customer_number: {
-        type: Sequelize.STRING,
-        unique: true,
+        type: Sequelize.STRING
       },
       rates: {
-        type: Sequelize.STRING,
+        type: Sequelize.DECIMAL
       },
       power: {
-        type: Sequelize.STRING,
-      },
-      cost_per_kwh: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.INTEGER
       },
       last_month_stand_meter: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       this_month_stand_meter: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       address: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE,
-      },
+        type: Sequelize.DATE
+      }
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Electricities");
-  },
+    await queryInterface.dropTable('Electricities');
+  }
 };

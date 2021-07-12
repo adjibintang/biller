@@ -7,6 +7,7 @@ const server = express();
 const port = process.env.PORT || 3000;
 
 const authRoute = require("./routes/authenticationRoute");
+const homeServiceRoute = require("./routes/homeserviceRoute");
 const pdamRoute = require("./routes/pdamRoute");
 const bpjsRoute = require("./routes/bpjsRoute");
 const paymentRoute = require("./routes/paymentRoute");
@@ -27,6 +28,7 @@ server.get("/", (req, res) => {
 });
 
 server.use("/api/biller", authRoute);
+server.use("/api/biller/home", homeServiceRoute);
 server.use("/api/biller/pdam/bill", pdamRoute);
 server.use("/api/biller/bpjs/bill", bpjsRoute);
 server.use("/api/biller/payment", paymentRoute);

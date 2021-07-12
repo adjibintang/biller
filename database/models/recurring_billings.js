@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       period: DataTypes.ENUM("Year", "Month", "Week"),
       date_billed: DataTypes.DATE,
       due_date: DataTypes.DATE,
-      is_delete: DataTypes.BOOLEAN,
+      is_delete: { type: DataTypes.BOOLEAN, defaultValue: false },
     },
     {
       sequelize,

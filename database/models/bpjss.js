@@ -14,10 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      va_number: {
-        type: DataTypes.STRING,
-        unique: true,
-      },
+      va_number: DataTypes.STRING,
       name: DataTypes.STRING,
       branch: DataTypes.STRING,
       family_member: DataTypes.INTEGER,
@@ -32,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Bpjss",
+      freezeTableName: true,
     }
   );
   return Bpjss;

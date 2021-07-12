@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       full_name: DataTypes.STRING,
       branch: DataTypes.STRING,
       payment_period: DataTypes.DATE,
+      total_month: DataTypes.INTEGER,
       bill_fee: DataTypes.DECIMAL,
       admin_fee: { type: DataTypes.DECIMAL, defaultValue: 2500 },
       total: DataTypes.DECIMAL,

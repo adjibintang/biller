@@ -25,7 +25,7 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
           `${new Date().getFullYear()}-${new Date().getMonth() - i}-20`
         );
       }
-    }
+    } if (countMonth === 0) period = accInfo.period;
     
   const activeStatus = await isActive(countMonth);
   if(activeStatus !== null) error = activeStatus;

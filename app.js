@@ -8,6 +8,7 @@ const port = process.env.PORT || 3000;
 
 const authRoute = require("./routes/authenticationRoute");
 const landlineRoutes = require("./routes/landlineRoutes");
+const electricityRoutes = require("./routes/electicityRoutes");
 const homeServiceRoute = require("./routes/homeserviceRoute");
 const pdamRoute = require("./routes/pdamRoute");
 const bpjsRoute = require("./routes/bpjsRoute");
@@ -30,6 +31,7 @@ server.get("/", (req, res) => {
 
 server.use("/api/biller", authRoute);
 server.use("/api/biller/landline/bill", landlineRoutes);
+server.use("/api/biller/electricity/bill", electricityRoutes);
 server.use("/api/biller/home", homeServiceRoute);
 server.use("/api/biller/pdam/bill", pdamRoute);
 server.use("/api/biller/bpjs/bill", bpjsRoute);

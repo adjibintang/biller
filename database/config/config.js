@@ -1,4 +1,4 @@
-// require("dotenv").config();
+require("dotenv").config();
 
 const {
   DB_USERNAME_DEV,

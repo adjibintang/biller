@@ -1,5 +1,7 @@
 const Models = require("../database/models");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+require("dotenv").config();
 
 exports.generateToken = async (userId) => {
   try {
@@ -16,4 +18,21 @@ exports.generateToken = async (userId) => {
     console.log(error);
     return null;
   }
+};
+
+exports.findUserByEmail = async (email) => {
+  const user = await Models.Users.findOne({ where: { email } });
+  return user;
+};
+
+exports.createUser = async (input) => {
+  const { first_name, last_name, email, password, pin } = input;
+  const newUser = await Models.Users.create({
+    first_name,
+    last_name,
+    email,
+    password: bcrypt.hashSync(password, 10),
+    pin: bcrypt.hashSync(pin, 10),
+  });
+  return newUser;
 };

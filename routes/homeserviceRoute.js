@@ -1,12 +1,7 @@
 const Router = require("express").Router();
-const auth  = require("../middleware/authMiddleware");
+const { userAuthorization } = require("../middleware/authMiddleware");
 const homeServiveController = require("../controller/homeservicecontroller");
 
-Router.get(
-  "/homeservice",
-  auth.userAuthorization,
-  homeServiveController.getAllService
-);
+Router.get("/service", userAuthorization, homeServiveController.getAllService);
 
- 
-(module.exports = Router);
+module.exports = Router;

@@ -7,10 +7,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "user_id",
       });
 
-      // this.belongsTo(models.Options, {
-      //   foreignKey: "option_id",
-      // });
-
       this.hasOne(models.recurring_billings, {
         foreignKey: "bill_id",
       });
@@ -31,11 +27,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.internet_tv_bills, {
+      this.hasMany(models.internet_tv_bills, {
         foreignKey: "bill_id",
       });
 
-      this.hasOne(models.pdam_bills, {
+      this.hasMany(models.pdam_bills, {
         foreignKey: "bill_id",
       });
 
@@ -64,6 +60,7 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
+<<<<<<< HEAD
       // option_id: {
       //   type: DataTypes.INTEGER,
       //   allowNull: false,
@@ -74,6 +71,20 @@ module.exports = (sequelize, DataTypes) => {
       // },
       // date_billed: DataTypes.DATE,
       // due_date: DataTypes.DATE,
+=======
+      bill_type: {
+        allowNull: false,
+        type: DataTypes.ENUM(
+          "Listrik-Token",
+          "Listrik-Tagihan",
+          "Mobile",
+          "Landline",
+          "Internet-TV",
+          "PDAM",
+          "BPJS"
+        ),
+      },
+>>>>>>> b6c902402841fcbb32fa3cc120009f497da5502a
     },
     {
       sequelize,

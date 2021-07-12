@@ -10,9 +10,10 @@ const mobileRoute = require("./routes/mobileRoute");
 const authRoute = require("./routes/authenticationRoute");
 const homeServiceRoute = require("./routes/homeserviceRoute");
 const pdamRoute = require("./routes/pdamRoute");
-const prepaid = require("./routes/prepaidRoute");
-const newbill = require("./routes/newbillRoute");
-const electricity = require("./routes/electricityRoute");
+const bpjsRoute = require("./routes/bpjsRoute");
+const paymentRoute = require("./routes/paymentRoute");
+const receiptRoute = require("./routes/receiptRoute");
+const internetTVRoute = require("./routes/internetTVRoute");
 
 server.use(logger("dev"));
 server.use(cors());
@@ -23,14 +24,17 @@ server.use(
   })
 );
 
+server.get("/", (req, res) => {
+  res.send("Biller App");
+});
+
 server.use("/api/biller", authRoute);
 server.use("/api/biller/home", homeServiceRoute);
-server.use("/api/biller/mobile", mobileRoute);
 server.use("/api/biller/pdam/bill", pdamRoute);
-server.use("/api/biller/bill", prepaid);
-server.use("/api/biller", newbill);
-
-server.use("/api/biller", electricity);
+server.use("/api/biller/bpjs/bill", bpjsRoute);
+server.use("/api/biller/payment", paymentRoute);
+server.use("/api/biller/receipt", receiptRoute);
+server.use("/api/biller/internet_TV", internetTVRoute);
 
 server.all("*", (req, res) => {
   res.status(404).json({

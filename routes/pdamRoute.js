@@ -18,4 +18,6 @@ pdamRouter.get(
   pdamController.getPdamCustomerInfo
 );
 
+pdamRouter.post("/new", userAuthorization, pdamController.payPdamBill);
+
 module.exports = pdamRouter;

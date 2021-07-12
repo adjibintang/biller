@@ -18,10 +18,6 @@ module.exports = {
       },
       phone_number: {
         type: Sequelize.STRING,
-        unique: true,
-      },
-      post_payment_fee: {
-        type: Sequelize.DECIMAL,
       },
       createdAt: {
         allowNull: false,

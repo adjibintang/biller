@@ -20,6 +20,21 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          name: "Axis",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          name: "Three",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          name: "Smartfren",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       admin_fee: { type: DataTypes.DECIMAL, defaultValue: 2500 },
       late_payment_fee: DataTypes.DECIMAL,
       total: DataTypes.DECIMAL,
+      period: DataTypes.DATE
     },
     {
       sequelize,

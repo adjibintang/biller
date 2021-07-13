@@ -15,7 +15,6 @@ exports.generateToken = async (userId) => {
 
     return tokenResponse;
   } catch (error) {
-    console.log(error);
     return null;
   }
 };

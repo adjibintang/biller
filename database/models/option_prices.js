@@ -38,10 +38,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       provider: {
         type: DataTypes.STRING,
-        references:{
-          model: "providers",
-          key:"name"
-        }
       },
       package_name: {
         type: DataTypes.STRING,

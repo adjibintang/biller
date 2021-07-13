@@ -40,10 +40,8 @@ exports.getInternetAccountInfo = async (req, res) => {
         statusText: "No Content",
       });
     } else {
-      const lastPaymentDeadline = new Date(
-        account.payment_due.getFullYear(),
-        account.payment_due.getMonth(),
-        account.payment_due.getDate()
+      const lastPaymentDeadline = await internetTVService.lastPaymentDeadline(
+        account.dataValues.payment_due
       );
 
       if (account.period - lastPaymentDeadline > 0) {
@@ -53,92 +51,44 @@ exports.getInternetAccountInfo = async (req, res) => {
       const checklatePayment = await internetTVService.latePaymentcheck(
         account.period
       );
-      console.log(checklatePayment);
+
       if (checklatePayment >= 3) {
-        return res.send({
-          name: account.name,
-          customer_number: account.customer_number,
-          provider: account.provider,
-          address: account.address,
-          message:
-            "Your service is inactive. Please contact your provider for further information.",
-        });
-      }
-
-      let late_payment = 0;
-      if (checklatePayment == 1) {
-        late_payment = parseInt(account.abonemen) * 0.05;
-      }
-      if (checklatePayment == 2) {
-        late_payment = parseInt(account.abonemen) * 0.1;
-      }
-
-      let result = [];
-      const period_arr = [];
-      for (let i = 0; i <= checklatePayment; i++) {
-        const monthPeriod = account.payment_due.getMonth() + i;
-
-        const periodDate = new Date(
-          account.payment_due.getFullYear(),
-          monthPeriod,
-          account.payment_due.getDate()
+        return res.send(
+          "Your service is inactive. Please contact your provider for further information."
         );
-
-        const formattedPeriod = `${moment(periodDate).format("MMM")} ${moment(
-          periodDate
-        ).format("YYYY")}`;
-
-        period_arr.push(formattedPeriod);
-
-        if (i == checklatePayment) {
-          result.push({
-            month: account.payment_due.getMonth() + i + 1,
-            amount: parseInt(account.abonemen),
-            late_payment: 0,
-          });
-        } else {
-          result.push({
-            month: account.payment_due.getMonth() + i + 1,
-            amount: parseInt(account.abonemen),
-            late_payment: parseInt(late_payment),
-          });
-        }
       }
 
-      const late_payment_arr = result.map((x) => x.late_payment);
-      const total_arr = result.map((x) => x.amount);
+      const periodPayment = await internetTVService.periodPayment(
+        account.dataValues,
+        checklatePayment
+      );
 
-      for (let i = 0; i < result.length; i++) {
-        result[i] = {
-          month: result[i].month,
-          amount: result[i].amount,
-          late_payment: result[i].late_payment,
-        };
-      }
+      const pin = await internetTVService.findPin(req.user.dataValues.id);
 
       res.status(200).send({
         statusCode: 200,
         statusText: "Succes",
         message: "Success to Get Account Info",
         data: {
+          pin,
           name: account.name,
           customer_number: account.customer_number,
           provider: account.provider,
           address: account.address,
-          payment_period: period_arr,
+          payment_period: periodPayment.period_arr,
           bill: `Rp ${new Intl.NumberFormat("id").format(account.abonemen)},00`,
           late_payment: `Rp ${new Intl.NumberFormat("id").format(
-            late_payment_arr.reduce(function (a, b) {
+            periodPayment.late_payment_arr.reduce(function (a, b) {
               return a + b;
             }, 0)
           )},00`,
           admin_fee: "Rp 2.500,00",
           total: `Rp ${new Intl.NumberFormat("id").format(
-            total_arr.reduce(function (a, b) {
+            periodPayment.total_arr.reduce(function (a, b) {
               return a + b;
             }, 0) +
               2500 +
-              late_payment_arr.reduce(function (a, b) {
+              periodPayment.late_payment_arr.reduce(function (a, b) {
                 return a + b;
               }, 0)
           )},00`,
@@ -167,10 +117,8 @@ exports.createInternetTVBill = async (req, res) => {
         statusText: "No Content",
       });
     } else {
-      const lastPaymentDeadline = new Date(
-        account.payment_due.getFullYear(),
-        account.payment_due.getMonth() - 1,
-        account.payment_due.getDate()
+      const lastPaymentDeadline = await internetTVService.lastPaymentDeadline(
+        account.dataValues.payment_due
       );
 
       if (account.period - lastPaymentDeadline > 0) {
@@ -182,14 +130,9 @@ exports.createInternetTVBill = async (req, res) => {
       );
 
       if (checklatePayment >= 3) {
-        return res.send({
-          name: account.name,
-          customer_number: account.customer_number,
-          provider: account.provider,
-          address: account.address,
-          message:
-            "Your service is inactive. Please contact your provider for further information.",
-        });
+        return res.send(
+          "Your service is inactive. Please contact your provider for further information."
+        );
       } else {
         const bill = await internetTVService.createBill(req.user.dataValues.id);
 
@@ -229,14 +172,12 @@ exports.createInternetTVBill = async (req, res) => {
         let recurring_billing;
         if (req.body.recurringBilling.status === true) {
           if (req.body.recurringBilling.period != "Month")
-            return res.send({
-              message:
-                "Wrong input for period recurring billing. This service can only be paid once a month",
-            });
+            return res.send(
+              "Wrong input for period recurring billing. This service can only be paid once a month"
+            );
           recurring_billing = await internetTVService.findRecurringBilling(
             bill.id
           );
-          // console.log(req.body.recurringBilling.date.getDate());
 
           if (!recurring_billing) {
             recurringBilling = await internetTVService.createRecurringBilling(
@@ -292,6 +233,7 @@ exports.createInternetTVBill = async (req, res) => {
                 parseInt(internetTVBill.admin_fee)
             )},00`,
           },
+          pin: req.body.data.pin,
         });
       }
     }

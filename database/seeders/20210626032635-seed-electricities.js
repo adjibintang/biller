@@ -1,4 +1,4 @@
-// const faker = require("faker");
+const faker = require("faker");
 ("use strict");
 
 module.exports = {

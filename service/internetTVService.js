@@ -1,4 +1,4 @@
-const { Internet_tvs, Options } = require("../database/models");
+const { Users, Internet_tvs, Options } = require("../database/models");
 const {
   bills,
   internet_tv_bills,
@@ -153,7 +153,8 @@ const moment = require("moment");
 
 exports.createRecurringBilling = async (bill_id, period, date, payment_due) => {
   const now = new Date();
-  const billingDate = new Date(date);
+  const billingDate = new Date();
+  // const billingDate = new Date(date);
 
   const date_billed = new Date(
     billingDate.getFullYear(),
@@ -229,4 +230,93 @@ exports.updatePeriod = async (bill_id, provider, payment_due) => {
       { where: { bill_id }, returning: true, plain: true }
     );
   }
+};
+
+exports.findPin = async (user_id) => {
+  const pin = await Users.findOne({
+    attributes: ["pin"],
+    where: { id: user_id },
+  });
+
+  return pin.pin;
+};
+
+exports.lastPaymentDeadline = async (payment_due) => {
+  const date = new Date(
+    payment_due.getFullYear(),
+    payment_due.getMonth() - 1,
+    payment_due.getDate()
+  );
+
+  return date;
+};
+
+exports.periodPayment = async (account, checklatePayment) => {
+  let late_payment = 0;
+  let result = [];
+  let period_arr = [];
+  let late_payment_arr = [];
+  let total_arr = [];
+
+  if (checklatePayment == -1) {
+    const period = account.payment_due;
+    period_arr.push(
+      `${moment(period).format("MMM")} ${moment(period).format("YYYY")}`
+    );
+
+    result.push({
+      month: account.payment_due.getMonth() + 1,
+      amount: parseInt(account.abonemen),
+      late_payment: 0,
+    });
+  }
+  if (checklatePayment == 1) {
+    late_payment = parseInt(account.abonemen) * 0.05;
+  }
+  if (checklatePayment == 2) {
+    late_payment = parseInt(account.abonemen) * 0.1;
+  }
+
+  for (let i = 0; i <= checklatePayment; i++) {
+    const monthPeriod = account.payment_due.getMonth() - i;
+
+    const periodDate = new Date(
+      account.payment_due.getFullYear(),
+      monthPeriod,
+      account.payment_due.getDate()
+    );
+
+    const formattedPeriod = `${moment(periodDate).format("MMM")} ${moment(
+      periodDate
+    ).format("YYYY")}`;
+
+    period_arr.push(formattedPeriod);
+
+    if (i == checklatePayment) {
+      result.push({
+        month: account.payment_due.getMonth() - i + 1,
+        amount: parseInt(account.abonemen),
+        late_payment: 0,
+      });
+    } else {
+      result.push({
+        month: account.payment_due.getMonth() - i + 1,
+        amount: parseInt(account.abonemen),
+        late_payment: parseInt(late_payment),
+      });
+    }
+  }
+
+  late_payment_arr = result.map((x) => x.late_payment);
+  total_arr = result.map((x) => x.amount);
+
+  for (let i = 0; i < result.length; i++) {
+    result[i] = {
+      month: result[i].month,
+      amount: result[i].amount,
+      late_payment: result[i].late_payment,
+    };
+  }
+
+  return { late_payment_arr, period_arr, total_arr };
 };

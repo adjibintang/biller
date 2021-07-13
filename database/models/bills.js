@@ -60,18 +60,6 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
-<<<<<<< HEAD
-      // option_id: {
-      //   type: DataTypes.INTEGER,
-      //   allowNull: false,
-      //   references: {
-      //     model: "Options",
-      //     key: "id",
-      //   },
-      // },
-      // date_billed: DataTypes.DATE,
-      // due_date: DataTypes.DATE,
-=======
       bill_type: {
         allowNull: false,
         type: DataTypes.ENUM(
@@ -84,7 +72,6 @@ module.exports = (sequelize, DataTypes) => {
           "BPJS"
         ),
       },
->>>>>>> b6c902402841fcbb32fa3cc120009f497da5502a
     },
     {
       sequelize,

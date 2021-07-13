@@ -35,6 +35,7 @@ server.use("/api/biller/bpjs/bill", bpjsRoute);
 server.use("/api/biller/payment", paymentRoute);
 server.use("/api/biller/receipt", receiptRoute);
 server.use("/api/biller/internet_TV", internetTVRoute);
+server.use("/api/biller/mobile/bill", mobileRoute);
 
 server.all("*", (req, res) => {
   res.status(404).json({

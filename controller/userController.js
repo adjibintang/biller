@@ -14,7 +14,9 @@ exports.getToken = async (req, res) => {
       token: tokenResult,
     });
   } catch (error) {
+    console.log(error);
     res.sendStatus(500);
+    
   }
 };
 

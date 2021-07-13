@@ -6,6 +6,7 @@ const logger = require("morgan");
 const server = express();
 const port = process.env.PORT || 3000;
 
+const mobileRoute = require("./routes/mobileRoute");
 const authRoute = require("./routes/authenticationRoute");
 const homeServiceRoute = require("./routes/homeserviceRoute");
 const pdamRoute = require("./routes/pdamRoute");
@@ -34,6 +35,7 @@ server.use("/api/biller/bpjs/bill", bpjsRoute);
 server.use("/api/biller/payment", paymentRoute);
 server.use("/api/biller/receipt", receiptRoute);
 server.use("/api/biller/internet_TV", internetTVRoute);
+server.use("/api/biller/mobile/bill", mobileRoute);
 
 server.all("*", (req, res) => {
   res.status(404).json({

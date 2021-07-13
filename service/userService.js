@@ -10,7 +10,7 @@ exports.generateToken = async (userId) => {
     const tokenResponse = await jwt.sign(
       { user: { id: userId } },
       process.env.SECRET_ACCESS_KEY_DEV,
-      { expiresIn: "8h" }
+      { expiresIn: "5m" }
     );
 
     return tokenResponse;

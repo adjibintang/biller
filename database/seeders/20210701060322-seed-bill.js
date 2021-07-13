@@ -29,6 +29,18 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          user_id: 3, // Already Paid Case
+          bill_type: "BPJS",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 3, // VA Number Non Active
+          bill_type: "BPJS",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

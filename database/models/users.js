@@ -40,6 +40,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      pin: {
+        allowNull: true,
+        type: DataTypes.STRING,
+      } 
     },
     {
       sequelize,

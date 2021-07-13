@@ -77,3 +77,20 @@ exports.getMobileAcc = async (req, res) => {
     return res.sendStatus(500);
   }
 };
+
+exports.newMobileBill = async (req, res) => {
+  try {
+    const newMobileBillResult = await mobileService.newBill(
+      req.body,
+      req.user.id
+    );
+
+    return res.status(201).json({
+      statusText: "Created",
+      message: "Success Create New Mobile Bill",
+      data: newMobileBillResult,
+    });
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};

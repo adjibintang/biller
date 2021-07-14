@@ -232,7 +232,7 @@ exports.createTokenBill = async (obj, userId) => {
     tarif_per_kwh = 996.74;
   }
   
-  const stroomToken = token - ppj;
+  const stroomToken = obj.data.Token - obj.data.PPJ;
   const kwH = stroomToken/tarif_per_kwh;
   
   let token_bill_details = await Models.pln_token_bills.create({

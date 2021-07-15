@@ -39,20 +39,23 @@ exports.createUser = async (input) => {
   return newUser;
 };
 
-exports.updateUser = async (input, old_password) => {
-  const { first_name, last_name, email, password, phone_number, pin } = input;
+exports.updateUser = async (input, old_password, old_pin) => {
+  const { first_name, last_name, email, password, new_password, phone_number, pin, new_pin } = input;
   let error = null;
 
   const checkPassword = await passwordVerification(password, old_password);
+  if(checkPassword !== "OK") return error = checkPassword;
+
+  const checkPin = await pinVerification(pin, old_pin);
   if(checkPassword !== "OK") return error = checkPassword;
 
   const updateUser = await Models.Users.update({
     first_name,
     last_name,
     email,
-    password: bcrypt.hashSync(password, 10),
+    password: bcrypt.hashSync(new_password, 10),
     phone_number,
-    pin: bcrypt.hashSync(pin, 10),
+    pin: bcrypt.hashSync(new_pin, 10),
   },
   { where: {email} });
 
@@ -75,11 +78,18 @@ const testDelete = async (imageName) => {
 
 }
 
-const passwordVerification = async (new_password, old_password) => {
+const passwordVerification = async (password, old_password) => {
   let message = "OK";
-  const result = await bcrypt.compareSync(new_password, old_password);
-  if(result === true) return message = "New password must be different from old password."
+  const result = await bcrypt.compareSync(password, old_password);
+  if(result === false) return message = "Unauthorized"
   
   return message; 
 }
 
+const pinVerification = async (pin, old_pin) => {
+  let message = "OK";
+  const result = await bcrypt.compareSync(pin, old_pin);
+  if(result === false) return message = "Unauthorized"
+  
+  return message; 
+}

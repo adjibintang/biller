@@ -57,8 +57,13 @@ const updateSchema = Joi.object({
     .lowercase()
     .required(),
   password: passwordComplexity(complexityOptions),
+  new_password: passwordComplexity(complexityOptions),
   phone_number: Joi.string().required(),
   pin: Joi.string()
+    .length(6)
+    .pattern(/^[0-9]+$/)
+    .required(),
+  new_pin: Joi.string()
     .length(6)
     .pattern(/^[0-9]+$/)
     .required(),

@@ -81,12 +81,11 @@ exports.updateUser = async (req, res) => {
         statusText: "Bad Request",
       });
     }
-    const {data: updateUser, error} = await userService.updateUser(req.body, findUser.password);
+    const {data: updateUser, error} = await userService.updateUser(req.body, findUser.password, findUser.pin);
     if(error !== null) {
-      res.status(400).send({
-        statusCode: 400,
-        statusText: "Bad Request",
-        message: "New password must be different from old password.",
+      res.status(401).send({
+        statusCode: 401,
+        statusText: "Unauthorized",
       });
     }
     

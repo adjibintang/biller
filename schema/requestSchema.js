@@ -26,6 +26,7 @@ const searchCitySchema = Joi.object({
 
 const customerNumberSchema = Joi.object({
   customerNumber: Joi.string().required(),
+  month: Joi.string(),
 }).options({ abortEarly: false });
 
 const registerSchema = Joi.object({

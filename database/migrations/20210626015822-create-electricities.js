@@ -13,11 +13,9 @@ module.exports = {
       },
       meter_number: {
         type: Sequelize.STRING,
-        unique: true,
       },
       customer_number: {
         type: Sequelize.STRING,
-        unique: true,
       },
       rates: {
         type: Sequelize.STRING,
@@ -36,6 +34,9 @@ module.exports = {
       },
       address: {
         type: Sequelize.STRING,
+      },
+      period: {
+        type: Sequelize.DATE,
       },
       createdAt: {
         allowNull: false,

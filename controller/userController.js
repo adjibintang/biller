@@ -15,7 +15,9 @@ exports.getToken = async (req, res) => {
       token: tokenResult,
     });
   } catch (error) {
+    console.log(error);
     res.sendStatus(500);
+    
   }
 };
 
@@ -43,7 +45,6 @@ exports.signup = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       statusCode: 500,
       statusText: "Internal Server Error",
@@ -68,7 +69,6 @@ exports.confirmUser = async (req, res) => {
       res.status(404).send({ message: "User Not found." });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).send({ message: error });
   }
 };

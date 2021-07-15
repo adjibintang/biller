@@ -15,14 +15,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       name: DataTypes.STRING,
-      telephone_number: { type: DataTypes.STRING, unique: true },
-      type: {
-        type: DataTypes.ENUM("Business", "Residential", "Social"),
-      },
-      abonemen: {
-        type: DataTypes.DECIMAL,
-      },
+      telephone_number: DataTypes.STRING,
+      type: DataTypes.ENUM("Business", "Residential", "Social"),
+      abonemen: DataTypes.INTEGER,
       address: DataTypes.STRING,
+      period: DataTypes.DATE
     },
     {
       sequelize,

@@ -13,16 +13,18 @@ module.exports = {
       },
       telephone_number: {
         type: Sequelize.STRING,
-        unique: true,
       },
       type: {
         type: Sequelize.ENUM("Business", "Residential", "Social"),
       },
       abonemen: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.INTEGER,
       },
       address: {
         type: Sequelize.STRING,
+      },
+      period: {
+        type: Sequelize.DATE,
       },
       createdAt: {
         allowNull: false,

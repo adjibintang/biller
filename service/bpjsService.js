@@ -18,7 +18,7 @@ exports.getPeriod = async () => {
     return error.message;
   }
 };
-exports.getCustomerInfo = async (vaNumber, month) => {
+exports.getCustomerInfo = async (vaNumber, month, userPin) => {
   try {
     const accountInfo = await Models.Bpjss.findOne({
       where: { va_number: vaNumber },
@@ -69,6 +69,7 @@ exports.getCustomerInfo = async (vaNumber, month) => {
     let bill = await (accountInfo.cost * accountInfo.family_member * howMany);
 
     return {
+      pin: userPin,
       noVa: accountInfo.va_number,
       fullName: accountInfo.name,
       branch: accountInfo.branch,
@@ -96,10 +97,7 @@ exports.newBill = async (requestData, userId) => {
         1 -
         (lastPeriod.getMonth() + 1);
       const dayDifference = dayDiff(lastPeriod, new Date(period[0]));
-      if (
-        (dayDifference > 1 && new Date().getDate() > 10) ||
-        (dayDifference === 0 && new Date().getDate() > 10)
-      )
+      if (dayDifference > 1 && new Date().getDate() > 10)
         return {
           isActive: false,
           isPay: false,
@@ -107,7 +105,7 @@ exports.newBill = async (requestData, userId) => {
             "Your Account is Disabled, Please Contact The Office For Further Information",
         };
 
-      if (dayDifference === 0)
+      if (dayDifference === 0 && new Date().getDate() > 10)
         return {
           isActive: true,
           isPay: false,
@@ -151,8 +149,15 @@ exports.newBill = async (requestData, userId) => {
     });
 
     let recurringBill = null;
+
     if (requestData.recurringBilling.status === true) {
-      let recurringDate = new Date(requestData.recurringBilling.createDate);
+      let recurringDate = await getRecurringDate(
+        requestData.recurringBilling.period,
+        new Date(requestData.recurringBilling.createDate),
+        requestData.recurringBilling.day
+          ? requestData.recurringBilling.day
+          : null
+      );
 
       const lastRecurringBill = await getLastRecurringBill(createBill.id);
 
@@ -160,14 +165,13 @@ exports.newBill = async (requestData, userId) => {
         recurringBill = await Models.recurring_billings.create({
           bill_id: createBill.id,
           period: requestData.recurringBilling.period,
-          date_billed: `${recurringDate.getFullYear()}-${
-            recurringDate.getMonth() + 2
-          }-${recurringDate.getDate()}`,
+          date_billed: recurringDate,
           due_date: null,
         });
       } else {
         recurringBill = await Models.recurring_billings.update(
           {
+            period: requestData.recurringBilling.period,
             date_billed: recurringDate,
           },
           {
@@ -183,7 +187,7 @@ exports.newBill = async (requestData, userId) => {
     } else {
       recurringDetail = {
         period: recurringBill.period,
-        recurringDate: recurringBill.date_billed,
+        recurringDate,
       };
     }
 
@@ -282,24 +286,38 @@ const monthDiff = (d1, d2) => {
   return months <= 0 ? 0 : months;
 };
 
-const getReccuringDate = async (period, date) => {
+const getRecurringDate = async (period, date, day) => {
   try {
     let reccuringDate;
-    if (period === "Year")
-      recurringDate = `${date.getFullYear() + 1}-${
-        date.getMonth() + 1
-      }-${date.getDate()}`;
+    if (period === "Year") recurringDate = await getDateOfNextYear(date);
 
-    if (period === "Month")
-      recurringDate = `${date.getFullYear()}-${
-        date.getMonth() + 2
-      }-${date.getDate()}`;
+    if (period === "Month") recurringDate = await getDateOfNextMonth(date);
 
-    if (period === "Week")
-      recurringDate = await getNextDayOfWeek(date, date.getDay());
+    if (period === "Week") recurringDate = await getNextDayOfWeek(date, day);
 
-    return new Date(recurringDate);
+    return recurringDate;
   } catch (error) {
     return error.message;
   }
+};
+
+const getNextDayOfWeek = async (date, dayOfWeek) => {
+  const dayDiff = 6 - date.getDay();
+  date.setDate(date.getDate() + dayDiff + dayOfWeek + 1);
+  date.setMonth(date.getMonth() + 1);
+  const result = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  return result;
+};
+
+const getDateOfNextMonth = async (date) => {
+  date.setMonth(date.getMonth() + 2);
+  const result = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  return result;
+};
+
+const getDateOfNextYear = async (date) => {
+  date.setYear(date.getFullYear() + 1);
+  date.setMonth(date.getMonth() + 1);
+  const result = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  return result;
 };

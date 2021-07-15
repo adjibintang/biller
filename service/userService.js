@@ -39,9 +39,13 @@ exports.createUser = async (input) => {
   return newUser;
 };
 
-exports.updateUser = async (input) => {
+exports.updateUser = async (input, old_password) => {
   const { first_name, last_name, email, password, phone_number, pin } = input;
- 
+  let error = null;
+
+  const checkPassword = await passwordVerification(password, old_password);
+  if(checkPassword !== "OK") return error = checkPassword;
+
   const updateUser = await Models.Users.update({
     first_name,
     last_name,
@@ -51,7 +55,8 @@ exports.updateUser = async (input) => {
     pin: bcrypt.hashSync(pin, 10),
   },
   { where: {email} });
-  return updateUser;
+
+  return {data: updateUser, error};
 }
 
 exports.updatePhoto = async (email, file) => {
@@ -65,7 +70,16 @@ exports.updatePhoto = async (email, file) => {
   return uploadPhoto;
 }
 
-const testDelete = async(imageName) => {
+const testDelete = async (imageName) => {
   await firebase.storage().bucket().file().delete();
 
 }
+
+const passwordVerification = async (new_password, old_password) => {
+  let message = "OK";
+  const result = await bcrypt.compareSync(new_password, old_password);
+  if(result === true) return message = "New password must be different from old password."
+  
+  return message; 
+}
+

@@ -75,23 +75,27 @@ exports.confirmUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const findUser = await userService.findUserByEmail(req.body.email);
-    if (findUser) {
-      const updateUser = await userService.updateUser(req.body);
-
-      res.status(200).send({
-        statusCode: 200,
-        statusText: "OK",
-        message: "Update Success",
-      });
-    } else {
+    if (!findUser) {
       res.status(400).send({
         statusCode: 400,
         statusText: "Bad Request",
-        message: "Update Failed",
       });
     }
+    const {data: updateUser, error} = await userService.updateUser(req.body, findUser.password);
+    if(error !== null) {
+      res.status(400).send({
+        statusCode: 400,
+        statusText: "Bad Request",
+        message: "New password must be different from old password.",
+      });
+    }
+    
+    res.status(200).send({
+      statusCode: 200,
+      statusText: "OK",
+      message: "Update Success",
+    });    
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       statusCode: 500,
       statusText: "Internal Server Error",

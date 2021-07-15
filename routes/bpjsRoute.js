@@ -6,7 +6,7 @@ const bpjsController = require("../controller/bpjsController");
 
 bpjsRoute.get("/period", userAuthorization, bpjsController.getPeriod);
 
-bpjsRoute.get(
+bpjsRoute.post(
   "/customer/info",
   validate(customerNumberSchema),
   userAuthorization,

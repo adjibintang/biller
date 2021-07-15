@@ -18,7 +18,7 @@ module.exports = {
           address: "Jl. Bojongsoang No. 225, Bandung",
           createdAt: new Date(),
           updatedAt: new Date(),
-          period: 2021-06-10
+          period: "2021-06-10"
         },
         {
           name: "Jojon Frans",
@@ -32,7 +32,7 @@ module.exports = {
           address: "Jl. Sudirman No.34, Sumedang",
           createdAt: new Date(),
           updatedAt: new Date(),
-          period: 2021-06-20
+          period: "2021-06-20"
         },
         {
           name: "Linda Lidia",
@@ -46,7 +46,7 @@ module.exports = {
           address: "Jl. Daan Mogot No. 210, Jakarta",
           createdAt: new Date(),
           updatedAt: new Date(),
-          period: 2021-06-20
+          period: "2021-06-20"
         },
         {
           name: "Safira Arumawati",
@@ -60,7 +60,7 @@ module.exports = {
           address: "Jl. Paledang No. 56, Bandung",
           createdAt: new Date(),
           updatedAt: new Date(),
-          period: 2021-05-20
+          period: "2021-05-20"
         },
         {
           name: "Sari Sriandini",
@@ -74,7 +74,7 @@ module.exports = {
           address: "Jl. Palria No. 24, Padang",
           createdAt: new Date(),
           updatedAt: new Date(),
-          period: 2021-04-20
+          period: "2021-04-20"
         },
         {
           name: "Hadi Soebandono",
@@ -88,7 +88,7 @@ module.exports = {
           address: "Jl. Polip Kusuma No. 10, Semarang",
           createdAt: new Date(),
           updatedAt: new Date(),
-          period: 2021-03-20
+          period: "2021-03-20"
         },
         {
           name: "Raya Kosandi",
@@ -102,7 +102,7 @@ module.exports = {
           address: "Jl. Kanyakan Luar No.9 , Depok",
           createdAt: new Date(),
           updatedAt: new Date(),
-          period: 2021-07-10
+          period: "2021-07-10"
         },
         {
           name: "Boris Siregar",
@@ -116,7 +116,7 @@ module.exports = {
           address: "Jl. Jend. Sudirman No. 98, Pariaman",
           createdAt: new Date(),
           updatedAt: new Date(),
-          period: 2021-07-10
+          period: "2021-07-10"
         },
       ],
       {}

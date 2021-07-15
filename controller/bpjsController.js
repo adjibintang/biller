@@ -18,11 +18,10 @@ exports.getBpjsCustomerInfo = async (req, res) => {
   try {
     const customerInfoResult = await bpjsService.getCustomerInfo(
       req.body.customerNumber,
-      req.body.month ? req.body.month : 1
+      req.body.month ? req.body.month : 1,
+      req.user.pin
     );
-
     if (customerInfoResult === null) return res.sendStatus(204);
-
     return res.status(200).json({
       statusText: "Ok",
       message: "BPJS Customer Information",

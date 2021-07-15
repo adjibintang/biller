@@ -120,3 +120,31 @@ exports.updatePhoto = async (req, res) => {
     });
   }
 }
+
+exports.getUser = async (req, res) => {
+  try {
+    const userDetails = await userService.findUserByEmail(req.body.email);
+
+    res.status(200).send({
+      statusCode: 200,
+      statusText: "OK",
+      message: "Get Data User Success",
+      data: {
+        first_name: userDetails.first_name,
+        last_name: userDetails.last_name,
+        email: userDetails.email,
+        phone_number: userDetails.phone_number,
+        image_url: userDetails.image_url,
+      }
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      statusCode: 500,
+      statusText: "Internal Server Error",
+      message: "Update Failed",
+    });
+
+  }
+}

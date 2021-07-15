@@ -46,9 +46,18 @@ const registerSchema = Joi.object({
     .required(),
 });
 
+const newPaymentCardSchema = Joi.object({
+  cardNumber: Joi.string().required(),
+  cardHolderName: Joi.string().required(),
+  expireDate: Joi.string().required(),
+  cvv: Joi.string().required(),
+  type: Joi.string().required(),
+}).options({ abortEarly: false });
+
 module.exports = {
   loginSchema,
   searchCitySchema,
   customerNumberSchema,
   registerSchema,
+  newPaymentCardSchema,
 };

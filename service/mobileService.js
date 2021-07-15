@@ -1,5 +1,6 @@
 const Models = require("../database/models");
 const paymentService = require("../service/paymentService");
+const { Op } = require("sequelize");
 
 exports.getMobileServices = async (serviceId) => {
   try {
@@ -37,13 +38,20 @@ exports.getProviders = async () => {
   }
 };
 
-exports.getPriceList = async (optionId) => {
+exports.getPriceList = async (optionId, provider) => {
   try {
     const priceList = await Models.Option_prices.findAll({
       attributes: ["id", "provider", "package_name", "description"],
-      where: { option_id: optionId },
+      where: {
+        [Op.and]: [
+          { option_id: optionId },
+          { provider: provider ? providel : null },
+        ],
+      },
       include: { model: Models.Prices, attributes: ["price"] },
     });
+
+    if (priceList.length === 0) return 204;
 
     let result = [];
     priceList.map((data) =>
@@ -66,7 +74,8 @@ exports.getCustomerInfo = async (
   phoneNumber,
   optionPriceId,
   provider,
-  optionId
+  optionId,
+  userPin
 ) => {
   try {
     const csPhoneNumber = await Models.Mobiles.findOne({
@@ -85,6 +94,7 @@ exports.getCustomerInfo = async (
     const adminFee = optionId == 5 ? 0 : 1500;
 
     return {
+      pin: userPin,
       phoneNumber: csPhoneNumber.phone_number,
       provider,
       priceDetail: {
@@ -100,18 +110,18 @@ exports.getCustomerInfo = async (
   }
 };
 
-exports.newBill = async (requestData, userId) => {
+exports.newBill = async (requestData, userId, type) => {
   try {
     const createBill = await Models.bills.create({
       user_id: userId,
-      bill_type: "Mobile",
+      bill_type: type,
     });
 
     const createMobileBill = await Models.mobile_bills.create({
       bill_id: createBill.id,
-      phoneNumber: requestData.phoneNumber,
+      phone_number: requestData.phoneNumber,
       provider: requestData.provider,
-      packageName: requestData.packageName ? requestData.packageName : null,
+      package_name: requestData.packageName ? requestData.packageName : null,
       description: requestData.description ? requestData.description : null,
       bill_fee: requestData.bill,
       admin_fee: requestData.adminFee,
@@ -124,24 +134,28 @@ exports.newBill = async (requestData, userId) => {
     });
 
     let recurringBill = null;
-    if (requestData.recurringBilling.status === true) {
-      let recurringDate = new Date(requestData.recurringBilling.createDate);
+    let recurringDate = await getRecurringDate(
+      requestData.recurringBilling.period,
+      new Date(requestData.recurringBilling.createDate),
+      requestData.recurringBilling.day ? requestData.recurringBilling.day : null
+    );
 
+    if (requestData.recurringBilling.status === true) {
       const lastRecurringBill = await getLastRecurringBill(createBill.id);
 
       if (lastRecurringBill === null) {
         recurringBill = await Models.recurring_billings.create({
           bill_id: createBill.id,
           period: requestData.recurringBilling.period,
-          date_billed: `${recurringDate.getFullYear()}-${
-            recurringDate.getMonth() + 2
-          }-${recurringDate.getDate()}`,
-          due_date: null,
+          date_billed: recurringDate,
+          due_date: recurringDate,
         });
       } else {
         recurringBill = await Models.recurring_billings.update(
           {
+            period: requestData.recurringBilling.period,
             date_billed: recurringDate,
+            due_date: recurringDate,
           },
           {
             where: { id: lastRecurringBill.id },
@@ -156,7 +170,7 @@ exports.newBill = async (requestData, userId) => {
     } else {
       recurringDetail = {
         period: recurringBill.period,
-        recurringDate: recurringBill.date_billed,
+        recurringDate,
       };
     }
 
@@ -169,19 +183,19 @@ exports.newBill = async (requestData, userId) => {
       );
     }
 
-    const recurringDate = await getRecurringDate("Week", new Date());
-
     return {
       billId: createBill.id,
       paymentDetail: { transactionId: createTransaction.id, ...payBill },
-      phoneNumber: requestData.phoneNumber,
-      provider: requestData.provider,
-      packageName: requestData.packageName ? requestData.packageName : null,
-      description: requestData.description ? requestData.description : null,
-      bill_fee: requestData.bill,
-      admin_fee: requestData.adminFee,
-      total: requestData.total,
-      recurringDetail: recurringDate,
+      billDetail: {
+        phoneNumber: requestData.phoneNumber,
+        provider: requestData.provider,
+        packageName: requestData.packageName ? requestData.packageName : null,
+        description: requestData.description ? requestData.description : null,
+        bill_fee: requestData.bill,
+        admin_fee: requestData.adminFee,
+        total: requestData.total,
+      },
+      recurringDetail: recurringDetail,
       message: "Payment Created",
     };
   } catch (error) {
@@ -191,7 +205,6 @@ exports.newBill = async (requestData, userId) => {
 
 const getLastRecurringBill = async (billId) => {
   try {
-    console.log(billId);
     const lastRecurringBill = await Models.recurring_billings.findOne({
       where: { bill_id: billId },
       include: {
@@ -212,20 +225,14 @@ const getLastRecurringBill = async (billId) => {
   }
 };
 
-const getRecurringDate = async (period, date) => {
+const getRecurringDate = async (period, date, day) => {
   try {
     let reccuringDate;
-    if (period === "Year")
-      recurringDate = `${date.getFullYear() + 1}-${
-        date.getMonth() + 1
-      }-${date.getDate()}`;
+    if (period === "Year") recurringDate = await getDateOfNextYear(date);
 
-    if (period === "Month")
-      recurringDate = `${date.getFullYear()}-${
-        date.getMonth() + 2
-      }-${date.getDate()}`;
+    if (period === "Month") recurringDate = await getDateOfNextMonth(date);
 
-    if (period === "Week") recurringDate = await getNextDayOfWeek(date, 2);
+    if (period === "Week") recurringDate = await getNextDayOfWeek(date, day);
 
     return recurringDate;
   } catch (error) {
@@ -233,28 +240,23 @@ const getRecurringDate = async (period, date) => {
   }
 };
 
-// const getNextDayOfWeek = async (date, dayOfWeek) => {
-//   let resultDate = new Date(date.getTime());
+const getNextDayOfWeek = async (date, dayOfWeek) => {
+  const dayDiff = 6 - date.getDay();
+  date.setDate(date.getDate() + dayDiff + dayOfWeek + 1);
+  date.setMonth(date.getMonth() + 1);
+  const result = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  return result;
+};
 
-//   let dayDiff = 2 - dayOfWeek;
-//   dayDiff = dayDiff < 1 ? Math.abs(dayDiff) : dayDiff;
+const getDateOfNextMonth = async (date) => {
+  date.setMonth(date.getMonth() + 2);
+  const result = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  return result;
+};
 
-//   console.log(new Date().getDate());
-//   console.log(dayDiff);
-//   console.log(new Date().getDate() + dayDiff);
-//   console.log(dayOfWeek);
-//   console.log(new Date().getDate() + dayDiff + dayOfWeek + 1);
-
-//   resultDate.setDate(new Date().getDate() + dayDiff + 7);
-
-//   let result = `${resultDate.getFullYear()}-${resultDate.getMonth()}-${resultDate.getDate()}`;
-
-//   console.log(result);
-
-//   // console.log(dayDiff);
-
-//   // await resultDate.setDate(
-//   //   date.getDate() + ((7 + dayOfWeek - date.getDay() - 1) % 7) + 1
-//   // );
-//   return result;
-// };
+const getDateOfNextYear = async (date) => {
+  date.setYear(date.getFullYear() + 1);
+  date.setMonth(date.getMonth() + 1);
+  const result = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  return result;
+};

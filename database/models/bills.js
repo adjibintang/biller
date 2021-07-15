@@ -62,21 +62,24 @@ module.exports = (sequelize, DataTypes) => {
       },
       bill_type: {
         allowNull: false,
-        type: DataTypes.ENUM(
+        type: DataTypes.ENUM,
+        values: [
           "Listrik-Token",
           "Listrik-Tagihan",
-          "Mobile",
+          "Mobile-Pulsa",
+          "Mobile-Internet",
+          "Mobile-Pasca",
           "Landline",
           "Internet-TV",
           "PDAM",
-          "BPJS"
-        ),
+          "BPJS",
+        ],
       },
     },
     {
       sequelize,
       modelName: "bills",
-      tableName: "bills"
+      tableName: "bills",
     }
   );
   return bills;

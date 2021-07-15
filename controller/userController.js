@@ -128,16 +128,21 @@ exports.getUser = async (req, res) => {
   try {
     const userDetails = await userService.findUserByEmail(req.body.email);
 
+    const paymentMethods = await userService.findPaymentMethod(req.user.id);
+
     res.status(200).send({
       statusCode: 200,
       statusText: "OK",
       message: "Get Data User Success",
       data: {
-        first_name: userDetails.first_name,
-        last_name: userDetails.last_name,
-        email: userDetails.email,
-        phone_number: userDetails.phone_number,
-        image_url: userDetails.image_url,
+        account: {
+          first_name: userDetails.first_name,
+          last_name: userDetails.last_name,
+          email: userDetails.email,
+          phone_number: userDetails.phone_number,
+          image_url: userDetails.image_url,
+        },
+        paymentMethods
       }
     });
 

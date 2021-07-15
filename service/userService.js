@@ -73,6 +73,17 @@ exports.updatePhoto = async (email, file) => {
   return uploadPhoto;
 }
 
+exports.findPaymentMethod = async (userId) => {
+  let paymentMethod = await Models.payment_cards.findAll({
+    where: {user_id : userId},
+    attributes: { exclude: ["id", "user_id", "createdAt", "updatedAt"] },
+  });
+
+  if(paymentMethod.length < 1) paymentMethod = "Bank Transfer";
+
+  return paymentMethod;
+}
+
 const testDelete = async (imageName) => {
   await firebase.storage().bucket().file().delete();
 

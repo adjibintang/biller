@@ -31,6 +31,9 @@ module.exports = {
       total: {
         type: Sequelize.DECIMAL,
       },
+      period: {
+        type: DataTypes.DATE,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

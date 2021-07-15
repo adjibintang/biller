@@ -57,3 +57,41 @@ exports.bankTransferConfirmation = async (
     return error.message;
   }
 };
+
+exports.billerBankAccounts = async () => {
+  try {
+    const bankList = await Models.biller_bank_accounts.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+
+    if (bankList.length === 0) return 204;
+
+    return bankList;
+  } catch (error) {
+    return error.message;
+  }
+};
+
+exports.addNewPaymentCard = async (requestData, userId) => {
+  try {
+    const findCard = await Models.payment_cards.findOne({
+      where: { card_number: requestData.cardNumber },
+    });
+
+    if (findCard) return 202;
+
+    const addNewCard = await Models.payment_cards.create({
+      user_id: userId,
+      card_number: requestData.cardNumber,
+      card_holder_name: requestData.cardHolderName,
+      expire_date: requestData.expireDate,
+      cvv: requestData.cvv,
+      type: requestData.type,
+    });
+
+    return addNewCard;
+  } catch (error) {
+    console.log(error);
+    return error.message;
+  }
+};

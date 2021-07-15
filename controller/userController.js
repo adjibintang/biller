@@ -73,16 +73,11 @@ exports.confirmUser = async (req, res) => {
   }
 };
 
-exports.update = async (req, res) => {
+exports.updateUser = async (req, res) => {
   try {
     const findUser = await userService.findUserByEmail(req.body.email);
     if (findUser) {
       const updateUser = await userService.updateUser(req.body);
-
-      const sendEmail = await mailService.sendNotificationEmail(
-        updateUser.first_name,
-        updateUser.email
-      );
 
       res.status(200).send({
         statusCode: 200,

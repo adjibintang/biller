@@ -18,9 +18,11 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
   let countMonth = await monthDiff(accInfo.period, new Date());
     if (lastPeriod !== null) {
       countMonth = await monthDiff(lastPeriod.tagihan_date, new Date());
+      const days = await diffDays(lastPeriod.tagihan_date.getDate());
+      if(countMonth < 2 && days <= 31) error = "Already Paid";
     }
     if (countMonth !== 0) {
-      for (let i = 0; i < countMonth; i++) {
+      for (let i = 0; i < (countMonth + 1); i++) {
         period.push(
           `${new Date().getFullYear()}-${new Date().getMonth() - i}-20`
         );
@@ -50,10 +52,10 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
     // Bulan_Tahun: `${accInfo.period.toLocaleString('default',{month: 'long'})} ${accInfo.period.getFullYear()} - `,
     Bulan_Tahun: `${period}`,  
     Stand_Meter: `${accInfo.this_month_stand_meter}-${accInfo.last_month_stand_meter}`,
-    Bill: `Rp. ${new Intl.NumberFormat("id").format(fixBill)},00`,
-    Admin: `Rp. ${new Intl.NumberFormat("id").format(admin_fee)},00`,
-    Late_Payment_Fee: `Rp. ${new Intl.NumberFormat("id").format(late_payment_fee)},00`,
-    Total: `Rp. ${new Intl.NumberFormat("id").format(total)},00`,
+    Bill: fixBill,
+    Admin: admin_fee,
+    Late_Payment_Fee: late_payment_fee,
+    Total: total,
     PIN: `${pin.dataValues.pin}`
   };
 
@@ -97,10 +99,10 @@ exports.getTokenAccInfo = async(nomorMeter, price, userId) => {
     IDPEL: accInfo.customer_number,
     Name: accInfo.name,
     Tarif_Daya: `${accInfo.rates}/${accInfo.power}`,
-    Token: `Rp. ${new Intl.NumberFormat("id").format(token)},00`,
-    PPJ: `Rp. ${new Intl.NumberFormat("id").format(PPJ)},00`,
-    Admin: `Rp. ${new Intl.NumberFormat("id").format(Admin)},00`,
-    Total: `Rp. ${new Intl.NumberFormat("id").format(Total)},00`,
+    Token: token,
+    PPJ,
+    Admin,
+    Total: Total,
     PIN: `${pin.dataValues.pin}`
   };
   return accInfo;
@@ -116,11 +118,6 @@ exports.createTagihanBill = async(obj, userId) => {
       bill_type: "Listrik-Tagihan"
     });
     
-    const bill_fee = obj.data.Bill.replace("Rp. ", "").replace(".", "").replace(",00", "");
-    const admin_fee = obj.data.Admin.replace("Rp. ", "").replace(".", "").replace(",00", "");
-    const late_payment_fee = obj.data.Late_Payment_Fee.replace("Rp. ", "").replace(".", "").replace(",00", "");
-    const total = obj.data.Total.replace("Rp. ", "").replace(".", "").replace(",00", "");
-
     let tagihan_bill_details = {};
     for (let i = 0; i < obj.data.Bulan_Tahun.length; i++) {
         tagihan_bill_details = await Models.pln_tagihan_bills.create({
@@ -132,10 +129,10 @@ exports.createTagihanBill = async(obj, userId) => {
         tagihan_date: new Date(obj.data.Bulan_Tahun[i]),
         last_month_stand_meter: obj.data.Stand_Meter.slice(0,4),
         this_month_stand_meter: obj.data.Stand_Meter.slice(-4),
-        bill_fee,
-        admin_fee,
-        late_payment_fee,
-        total,
+        bill_fee: obj.data.Bill,
+        admin_fee: obj.data.Admin,
+        late_payment_fee: obj.data.Late_Payment_Fee,
+        total: obj.data.Total,
       });
     }
 
@@ -235,12 +232,7 @@ exports.createTokenBill = async (obj, userId) => {
     tarif_per_kwh = 996.74;
   }
   
-  const token = obj.data.Token.replace("Rp. ", "").replace(".", "").replace(",00", "");
-  const ppj = obj.data.PPJ.replace("Rp. ", "").replace(".", "").replace(",00", "");
-  const admin_fee = obj.data.Admin.replace("Rp. ", "").replace(".", "").replace(",00", "");
-  const total = obj.data.Total.replace("Rp. ", "").replace(".", "").replace(",00", "");
-
-  const stroomToken = token - ppj;
+  const stroomToken = obj.data.Token - obj.data.PPJ;
   const kwH = stroomToken/tarif_per_kwh;
   
   let token_bill_details = await Models.pln_token_bills.create({
@@ -253,10 +245,10 @@ exports.createTokenBill = async (obj, userId) => {
     ref: faker.datatype.uuid(),
     kwh: kwH,
     stroom_per_token: stroomToken,
-    token,
-    ppj,
-    admin_fee,
-    total,
+    token: obj.data.Token,
+    ppj: obj.data.PPJ,
+    admin_fee: obj.data.Admin,
+    total: obj.data.Total,
     stroom_code: Math.floor(100000 + Math.random() * 90000000000000000000),
   });
   
@@ -329,12 +321,19 @@ exports.createTokenBill = async (obj, userId) => {
 }
 
 const checkRangePaymentDate = async() => {
-  let message = null
+  let message = null;
   const now = new Date().getDate();
   if(now > 20){
     message = "User tidak sedang dalam rentang waktu pembayaran";
   }
   return message;
+}
+
+const diffDays = async(lastPeriod) => {
+  let message =  null;
+  const now = new Date().getDate();
+  const diff = now - lastPeriod;
+  return diff 
 }
 
 const findLastRecurringBill = async(billId) => {
@@ -390,7 +389,7 @@ const isActive = async(diffMonth) => {
 
 const calcPaymentFee = async(diffMonth, power) => {
   let latePaymentFee = 0;
-  if(diffMonth > 1){
+  if(diffMonth >= 1){
     if(power == "450V" || power == "900V") return latePaymentFee = 3000 * diffMonth;
     if(power == "1300V") return latePaymentFee = 5000 * diffMonth;
     if(power == "2200V") return latePaymentFee = 10000 * diffMonth;

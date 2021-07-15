@@ -32,7 +32,7 @@ module.exports = {
         type: Sequelize.DECIMAL,
       },
       period: {
-        type: DataTypes.DATE,
+        type: Sequelize.DATE,
       },
       createdAt: {
         allowNull: false,

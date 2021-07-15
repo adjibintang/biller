@@ -1,5 +1,6 @@
 const userService = require("../service/userService");
 const mailService = require("../service/mailService");
+const storageService = require("../service/storageService");
 const jwt = require("jsonwebtoken");
 
 exports.getToken = async (req, res) => {
@@ -71,3 +72,87 @@ exports.confirmUser = async (req, res) => {
     res.status(500).send({ message: error });
   }
 };
+exports.updateUser = async (req, res) => {
+  try {
+    const findUser = await userService.findUserByEmail(req.body.email);
+    if (!findUser) {
+      res.status(400).send({
+        statusCode: 400,
+        statusText: "Bad Request",
+      });
+    }
+    const {data: updateUser, error} = await userService.updateUser(req.body, findUser.password, findUser.pin);
+    if(error !== null) {
+      res.status(401).send({
+        statusCode: 401,
+        statusText: "Unauthorized",
+      });
+    }
+    
+    res.status(200).send({
+      statusCode: 200,
+      statusText: "OK",
+      message: "Update Success",
+    });    
+  } catch (error) {
+    res.status(500).send({
+      statusCode: 500,
+      statusText: "Internal Server Error",
+      message: "Update Failed",
+    });
+  }
+};
+
+exports.updatePhoto = async (req, res) => {
+  try {
+    const findUser = await userService.findUserByEmail(req.body.email);
+    if (findUser) {
+      const updateUser = await userService.updatePhoto(req.body.email, req.file);
+    }
+    res.status(200).send({
+      statusCode: 200,
+      statusText: "OK",
+      message: "Update Success",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      statusCode: 500,
+      statusText: "Internal Server Error",
+      message: "Update Failed",
+    });
+  }
+}
+
+exports.getUser = async (req, res) => {
+  try {
+    const userDetails = await userService.findUserByEmail(req.body.email);
+
+    const paymentMethods = await userService.findPaymentMethod(req.user.id);
+
+    res.status(200).send({
+      statusCode: 200,
+      statusText: "OK",
+      message: "Get Data User Success",
+      data: {
+        account: {
+          first_name: userDetails.first_name,
+          last_name: userDetails.last_name,
+          email: userDetails.email,
+          phone_number: userDetails.phone_number,
+          image_url: userDetails.image_url,
+        },
+        paymentMethods
+      }
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      statusCode: 500,
+      statusText: "Internal Server Error",
+      message: "Update Failed",
+    });
+
+  }
+}

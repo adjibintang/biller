@@ -74,14 +74,14 @@ exports.confirmUser = async (req, res) => {
 };
 exports.updateUser = async (req, res) => {
   try {
-    const findUser = await userService.findUserByEmail(req.body.email);
+    const findUser = await userService.findUserByEmail(req.user.email);
     if (!findUser) {
       res.status(400).send({
         statusCode: 400,
         statusText: "Bad Request",
       });
     }
-    const {data: updateUser, error} = await userService.updateUser(req.body, findUser.password, findUser.pin);
+    const {data: updateUser, error} = await userService.updateUser(req.body, findUser.password, findUser.pin, req.user.email);
     if(error !== null) {
       res.status(401).send({
         statusCode: 401,
@@ -105,9 +105,9 @@ exports.updateUser = async (req, res) => {
 
 exports.updatePhoto = async (req, res) => {
   try {
-    const findUser = await userService.findUserByEmail(req.body.email);
+    const findUser = await userService.findUserByEmail(req.user.email);
     if (findUser) {
-      const updateUser = await userService.updatePhoto(req.body.email, req.file);
+      const updateUser = await userService.updatePhoto(req.user.email, req.file);
     }
     res.status(200).send({
       statusCode: 200,
@@ -126,7 +126,7 @@ exports.updatePhoto = async (req, res) => {
 
 exports.getUser = async (req, res) => {
   try {
-    const userDetails = await userService.findUserByEmail(req.body.email);
+    const userDetails = await userService.findUserByEmail(req.user.email);
 
     const paymentMethods = await userService.findPaymentMethod(req.user.id);
 

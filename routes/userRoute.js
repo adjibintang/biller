@@ -7,7 +7,7 @@ const userController = require("../controller/userController");
 
 userRouter.put("/update", [userAuthorization, validate(updateSchema)], userController.updateUser);
 userRouter.post("/upload-profile", firebase.upload.single("image"), userController.updatePhoto);
-userRouter.post("/info", userAuthorization, userController.getUser);
+userRouter.get("/info", userAuthorization, userController.getUser);
 
 module.exports = userRouter;
 

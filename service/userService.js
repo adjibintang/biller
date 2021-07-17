@@ -39,7 +39,7 @@ exports.createUser = async (input) => {
   return newUser;
 };
 
-exports.updateUser = async (input, old_password, old_pin) => {
+exports.updateUser = async (input, old_password, old_pin, userEmail) => {
   const { first_name, last_name, email, password, new_password, phone_number, pin, new_pin } = input;
   let error = null;
 
@@ -57,7 +57,7 @@ exports.updateUser = async (input, old_password, old_pin) => {
     phone_number,
     pin: bcrypt.hashSync(new_pin, 10),
   },
-  { where: {email} });
+  { where: {email: userEmail} });
 
   return {data: updateUser, error};
 }
@@ -74,6 +74,7 @@ exports.updatePhoto = async (email, file) => {
 }
 
 exports.findPaymentMethod = async (userId) => {
+  userId = 1;
   let paymentMethod = await Models.payment_cards.findAll({
     where: {user_id : userId},
     attributes: { exclude: ["id", "user_id", "createdAt", "updatedAt"] },

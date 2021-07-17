@@ -77,6 +77,7 @@ exports.getCustomerInfo = async (customerNumber, userPin) => {
     let total = bill + 2500 + latePaymentFee;
 
     const accountInfoResponse = {
+      pin: userPin,
       customerNumber: accountInfo.customer_number,
       name: accountInfo.name,
       period,

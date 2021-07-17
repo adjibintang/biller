@@ -74,7 +74,6 @@ exports.updatePhoto = async (email, file) => {
 }
 
 exports.findPaymentMethod = async (userId) => {
-  userId = 1;
   let paymentMethod = await Models.payment_cards.findAll({
     where: {user_id : userId},
     attributes: { exclude: ["id", "user_id", "createdAt", "updatedAt"] },

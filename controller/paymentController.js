@@ -55,3 +55,40 @@ exports.addNewPaymentCard = async (req, res) => {
     return res.sendStatus(500);
   }
 };
+
+exports.getPaymentCard = async (req, res) => {
+  try {
+    const getPaymentCardResult = await paymentService.getPaymentCard(
+      req.user.id
+    );
+
+    if (getPaymentCardResult === 204) return res.sendStatus(204);
+
+    return res.status(200).json({
+      statusText: "Ok",
+      message: "Success Get User Payment Cards",
+      data: getPaymentCardResult,
+    });
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};
+
+exports.transactionFailed = async (req, res) => {
+  try {
+    const transactionFailedResult = await paymentService.transactionFailed(
+      req.params.billId,
+      req.user.id
+    );
+
+    if (transactionFailedResult === 401) return res.sendStatus(401);
+
+    if (transactionFailedResult)
+      return res.status(201).json({
+        statusText: "Created",
+        message: "Transaction Failed",
+      });
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};

@@ -6,7 +6,6 @@ const {
   DB_NAME_DEV,
   DB_HOST_DEV,
   DB_DIALECT_DEV,
-  DB_DIALECT_OPTIONS_DEV,
 } = process.env;
 
 module.exports = {

@@ -14,8 +14,8 @@ exports.getTagihanAccInfo = async (req, res) => {
 
     const {data: accInfo, error} = await electricityService.getTagihanAccInfo(idPel,user_id);
     if(error !== null){
-      res.status(500).json({
-        statusText: "Internal Server Error",
+      res.status(202).json({
+        statusText: "Accepted",
         message: error
       })
     }
@@ -31,7 +31,6 @@ exports.getTagihanAccInfo = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("🦄 ~ file: electricityController.js ~ line 35 ~ exports.getTagihanAccInfo= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: error.message

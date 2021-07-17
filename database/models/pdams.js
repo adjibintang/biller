@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       customer_number: DataTypes.STRING,
       last_month_stand_meter: DataTypes.INTEGER,
       this_month_stand_meter: DataTypes.INTEGER,
+      fixed_cost: DataTypes.DECIMAL,
       address: DataTypes.STRING,
     },
     {

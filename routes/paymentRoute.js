@@ -25,4 +25,16 @@ paymentRoute.post(
   paymentController.addNewPaymentCard
 );
 
+paymentRoute.get(
+  "/card/list",
+  authMiddleware.userAuthorization,
+  paymentController.getPaymentCard
+);
+
+paymentRoute.put(
+  "/failed/:billId",
+  authMiddleware.userAuthorization,
+  paymentController.transactionFailed
+);
+
 module.exports = paymentRoute;

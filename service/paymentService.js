@@ -91,7 +91,47 @@ exports.addNewPaymentCard = async (requestData, userId) => {
 
     return addNewCard;
   } catch (error) {
-    console.log(error);
+    return error.message;
+  }
+};
+
+exports.getPaymentCard = async (userId) => {
+  try {
+    const allCards = await Models.payment_cards.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      where: { user_id: userId },
+    });
+
+    if (allCards.length === 0) return 204;
+
+    return allCards;
+  } catch (error) {
+    return error.message;
+  }
+};
+
+exports.transactionFailed = async (billId, userId) => {
+  try {
+    const findBill = await Models.bills.findOne({
+      where: { user_id: userId },
+      include: {
+        model: Models.transactions,
+        attributes: [],
+        where: { bill_id: billId },
+      },
+    });
+
+    if (findBill === null) return 401;
+
+    const updateTransactionStatus = await Models.transactions.update(
+      { status: "Failed" },
+      {
+        where: { bill_id: billId },
+      }
+    );
+
+    return updateTransactionStatus;
+  } catch (error) {
     return error.message;
   }
 };

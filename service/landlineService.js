@@ -18,7 +18,7 @@ exports.getAccInfo = async(telephoneNumber, userId) => {
     if (lastPeriod !== null) {
       countMonth = await monthDiff(lastPeriod.period, new Date());
       const days = await diffDays(new Date(lastPeriod.period).getDate());
-      if(countMonth < 2 && days <= 31) error = "Already Paid";
+      if(countMonth < 2 && days <= 31) error = "Landline Service Already Paid";
     }
     if (countMonth !== 0) {
       for (let i = 0; i < (countMonth + 1); i++) {
@@ -94,7 +94,7 @@ exports.createLandlineBill = async (obj, userId) => {
   });
 
   if (obj.recurringBilling.status === true) {
-    let date_billed = await getRecurringDate (obj.recurringBilling.period, obj.recurringBilling.dayOfWeek)
+    let date_billed = await getRecurringDate (obj.recurringBilling.period, obj.recurringBilling.dayOfWeek, obj.recurringBilling.recurringDate)
     const due_date = new Date(date_billed).setDate(25);
 
     const checkLastRecurring = await findLastRecurringBill(bill.id);
@@ -198,7 +198,7 @@ const monthDiff = async(d1, d2) => {
 const isActive = async(diffMonth) => {
   let message = null
   if(diffMonth >= 3) {
-    message = "Landline Service Dicabut";
+    message = "Landline Service Not Active. Please Contact The Office For Further Information";
   } 
   return message;
 }
@@ -213,7 +213,6 @@ const calcPaymentFee = async(diffMonth, abonemen) => {
 }
 
 const diffDays = async(lastPeriod) => {
-  let message =  null;
   const now = new Date().getDate();
   const diff = now - lastPeriod;
   return diff 
@@ -228,10 +227,10 @@ const findPin = async(userId) => {
   return pin;
 }
 
-const getRecurringDate = async(period, day) => {
+const getRecurringDate = async(period, day, recurringDate) => {
   let date_billed = null;
-  if(period === "Year") date_billed = moment(new Date()).add(1, "y").format("YYYY/MM/DD");
-  if(period === "Month") date_billed = moment(new Date()).add(1, "M").format("YYYY/MM/DD");
+  if(period === "Year") date_billed = recurringDate;
+  if(period === "Month") date_billed = recurringDate;
   if(period === "Week") {
     let dayNow = new Date().getDay();
     let diff = 0;

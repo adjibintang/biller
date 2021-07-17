@@ -17,9 +17,11 @@ exports.getAccInfo = async(telephoneNumber, userId) => {
   let countMonth = await monthDiff(accInfo.period, new Date());
     if (lastPeriod !== null) {
       countMonth = await monthDiff(lastPeriod.period, new Date());
+      const days = await diffDays(new Date(lastPeriod.period).getDate());
+      if(countMonth < 2 && days <= 31) error = "Landline Service Already Paid";
     }
     if (countMonth !== 0) {
-      for (let i = 0; i < countMonth; i++) {
+      for (let i = 0; i < (countMonth + 1); i++) {
         period.push(
           `${new Date().getFullYear()}-${new Date().getMonth() - i}-25`
         );
@@ -41,10 +43,10 @@ exports.getAccInfo = async(telephoneNumber, userId) => {
   accInfo = {
     No_Telephone: telephoneNumber,
     Period: `${period}`,
-    Bill: `Rp. ${new Intl.NumberFormat("id").format(fixBill)},00`,
-    Admin: `Rp. ${new Intl.NumberFormat("id").format(admin_fee)},00`,
-    Late_Payment_Fee: `Rp. ${new Intl.NumberFormat("id").format(late_payment_fee)},00`,
-    Total: `${new Intl.NumberFormat("id").format(total)},00`,
+    Bill: fixBill,
+    Admin: admin_fee,
+    Late_Payment_Fee: late_payment_fee,
+    Total: total,
     PIN: `${pin.dataValues.pin}`
   };
 
@@ -61,20 +63,15 @@ exports.createLandlineBill = async (obj, userId) => {
     bill_type: "Landline"
   });
 
-  const bill_fee = obj.data.Bill.replace("Rp. ", "").replace(".", "").replace(",00", "");
-  const admin_fee = obj.data.Admin.replace("Rp. ", "").replace(".", "").replace(",00", "");
-  const late_payment_fee = obj.data.Late_Payment_Fee.replace("Rp. ", "").replace(".", "").replace(",00", "");
-  const total = obj.data.Total.replace("Rp. ", "").replace(".", "").replace(",00", "");
-
   let landline_bill_details = {};
   for (let i = 0; i < obj.data.Period.length; i++) {
     landline_bill_details = await Models.landline_bills.create({
       bill_id: bill.id,
       phone_number: obj.data.No_Telephone,
-      bill_fee,
-      admin_fee,
-      late_payment_fee,
-      total,
+      bill_fee: obj.data.Bill,
+      admin_fee: obj.data.Admin,
+      late_payment_fee: obj.data.Late_Payment_Fee,
+      total: obj.data.Total,
       period: new Date(obj.data.Period[i])
     });
   }
@@ -97,7 +94,7 @@ exports.createLandlineBill = async (obj, userId) => {
   });
 
   if (obj.recurringBilling.status === true) {
-    let date_billed = await getRecurringDate (obj.recurringBilling.period, obj.recurringBilling.dayOfWeek)
+    let date_billed = await getRecurringDate (obj.recurringBilling.period, obj.recurringBilling.dayOfWeek, obj.recurringBilling.recurringDate)
     const due_date = new Date(date_billed).setDate(25);
 
     const checkLastRecurring = await findLastRecurringBill(bill.id);
@@ -109,7 +106,6 @@ exports.createLandlineBill = async (obj, userId) => {
         due_date,
         is_delete: false
       });
-      console.log("🦄 ~ file: landlineService.js ~ line 112 ~ exports.createLandlineBill= ~ createRecurring", createRecurring)
     } else {
       const updateRecurring = await Models.recurring_billings.update(
         {
@@ -127,19 +123,15 @@ exports.createLandlineBill = async (obj, userId) => {
     transaction_id: transaction.id,
     type: obj.payment.type,
   });
-  console.log("🦄 ~ file: landlineService.js ~ line 130 ~ exports.createLandlineBill= ~ transactionPayment", transactionPayment)
 
   let bankTransferDetails = await Models.bank_transfers.create({
     transaction_payment_id: transactionPayment.id,
     bank_destination_id: obj.payment.bank_destination_id,
   });
-  console.log("🦄 ~ file: landlineService.js ~ line 136 ~ exports.createLandlineBill= ~ bankTransferDetails", bankTransferDetails)
 
   const bankAccountDetails = await Models.biller_bank_accounts.findOne({where: {id: obj.payment.bank_destination_id}})
-  console.log("🦄 ~ file: landlineService.js ~ line 139 ~ exports.createLandlineBill= ~ bankAccountDetails", bankAccountDetails)
 
   bankTransferDetails = bankTransferDetails.dataValues;
-  console.log("🦄 ~ file: landlineService.js ~ line 143 ~ exports.createLandlineBill= ~ bankTransferDetails", bankTransferDetails)
   bankTransferDetails = {
     Total: 0,
     account_bank: bankAccountDetails.account_bank,
@@ -206,18 +198,24 @@ const monthDiff = async(d1, d2) => {
 const isActive = async(diffMonth) => {
   let message = null
   if(diffMonth >= 3) {
-    message = "Landline Service Dicabut";
+    message = "Landline Service Not Active. Please Contact The Office For Further Information";
   } 
   return message;
 }
 
 const calcPaymentFee = async(diffMonth, abonemen) => {
   let latePaymentFee = 0;
-  if(diffMonth > 0){
+  if(diffMonth >= 1){
     latePaymentFee = 0.05 * abonemen * diffMonth;
     return latePaymentFee;
   };
   return latePaymentFee;
+}
+
+const diffDays = async(lastPeriod) => {
+  const now = new Date().getDate();
+  const diff = now - lastPeriod;
+  return diff 
 }
 
 const findPin = async(userId) => {
@@ -229,10 +227,10 @@ const findPin = async(userId) => {
   return pin;
 }
 
-const getRecurringDate = async(period, day) => {
+const getRecurringDate = async(period, day, recurringDate) => {
   let date_billed = null;
-  if(period === "Year") date_billed = moment(new Date()).add(1, "y").format("YYYY/MM/DD");
-  if(period === "Month") date_billed = moment(new Date()).add(1, "M").format("YYYY/MM/DD");
+  if(period === "Year") date_billed = recurringDate;
+  if(period === "Month") date_billed = recurringDate;
   if(period === "Week") {
     let dayNow = new Date().getDay();
     let diff = 0;

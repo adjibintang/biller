@@ -12,7 +12,7 @@ pdamRouter.get(
   pdamController.searchRegion
 );
 
-pdamRouter.get(
+pdamRouter.post(
   "/customer/info",
   userAuthorization,
   pdamController.getPdamCustomerInfo

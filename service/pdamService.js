@@ -1,6 +1,7 @@
 const Models = require("../database/models");
 const paymentService = require("../service/paymentService");
 const { Op } = require("sequelize");
+const dateService = require("moment");
 
 exports.getCities = async () => {
   try {
@@ -27,7 +28,7 @@ exports.searchCity = async (param) => {
   }
 };
 
-exports.getCustomerInfo = async (customerNumber) => {
+exports.getCustomerInfo = async (customerNumber, userPin) => {
   try {
     const accountInfo = await findPdamCustomer(customerNumber);
 
@@ -37,23 +38,38 @@ exports.getCustomerInfo = async (customerNumber) => {
     const lastPeriod = await findLastBill(customerNumber);
 
     let countMonth = 0;
+    let latePaymentFee;
+
     if (lastPeriod === null) {
-      period.push(
-        `${new Date().getFullYear()}-${new Date().getMonth() - 1}-20`
-      );
+      let date = new Date();
+      date.setMonth(date.getMonth());
+      period.push(`${date.getFullYear()}-${date.getMonth()}-20`);
+      date.getDate() > 25 ? (latePaymentFee = 15000) : (latePaymentFee = 0);
     } else {
       countMonth = await monthDiff(lastPeriod, new Date());
-    }
+      latePaymentFee = await getLatePaymentFee(customerNumber);
 
-    if (countMonth !== 0) {
-      for (let i = 1; i < countMonth; i++) {
+      if (countMonth >= 3)
+        return {
+          status: 202,
+          message:
+            "Your PDAM Service Not Active, Please Contact The Office For Further Information",
+        };
+
+      if (countMonth === 0 && new Date().getDate() < 20)
+        return {
+          status: 202,
+          message: "PDAM Service Already Paid",
+        };
+
+      for (let i = 0; i < countMonth; i++) {
+        let date = new Date(lastPeriod);
+        date.setMonth(date.getMonth() + 2 + i);
         period.push(
-          `${new Date().getFullYear()}-${new Date().getMonth() - i}-20`
+          `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
         );
       }
     }
-
-    const latePaymentFee = await getLatePaymentFee(customerNumber);
 
     let usage =
       accountInfo.this_month_stand_meter - accountInfo.last_month_stand_meter;
@@ -61,7 +77,7 @@ exports.getCustomerInfo = async (customerNumber) => {
     let total = bill + 2500 + latePaymentFee;
 
     const accountInfoResponse = {
-      id: accountInfo.id,
+      pin: userPin,
       customerNumber: accountInfo.customer_number,
       name: accountInfo.name,
       period,
@@ -82,19 +98,6 @@ exports.getCustomerInfo = async (customerNumber) => {
 
 exports.postNewPdamBill = async (requestData, userId) => {
   try {
-    const findCustomer = await findPdamCustomer(requestData.customerNumber);
-    if (findCustomer === null) return null;
-
-    const accountStatus = await isActive(requestData.customerNumber);
-    if (accountStatus === false)
-      return {
-        isActive: false,
-        message: "PDAM Account Disabled, Please Contact The Office",
-      };
-
-    if ((await getLatePaymentFee(requestData.customerNumber)) === false)
-      return { isActive: true, isPay: false, message: "Not Time To Pay" };
-
     if (
       (requestData.recurringBilling.status === true &&
         requestData.recurringBilling.period !== "Month") ||
@@ -102,64 +105,75 @@ exports.postNewPdamBill = async (requestData, userId) => {
         new Date(requestData.recurringBilling.createDate).getDate() < 20)
     ) {
       return {
-        isActive: true,
-        isPay: false,
+        status: 202,
         message: "This Service Can Only Be Paid Monthly On 20th To 25th",
       };
     }
 
-    const createBill = await Models.bills.create({ user_id: userId });
+    const createBill = await Models.bills.create({
+      user_id: userId,
+      bill_type: "PDAM",
+    });
 
-    for (let i = 0; i < requestData.period.length; i++) {
-      const createPdamBill = await Models.pdam_bills.create({
-        bill_id: createBill.id,
-        customer_number: requestData.customerNumber,
-        name: requestData.name,
-        period: new Date(requestData.period[i]),
-        last_month_stand_meter: requestData.lastMonthStandMeter,
-        this_month_stand_meter: requestData.thisMonthStandMeter,
-        usage: requestData.usage,
-        bill_fee: requestData.billFee,
-        ppn: 0,
-        stamp_cost: 3000,
-        late_payment_fee: requestData.latePaymentFee,
-        admin_fee: requestData.adminFee,
-        total: requestData.total,
-      });
-    }
+    const createPdamBill = await Models.pdam_bills.create({
+      bill_id: createBill.id,
+      customer_number: requestData.customerNumber,
+      name: requestData.name,
+      period: new Date(requestData.period[requestData.period.length - 1]),
+      total_month: requestData.period.length,
+      last_month_stand_meter: requestData.lastMonthStandMeter,
+      this_month_stand_meter: requestData.thisMonthStandMeter,
+      usage: requestData.usage,
+      bill_fee: requestData.bill,
+      ppn: 0,
+      stamp_cost: 0,
+      late_payment_fee: requestData.latePaymentFee,
+      admin_fee: requestData.adminFee,
+      total: requestData.total,
+    });
 
     const createTransaction = await Models.transactions.create({
       bill_id: createBill.id,
       transaction_date: new Date(),
     });
 
-    if (requestData.recurringBilling.status === true) {
-      let recurringDate = await getReccuringDate(
-        requestData.recurringBilling.period,
-        new Date(requestData.recurringBilling.createDate)
-      );
+    let recurringBill = null;
 
+    if (requestData.recurringBilling.status === true) {
       const lastRecurringBill = await getLastRecurringBill(createBill.id);
 
+      let dueDate = new Date(requestData.recurringBilling.createDate);
+      dueDate.setDate(20);
+
       if (lastRecurringBill === null) {
-        const createRecurringBilling = await Models.recurring_billings.create({
+        recurringBill = await Models.recurring_billings.create({
           bill_id: createBill.id,
           period: requestData.recurringBilling.period,
-          date_billed: recurringDate,
-          due_date: new Date(),
+          date_billed: requestData.recurringBilling.createDate,
+          due_date: dueDate, // Temporary
         });
       } else {
-        const updateRecurringBill = await Models.recurring_billings.update(
+        recurringBill = await Models.recurring_billings.update(
           {
             period: requestData.recurringBilling.period,
-            date_billed: recurringDate,
-            due_date: new Date(),
+            date_billed: requestData.recurringBilling.createDate,
+            due_date: dueDate, //Temporary
           },
           {
             where: { id: lastRecurringBill.id },
           }
         );
       }
+    }
+
+    let recurringDetail;
+    if (recurringBill === null) {
+      recurringDetail = {};
+    } else {
+      recurringDetail = {
+        period: recurringBill.period,
+        recurringDate: requestData.recurringBilling.createDate,
+      };
     }
 
     const payBill = await paymentService.payNewBill(
@@ -169,28 +183,30 @@ exports.postNewPdamBill = async (requestData, userId) => {
     );
 
     return {
-      payment: { transactionId: createTransaction.id, ...payBill },
-      customer_number: requestData.customerNumber,
-      name: requestData.name,
-      period: [...requestData.period],
-      last_month_stand_meter: requestData.lastMonthStandMeter,
-      this_month_stand_meter: requestData.thisMonthStandMeter,
-      usage: requestData.usage,
-      bill_fee: requestData.billFee,
-      late_payment_fee: requestData.latePaymentFee,
-      admin_fee: requestData.adminFee,
-      total: requestData.total,
-      notificationMessage: "Payment Created",
+      billId: createBill.id,
+      paymentDetail: { transactionId: createTransaction.id, ...payBill },
+      billDetail: {
+        customer_number: requestData.customerNumber,
+        name: requestData.name,
+        period: [...requestData.period],
+        last_month_stand_meter: requestData.lastMonthStandMeter,
+        this_month_stand_meter: requestData.thisMonthStandMeter,
+        usage: requestData.usage,
+        bill_fee: requestData.bill,
+        late_payment_fee: requestData.latePaymentFee,
+        admin_fee: requestData.adminFee,
+        total: requestData.total,
+      },
+      recurringDetail,
+      paymentMessage: "Payment Created",
     };
   } catch (error) {
-    console.log(error);
     return error.message;
   }
 };
 
 const getLastRecurringBill = async (billId) => {
   try {
-    console.log(billId);
     const lastRecurringBill = await Models.recurring_billings.findOne({
       where: { bill_id: billId },
       include: {
@@ -206,7 +222,6 @@ const getLastRecurringBill = async (billId) => {
 
     return lastRecurringBill;
   } catch (error) {
-    console.log(error);
     return error.message;
   }
 };
@@ -255,21 +270,6 @@ const findLastBill = async (customerNumber) => {
   }
 };
 
-const isActive = async (customerNumber) => {
-  try {
-    let lastBill = await findLastBill(customerNumber);
-    if (lastBill === null) return true;
-
-    const monthDifference = await monthDiff(lastBill, new Date());
-
-    if (monthDifference > 3) return false;
-
-    return true;
-  } catch (error) {
-    return error.message;
-  }
-};
-
 const getLatePaymentFee = async (customerNumber) => {
   try {
     const lastBill = await findLastBill(customerNumber);
@@ -296,39 +296,10 @@ const getLatePaymentFee = async (customerNumber) => {
 };
 
 const monthDiff = (d1, d2) => {
-  let months;
-  months = (d2.getFullYear() - d1.getFullYear()) * 12;
-  months -= d1.getMonth() + 1;
-  months += d2.getMonth();
-  return months <= 0 ? 0 : months;
-};
+  d1 = dateService(d1);
+  d2 = dateService(d2);
 
-const getReccuringDate = async (period, date) => {
-  try {
-    let reccuringDate;
-    if (period === "Year")
-      recurringDate = `${date.getFullYear() + 1}-${
-        date.getMonth() + 1
-      }-${date.getDate()}`;
+  const difference = d2.diff(d1, "months");
 
-    if (period === "Month")
-      recurringDate = `${date.getFullYear()}-${
-        date.getMonth() + 2
-      }-${date.getDate()}`;
-
-    if (period === "Week")
-      recurringDate = await getNextDayOfWeek(date, date.getDay());
-
-    return new Date(recurringDate);
-  } catch (error) {
-    return error.message;
-  }
-};
-
-const getNextDayOfWeek = async (date, dayOfWeek) => {
-  let resultDate = new Date(date.getTime());
-  await resultDate.setDate(
-    date.getDate() + ((7 + dayOfWeek - date.getDay() - 1) % 7) + 1
-  );
-  return resultDate;
+  return difference;
 };

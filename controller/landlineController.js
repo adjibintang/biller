@@ -14,8 +14,8 @@ exports.getLandlineAccInfo = async (req, res) => {
 
     const {data: accInfo, error} = await landlineService.getAccInfo(telephoneNumber, user_id);
     if(error !== null){
-      res.status(500).json({
-        statusText: "Internal Server Error",
+      res.status(202).json({
+        statusText: "Accepted",
         message: error
       });
     }
@@ -31,7 +31,6 @@ exports.getLandlineAccInfo = async (req, res) => {
       });
     
   } catch (error) {
-    console.log("🦄 ~ file: landlineController.js ~ line 35 ~ exports.getLandlineAccInfo= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: error.message
@@ -66,7 +65,6 @@ exports.postLandlineBill = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("🦄 ~ file: landlineController.js ~ line 70 ~ exports.postLandlineBill= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: error.message

@@ -41,6 +41,36 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          user_id: 3, // PDAM Service Not Active
+          bill_type: "PDAM",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 3, // PDAM Service Already Paid
+          bill_type: "PDAM",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 3, // PDAM Service Late 1 Month
+          bill_type: "PDAM",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 3, // PDAM Service Late 2 Month
+          bill_type: "PDAM",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 3, // PDAM Service Late 2 Month
+          bill_type: "PDAM",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

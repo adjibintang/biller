@@ -19,7 +19,7 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
     if (lastPeriod !== null) {
       countMonth = await monthDiff(lastPeriod.tagihan_date, new Date());
       const days = await diffDays(lastPeriod.tagihan_date.getDate());
-      if(countMonth < 2 && days <= 31) error = "Already Paid";
+      if(countMonth < 2 && days <= 31) error = "Electricity Service Already Paid";
     }
     if (countMonth !== 0) {
       for (let i = 0; i < (countMonth + 1); i++) {
@@ -157,7 +157,7 @@ exports.createTagihanBill = async(obj, userId) => {
   });
 
   if (obj.recurringBilling.status === true) {
-    let date_billed = await getRecurringDate (obj.recurringBilling.period, obj.recurringBilling.dayOfWeek)
+    let date_billed = await getRecurringDate (obj.recurringBilling.period, obj.recurringBilling.dayOfWeek, obj.recurringBilling.recurringDate)
     const due_date = new Date(date_billed).setDate(20);
 
     const checkLastRecurring = await findLastRecurringBill(bill.id);
@@ -253,7 +253,7 @@ exports.createTokenBill = async (obj, userId) => {
   });
   
   if (obj.recurringBilling.status === true) {
-    let date_billed = await getRecurringDate(obj.recurringBilling.period, obj.recurringBilling.dayOfWeek)
+    let date_billed = await getRecurringDate(obj.recurringBilling.period, obj.recurringBilling.dayOfWeek, obj.recurringBilling.recurringDate)
 
     const checkLastRecurring = await findLastRecurringBill(bill.id);
     if(!checkLastRecurring) {
@@ -381,8 +381,8 @@ const monthDiff = async(d1, d2) => {
 
 const isActive = async(diffMonth) => {
   let message = null
-  if(diffMonth >= 3) {
-    message = "Aliran listrik diputus";
+  if(diffMonth > 2) {
+    message = "Your Electricity Service Not Active. Please Contact The Office For Further Information";
   } 
   return message;
 }
@@ -409,10 +409,10 @@ const findPin = async(userId) => {
   return pin;
 }
 
-const getRecurringDate = async(period, day) => {
+const getRecurringDate = async(period, day, recurringDate) => {
   let date_billed = null;
-  if(period === "Year") date_billed = moment(new Date()).add(1, "y").format("YYYY/MM/DD");
-  if(period === "Month") date_billed = moment(new Date()).add(1, "M").format("YYYY/MM/DD");
+  if(period === "Year") date_billed = recurringDate;
+  if(period === "Month") date_billed = recurringDate;
   if(period === "Week") {
     let dayNow = new Date().getDay();
     let diff = 0;

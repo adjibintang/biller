@@ -8,4 +8,9 @@ router.get(
   historyController.getAllHistory
 );
 
+router.get(
+  "/filter/:time",
+  middleware.userAuthorization,
+  historyController.filterHistory
+);
 module.exports = router;

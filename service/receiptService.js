@@ -20,7 +20,10 @@ exports.getReceipt = async (bill_id) => {
     if (getServiceType.dataValues.bill_type === "Listrik-Tagihan")
       return getListrikTagihanReceipt(bill_id);
 
-    if (getServiceType.dataValues.bill_type === "Mobile")
+    if (
+      getServiceType.dataValues.bill_type ===
+      ("Mobile-Internet" || "Mobile-Pulsa" || "Mobile-Pasca")
+    )
       return getMobileReceipt(bill_id);
 
     if (getServiceType.dataValues.bill_type === "Internet-TV")

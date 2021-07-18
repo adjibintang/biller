@@ -1,5 +1,6 @@
 const Models = require("../database/models");
 const moment = require("moment");
+const { array } = require("joi");
 
 exports.getAllHistory = async (user_id) => {
   const findAllBillId = await Models.bills.findAll({
@@ -11,6 +12,8 @@ exports.getAllHistory = async (user_id) => {
       where: { status: "Success" },
     },
   });
+
+  if (findAllBillId.length == 0) return null;
 
   const result = [];
 
@@ -87,7 +90,7 @@ exports.getAllHistory = async (user_id) => {
         result.push({
           bill_id: mobileBill.id,
           bill_type: mobileBill.bill_type,
-          phone_number: mobileBill.mobile_bill.phone_number,
+          customer_number: mobileBill.mobile_bill.phone_number,
           provider: mobileBill.mobile_bill.provider,
           total: mobileBill.mobile_bill.total,
           transaction_date: moment(mobileBill.transaction.updatedAt).format(
@@ -138,7 +141,7 @@ exports.getAllHistory = async (user_id) => {
       result.push({
         bill_id: landlineBill.id,
         bill_type: landlineBill.bill_type,
-        phone_number: landlineBill.landline_bill.phone_number,
+        customer_number: landlineBill.landline_bill.phone_number,
         total: landlineBill.landline_bill.total,
         transaction_date: moment(landlineBill.transaction.updatedAt).format(
           "ll"
@@ -184,12 +187,73 @@ exports.getAllHistory = async (user_id) => {
       result.push({
         bill_id: bpjsBill.id,
         bill_type: bpjsBill.bill_type,
-        va_number: bpjsBill.bpjs_bill.va_number,
+        customer_number: bpjsBill.bpjs_bill.va_number,
         total: bpjsBill.bpjs_bill.total,
         transaction_date: moment(bpjsBill.transaction.updatedAt).format("ll"),
       });
     }
   }
 
+  const sortHistory = result.sort((a, b) => {
+    let dateA = new Date(a.transaction_date).getTime();
+    let dateB = new Date(b.transaction_date).getTime();
+    return dateA > dateB ? 1 : -1;
+  });
+
+  return sortHistory;
+};
+
+exports.filterHistory = async (array, parameter) => {
+  let result;
+  const filter = parameter.split("&");
+  if (filter.includes("last3Month")) {
+    result = await filterLast3Month(array);
+  } else if (filter.includes("lastMonth")) {
+    result = await filterLastMonth(array);
+  } else if (filter.includes("lastWeek")) {
+    result = await filterLastWeek(array);
+  } else if (filter.includes("today")) {
+    result = await filterToday(array);
+  }
+  return result;
+};
+
+exports.groupTransactionDate = async (array) => {
+  result = array.reduce(function (r, a) {
+    r[a.transaction_date] = r[a.transaction_date] || [];
+    r[a.transaction_date].push(a);
+    return r;
+  }, Object.create(null));
+
+  return result;
+};
+
+const filterToday = async (array) => {
+  const today = moment().format("ll");
+  const result = array.filter((x) => x.transaction_date == today);
+  return result;
+};
+
+const filterLastWeek = async (array) => {
+  const lastWeek = moment().subtract(7, "days");
+  const result = array.filter((x) =>
+    moment(x.transaction_date).isBetween(lastWeek, moment())
+  );
+  return result;
+};
+
+const filterLastMonth = async (array) => {
+  const lastMonth = moment().subtract(1, "month");
+  const result = array.filter((x) =>
+    moment(x.transaction_date).isBetween(lastMonth, moment())
+  );
+  return result;
+};
+
+const filterLast3Month = async (array) => {
+  const last3Month = moment().subtract(3, "month");
+  const result = array.filter((x) =>
+    moment(x.transaction_date).isBetween(last3Month, moment())
+  );
   return result;
 };

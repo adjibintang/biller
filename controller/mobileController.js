@@ -39,7 +39,12 @@ exports.getProviders = async (req, res) => {
 
 exports.getprices = async (req, res) => {
   try {
-    const priceListResult = await mobileService.getPriceList(req.body.optionId);
+    const priceListResult = await mobileService.getPriceList(
+      req.body.optionId,
+      req.body.provider
+    );
+
+    if (priceListResult === 204) return res.sendStatus(204);
 
     const respayload = {
       statusText: "Ok",
@@ -58,7 +63,8 @@ exports.getMobileAcc = async (req, res) => {
       req.body.phoneNumber,
       req.body.optionPriceId,
       req.body.provider,
-      req.body.optionId
+      req.body.optionId,
+      req.user.pin
     );
 
     if (mobileInfoResult === null) {
@@ -73,6 +79,32 @@ exports.getMobileAcc = async (req, res) => {
         result: mobileInfoResult,
       });
     }
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};
+
+exports.newMobileBill = async (req, res) => {
+  try {
+    let type;
+
+    req.body.optionId == 3
+      ? (type = "Mobile-Pulsa")
+      : req.body.optionId == 4
+      ? (type = "Mobile-Internet")
+      : (type = "Mobile-Pasca");
+
+    const newMobileBillResult = await mobileService.newBill(
+      req.body,
+      req.user.id,
+      type
+    );
+
+    return res.status(201).json({
+      statusText: "Created",
+      message: "Success Create New Mobile Bill",
+      data: newMobileBillResult,
+    });
   } catch (error) {
     return res.sendStatus(500);
   }

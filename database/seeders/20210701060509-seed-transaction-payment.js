@@ -17,6 +17,42 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          transaction_id: 3, // PDAM Service Not Active
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 4, // PDAM Service Not Active
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 5, // PDAM Service Already Paid
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 6, // PDAM Service Late 1 Month
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 7, // PDAM Service Late 2 Month
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 8, // PDAM Service Late 2 Month
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

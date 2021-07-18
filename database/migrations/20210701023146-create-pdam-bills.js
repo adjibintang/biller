@@ -25,6 +25,9 @@ module.exports = {
       period: {
         type: Sequelize.DATE,
       },
+      total_month: {
+        type: Sequelize.INTEGER,
+      },
       last_month_stand_meter: {
         type: Sequelize.INTEGER,
       },

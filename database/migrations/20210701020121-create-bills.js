@@ -18,15 +18,18 @@ module.exports = {
       },
       bill_type: {
         allowNull: false,
-        type: Sequelize.ENUM(
+        type: Sequelize.ENUM,
+        values: [
           "Listrik-Token",
           "Listrik-Tagihan",
-          "Mobile",
+          "Mobile-Pulsa",
+          "Mobile-Internet",
+          "Mobile-Pasca",
           "Landline",
           "Internet-TV",
           "PDAM",
-          "BPJS"
-        ),
+          "BPJS",
+        ],
       },
       // option_id: {
       //   type: Sequelize.INTEGER,
@@ -54,5 +57,6 @@ module.exports = {
   },
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable("bills");
+    await queryInterface.sequelize.query('DROP TYPE "enum_bills_bill_type";');
   },
 };

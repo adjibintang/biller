@@ -229,6 +229,7 @@ exports.createInternetTVBill = async (req, res) => {
               bank: bankAccountInfo.account_bank,
               account_name: bankAccountInfo.account_name,
               account_number: bankAccountInfo.account_number,
+              bank_id: bankAccountInfo.id,
             },
             bill_details: {
               bill: `Rp ${new Intl.NumberFormat("id").format(

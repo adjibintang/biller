@@ -95,13 +95,18 @@ exports.getTokenAccInfo = async (req, res) => {
       });
     } 
 
-    const accInfo = await electricityService.getTokenAccInfo(nomor_meter, price, user_id);
-
-    if(accInfo === null) {
+    const {accInfo, error} = await electricityService.getTokenAccInfo(nomor_meter, price, user_id);
+    if(error !== null){
+      res.status(202).json({
+        statusText: "Accepted",
+        message: error
+        });
+      }
+    if(accInfo === null){
       res.status(204).json({
-        statusText: "No Content",
+      statusText: "No Content",
       });
-    } 
+    }
     res.status(200).json({
       statusText: "OK",
       message: "Success Get Electricity Account Info",
@@ -109,11 +114,12 @@ exports.getTokenAccInfo = async (req, res) => {
       });
     
   } catch (error) {
+    console.log("🦄 ~ file: electricityController.js ~ line 118 ~ exports.getTokenAccInfo= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: "Failed To Get Electricity Account Info"
     });
-  }
+  }    
 };
 
 exports.postTagihanBill = async (req, res) => {

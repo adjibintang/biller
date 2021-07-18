@@ -13,7 +13,7 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
   const canPay = await checkRangePaymentDate();
   if(canPay !== null) error = canPay;
 
-  const paidBill = await findPaidBill(idPel);
+  const paidBill = await findPaidBillTagihan(idPel);
   if (paidBill !== null) error = "Electricity Service Already Paid";
 
   let period = [];
@@ -81,6 +81,10 @@ exports.getTokenAccInfo = async(nomorMeter, price, userId) => {
   let accInfo = await Models.Electricities.findOne({
     where: {meter_number: nomorMeter}
   });
+  let error = null;
+  const paidBill = await findPaidBillToken(nomorMeter);
+  if (paidBill !== null) error = "Electricity Service Already Paid";
+
   accInfo = accInfo.dataValues;
   const PPJ = 0.074 * price;
   const token = price - PPJ;
@@ -101,7 +105,7 @@ exports.getTokenAccInfo = async(nomorMeter, price, userId) => {
     Total: Total,
     PIN: `${pin.dataValues.pin}`
   };
-  return accInfo;
+  return {accInfo, error};
 }
 
 exports.createTagihanBill = async(obj, userId) => {
@@ -143,7 +147,6 @@ exports.createTagihanBill = async(obj, userId) => {
     Late_Payment_Fee: obj.data.Late_Payment_Fee,
     Total: obj.data.Total,
     PIN: obj.data.PIN,
-    // notificationMessage: "Payment Created",
   };
 
   const transaction = await Models.transactions.create({
@@ -428,7 +431,7 @@ const getRecurringDate = async(period, day, recurringDate) => {
   return date_billed;
 }
 
-const findPaidBill = async (customer_number) => {
+const findPaidBillTagihan = async (customer_number) => {
   const lastBill = await Models.pln_tagihan_bills.findOne({
     where: {customer_number},
     order: [["tagihan_date", "DESC"]]
@@ -447,3 +450,21 @@ const findPaidBill = async (customer_number) => {
   return paidBill;
 }
 
+const findPaidBillToken = async (customer_number) => {
+  const lastBill = await Models.pln_token_bills.findOne({
+    where: {meter_number: customer_number},
+    order: [["createdAt", "DESC"]]  
+  });
+  if(!lastBill) return null
+  const paidBill = await Models.transactions.findOne({
+    attributes: ["bill_id", "status"],
+    where: {
+      [Op.and]: [
+        { bill_id: lastBill.id },
+        { status: "Success" }
+      ]
+    },
+    order: [["transaction_date", "DESC"]],
+  }) 
+  return paidBill;
+}

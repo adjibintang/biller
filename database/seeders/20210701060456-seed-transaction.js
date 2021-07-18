@@ -20,6 +20,13 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          bill_id: 5, // BPJS Already Paid
+          transaction_date: "2021-06-20 00:00:00",
+          status: "Success",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
           bill_id: 7, // PDAM Service Not Active
           transaction_date: "2021-03-20 00:00:00",
           status: "Success",

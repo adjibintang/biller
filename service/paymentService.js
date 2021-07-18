@@ -38,7 +38,7 @@ exports.bankTransferConfirmation = async (
   imageFile
 ) => {
   try {
-    const uploadReceipt = await storageService.uploadFile(imageFile);
+    //const uploadReceipt = await storageService.uploadFile(imageFile);
 
     const updateTransactionStatus = await Models.transactions.update(
       { status: "Success" },
@@ -47,12 +47,12 @@ exports.bankTransferConfirmation = async (
       }
     );
 
-    const updateReceiptUrl = await Models.bank_transfers.update(
-      { receipt_url: uploadReceipt },
-      {
-        where: { id: bankDestinationId },
-      }
-    );
+    // const updateReceiptUrl = await Models.bank_transfers.update(
+    //   { receipt_url: uploadReceipt },
+    //   {
+    //     where: { id: bankDestinationId },
+    //   }
+    // );
 
     const receipt = await receiptService.getReceipt(billId);
     let recurringMessage = null;

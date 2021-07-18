@@ -1,4 +1,5 @@
 const Models = require("../database/models");
+const { Op } = require("sequelize");
 
 exports.getReceipt = async (billId) => {
   try {
@@ -8,7 +9,7 @@ exports.getReceipt = async (billId) => {
       include: {
         model: Models.transactions,
         attributes: [],
-        where: { status: "Success" },
+        where: { [Op.or]: [{ status: "Process" }, { status: "Success" }] },
       },
     });
 

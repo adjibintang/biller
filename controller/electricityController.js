@@ -31,6 +31,7 @@ exports.getTagihanAccInfo = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log("🦄 ~ file: electricityController.js ~ line 36 ~ exports.getTagihanAccInfo= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: error.message
@@ -126,11 +127,11 @@ exports.postTagihanBill = async (req, res) => {
       });
     } 
 
-    let {data: accInfo, bankTransferDetails} = await electricityService.createTagihanBill(req.body, user_id);
+    let data = await electricityService.createTagihanBill(req.body, user_id);
 
-    bankTransferDetails.Total = accInfo.Total;
+    data.bankTransferDetails.Total = data.tagihan_bill_details.Total;
 
-    if(accInfo === null || bankTransferDetails === null) {
+    if(data.tagihan_bill_details === null || data.bankTransferDetails === null) {
       res.status(204).json({
         statusText: "No Content",
       });
@@ -138,7 +139,7 @@ exports.postTagihanBill = async (req, res) => {
       res.status(200).json({
         statusText: "OK",
         message: "Success to Get Electricity Account Info",
-        data: {accInfo, bankTransferDetails}
+        data: data
       });
     }
   } catch (error) {
@@ -160,10 +161,10 @@ exports.postTokenBill = async (req,res) => {
       });
     } 
 
-    let {data: accInfo, bankTransferDetails} = await electricityService.createTokenBill(req.body, user_id);
-    bankTransferDetails.Total = accInfo.Total;
+    let data = await electricityService.createTokenBill(req.body, user_id);
+    data.bankTransferDetails.Total = data.token_bill_details.Total;
 
-    if(accInfo === null || bankTransferDetails === null) {
+    if(data.token_bill_details === null || data.bankTransferDetails === null) {
       res.status(204).json({
         statusText: "No Content"
       });
@@ -171,7 +172,7 @@ exports.postTokenBill = async (req,res) => {
       res.status(200).json({
         statusText: "OK",
         message: "Success to Get Electricity Account Info",
-        data: {accInfo, bankTransferDetails}
+        data: data
       });
     }
 

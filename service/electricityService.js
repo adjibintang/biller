@@ -27,7 +27,7 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
           `${new Date().getFullYear()}-${new Date().getMonth() - i}-20`
         );
       }
-    } if (countMonth === 0) period = accInfo.period;
+    } if (countMonth === 0) period = moment(accInfo.period).format("YYYY-MM-DD");
     
   const activeStatus = await isActive(countMonth);
   if(activeStatus !== null) error = activeStatus;
@@ -50,7 +50,7 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
     Name: accInfo.name,
     Tarif_Daya: `${accInfo.rates}/${accInfo.power}`,
     // Bulan_Tahun: `${accInfo.period.toLocaleString('default',{month: 'long'})} ${accInfo.period.getFullYear()} - `,
-    Bulan_Tahun: `${period}`,  
+    Bulan_Tahun: `${(period)}`,  
     Stand_Meter: `${accInfo.this_month_stand_meter}-${accInfo.last_month_stand_meter}`,
     Bill: fixBill,
     Admin: admin_fee,
@@ -126,7 +126,7 @@ exports.createTagihanBill = async(obj, userId) => {
         name: obj.data.Name,
         rates: obj.data.Tarif_Daya.slice(0,2),
         power: obj.data.Tarif_Daya.slice(-4),
-        tagihan_date: new Date(obj.data.Bulan_Tahun[i]),
+        tagihan_date: Date.now(obj.data.Bulan_Tahun[i]),
         last_month_stand_meter: obj.data.Stand_Meter.slice(0,4),
         this_month_stand_meter: obj.data.Stand_Meter.slice(-4),
         bill_fee: obj.data.Bill,
@@ -177,9 +177,7 @@ exports.createTagihanBill = async(obj, userId) => {
           date_billed,
           due_date,
         },
-        { 
-          where: {id: checkLastRecurring.id} 
-        }
+        {where: {id: checkLastRecurring.id}}
       );
     }
   }

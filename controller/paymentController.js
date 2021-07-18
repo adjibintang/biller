@@ -3,8 +3,9 @@ const paymentService = require("../service/paymentService");
 exports.bankTransferConfirmation = async (req, res) => {
   try {
     const confirmPayment = await paymentService.bankTransferConfirmation(
+      req.body.billId,
       req.body.transactionId,
-      req.body.bankTransferId,
+      req.body.bankDestinationId,
       req.file
     );
 

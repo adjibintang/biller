@@ -48,7 +48,7 @@ exports.getInternetAccountInfo = async (req, res) => {
         return res.status(202).send({
           statusCode: 202,
           statusText: "Accepted",
-          message: "Already paid for this month fee"
+          message: "Already paid for this month fee",
         });
       }
 
@@ -60,7 +60,8 @@ exports.getInternetAccountInfo = async (req, res) => {
         return res.status(202).send({
           statusCode: 202,
           statusText: "Accepted",
-          message: "Your service is inactive. Please contact your provider for further information."
+          message:
+            "Your service is inactive. Please contact your provider for further information.",
         });
       }
 
@@ -131,7 +132,7 @@ exports.createInternetTVBill = async (req, res) => {
         return res.status(202).send({
           statusCode: 202,
           statusText: "Accepted",
-          message: "Already paid for this month fee"
+          message: "Already paid for this month fee",
         });
       }
 
@@ -143,7 +144,8 @@ exports.createInternetTVBill = async (req, res) => {
         return res.status(202).send({
           statusCode: 202,
           statusText: "Accepted",
-          message: "Your service is inactive. Please contact your provider for further information."
+          message:
+            "Your service is inactive. Please contact your provider for further information.",
         });
       } else {
         const bill = await internetTVService.createBill(req.user.dataValues.id);
@@ -186,7 +188,8 @@ exports.createInternetTVBill = async (req, res) => {
           if (req.body.recurringBilling.period != "Month")
             return res.status(202).send({
               statusText: "Accepted",
-              message: "Wrong input for period recurring billing. This service can only be paid once a month"
+              message:
+                "Wrong input for period recurring billing. This service can only be paid once a month",
             });
           recurring_billing = await internetTVService.findRecurringBilling(
             bill.id
@@ -212,8 +215,10 @@ exports.createInternetTVBill = async (req, res) => {
         res.status(200).send({
           statusCode: 200,
           statusText: "OK",
-          message: "Success Create Bill",    
-          data:{
+          message: "Success Create Bill",
+          data: {
+            billId: bill.id,
+            transactionId: transaction.id,
             payment_details: {
               total: `Rp ${new Intl.NumberFormat("id").format(
                 parseInt(internetTVBill.bill_fee) +
@@ -224,7 +229,7 @@ exports.createInternetTVBill = async (req, res) => {
               bank: bankAccountInfo.account_bank,
               account_name: bankAccountInfo.account_name,
               account_number: bankAccountInfo.account_number,
-              },
+            },
             bill_details: {
               bill: `Rp ${new Intl.NumberFormat("id").format(
                 parseInt(internetTVBill.bill_fee)
@@ -245,14 +250,14 @@ exports.createInternetTVBill = async (req, res) => {
               )},00`,
               total: `Rp ${new Intl.NumberFormat("id").format(
                 parseInt(internetTVBill.bill_fee) +
-                parseInt(internetTVBill.bill_fee) * checklatePayment +
-                parseInt(internetTVBill.late_payment_fee) * checklatePayment +
-                parseInt(internetTVBill.admin_fee)
+                  parseInt(internetTVBill.bill_fee) * checklatePayment +
+                  parseInt(internetTVBill.late_payment_fee) * checklatePayment +
+                  parseInt(internetTVBill.admin_fee)
               )},00`,
             },
             pin: req.body.data.pin,
-            notificationMessage: "Payment Created"
-          }
+            notificationMessage: "Payment Created",
+          },
         });
       }
     }

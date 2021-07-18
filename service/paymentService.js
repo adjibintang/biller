@@ -1,5 +1,6 @@
 const Models = require("../database/models");
 const storageService = require("../service/storageService");
+const receiptService = require("../service/receiptService");
 
 exports.payNewBill = async (transactionId, type, bankDestinationId) => {
   try {
@@ -31,8 +32,9 @@ exports.payNewBill = async (transactionId, type, bankDestinationId) => {
 };
 
 exports.bankTransferConfirmation = async (
+  billId,
   transactionId,
-  bankTransferId,
+  bankDestinationId,
   imageFile
 ) => {
   try {
@@ -48,11 +50,20 @@ exports.bankTransferConfirmation = async (
     const updateReceiptUrl = await Models.bank_transfers.update(
       { receipt_url: uploadReceipt },
       {
-        where: { id: bankTransferId },
+        where: { id: bankDestinationId },
       }
     );
 
-    return uploadReceipt;
+    const receipt = await receiptService.getReceipt(billId);
+    let recurringMessage = null;
+    if (receipt.hasOwnProperty("recurring") && receipt.recurring !== null)
+      recurringMessage = "Recurring Is Created";
+
+    return {
+      ...receipt,
+      paymentMessage: "Payment Is Successful",
+      recurringMessage,
+    };
   } catch (error) {
     return error.message;
   }

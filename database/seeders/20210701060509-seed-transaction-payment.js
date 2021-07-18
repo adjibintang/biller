@@ -53,6 +53,60 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          transaction_id: 9,
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 10,
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 11,
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 12,
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 13,
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 14,
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 15,
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 16,
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          transaction_id: 17,
+          type: "Bank Transfer",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

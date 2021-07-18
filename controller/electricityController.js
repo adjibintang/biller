@@ -108,6 +108,7 @@ exports.getTokenAccInfo = async (req, res) => {
       });
     
   } catch (error) {
+    console.log("🦄 ~ file: electricityController.js ~ line 112 ~ exports.getTokenAccInfo= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: "Failed To Get Electricity Account Info"
@@ -153,7 +154,7 @@ exports.postTokenBill = async (req,res) => {
   try {
     const user_id = req.user.id;
 
-    if(!req.body.data.No_Meter || !req.body.recurringBilling.period) {
+    if(!req.body.data.No_Meter) {
       res.status(400).json({
         statusText: "Bad Request",
         message: "Failed to Get Electricity Account Info"

@@ -26,7 +26,7 @@ exports.getAccInfo = async(telephoneNumber, userId) => {
           `${new Date().getFullYear()}-${new Date().getMonth() - i}-25`
         );
       }
-    } if(countMonth === 0) period = accInfo.period;
+    } if(countMonth === 0) period = moment(accInfo.period).format("YYYY-MM-DD");
 
   const activeStatus = await isActive(countMonth);
   if(activeStatus !== null) error = activeStatus;
@@ -72,7 +72,7 @@ exports.createLandlineBill = async (obj, userId) => {
       admin_fee: obj.data.Admin,
       late_payment_fee: obj.data.Late_Payment_Fee,
       total: obj.data.Total,
-      period: new Date(obj.data.Period[i])
+      period: Date.now(obj.data.Period[i])
     });
   }
 

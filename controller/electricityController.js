@@ -108,7 +108,6 @@ exports.getTokenAccInfo = async (req, res) => {
       });
     
   } catch (error) {
-    console.log("🦄 ~ file: electricityController.js ~ line 112 ~ exports.getTokenAccInfo= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: "Failed To Get Electricity Account Info"

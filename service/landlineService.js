@@ -1,5 +1,6 @@
 const moment = require('moment')
 const Models = require('../database/models');
+const {Op} =require("sequelize");
 
 exports.getAccInfo = async(telephoneNumber, userId) => {
   let accInfo = await Models.Landlines.findOne({
@@ -11,27 +12,23 @@ exports.getAccInfo = async(telephoneNumber, userId) => {
   const canPay = await checkRangePaymentDate();
   if(canPay !== null) error = canPay;
 
-  const lastPeriod = await findLastBill(telephoneNumber);
-  
+  const paidBill = await findPaidBill(telephoneNumber);
+  if (paidBill !== null) error = "Landline Service Already Paid";
+
   let period = [];
   let countMonth = await monthDiff(accInfo.period, new Date());
-    if (lastPeriod !== null) {
-      countMonth = await monthDiff(lastPeriod.period, new Date());
-      const days = await diffDays(new Date(lastPeriod.period).getDate());
-      if(countMonth < 2 && days <= 31) error = "Landline Service Already Paid";
-    }
     if (countMonth !== 0) {
       for (let i = 0; i < (countMonth + 1); i++) {
         period.push(
           `${new Date().getFullYear()}-${new Date().getMonth() - i}-25`
         );
       }
-    } if(countMonth === 0) period = accInfo.period;
+    } if(countMonth === 0) period = moment(accInfo.period).format("YYYY-MM-DD");
 
   const activeStatus = await isActive(countMonth);
   if(activeStatus !== null) error = activeStatus;
 
-  let fixBill = 1;
+  let fixBill = 0;
   (countMonth !== 0) ? fixBill = countMonth * accInfo.abonemen : fixBill = accInfo.abonemen ;
   
   const late_payment_fee = await calcPaymentFee(countMonth, accInfo.abonemen);
@@ -84,7 +81,6 @@ exports.createLandlineBill = async (obj, userId) => {
     Late_Payment_Fee: obj.data.Late_Payment_Fee,
     Total: obj.data.Total,
     PIN: obj.data.PIN,
-    notificationMessage: "Payment Created"
   }
 
   const transaction = await Models.transactions.create({
@@ -139,7 +135,14 @@ exports.createLandlineBill = async (obj, userId) => {
     account_number: bankAccountDetails.account_number,
   };
 
-  return {data: landline_bill_details, bankTransferDetails};
+  data = {
+    bill_id: bill.id,
+    transaction_id: transaction.id,
+    landline_bill_details, 
+    bankTransferDetails,
+    notificationMessage: "Payment Created"
+  }
+  return data;
 };
 
 const checkRangePaymentDate = async() => {
@@ -247,4 +250,23 @@ const getRecurringDate = async(period, day, recurringDate) => {
   date_billed = moment(new Date()).add(calcDate, "d").format("YYYY/MM/DD") 
   };
   return date_billed;
+}
+
+const findPaidBill = async (customer_number) => {
+  const lastBill = await Models.landline_bills.findOne({
+    where: {phone_number: customer_number},
+    order: [["period", "DESC"]]
+  });
+  if(!lastBill) return null
+  const paidBill = await Models.transactions.findOne({
+    attributes: ["bill_id", "status"],
+    where: {
+      [Op.and]: [
+        { bill_id: lastBill.id },
+        { status: "Success" }
+      ]
+    },
+    order: [["transaction_date", "DESC"]],
+  }) 
+  return paidBill;
 }

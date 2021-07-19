@@ -71,9 +71,11 @@ exports.getAllHistory = async (user_id) => {
     }
 
     if (
-      findAllBillId[i].bill_type ===
-      ("Mobile-Internet" || "Mobile-Pulsa" || "Mobile-Pasca")
+      findAllBillId[i].bill_type === "Mobile-Internet" ||
+      findAllBillId[i].bill_type === "Mobile-Pulsa" ||
+      findAllBillId[i].bill_type === "Mobile-Pasca"
     ) {
+      console.log("test");
       const mobileBill = await Models.bills.findOne({
         where: { id: findAllBillId[i].id },
         attributes: ["id", "bill_type"],

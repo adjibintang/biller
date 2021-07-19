@@ -48,7 +48,7 @@ module.exports = {
         {
           first_name: "Test",
           last_name: "History",
-          email: "historytesting@gmail.com",
+          email: "usertesting2@gmail.com",
           password:
             "$2a$10$VxxcwIjckcgCME8xMQgK2OBd7oZAQMbViGlDO/UIWVv7P77FOjyF6", // Password123
           pin: "$2b$10$UNdqLSiTZ0j0qayDsZ4cjulNqGqdjmUCHMfPQ3lrYW6gfmoorXu06", // 123456

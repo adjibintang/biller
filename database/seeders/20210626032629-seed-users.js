@@ -45,6 +45,19 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          first_name: "Test",
+          last_name: "History",
+          email: "historytesting@gmail.com",
+          password:
+            "$2a$10$VxxcwIjckcgCME8xMQgK2OBd7oZAQMbViGlDO/UIWVv7P77FOjyF6", // Password123
+          pin: "$2b$10$UNdqLSiTZ0j0qayDsZ4cjulNqGqdjmUCHMfPQ3lrYW6gfmoorXu06", // 123456
+          phone_number: faker.phone.phoneNumber(),
+          image_url: faker.image.imageUrl(),
+          is_verified: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

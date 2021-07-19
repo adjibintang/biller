@@ -210,9 +210,11 @@ const getLastRecurringBill = async (billId) => {
       include: {
         model: Models.bills,
         attributes: [],
+        required: true,
         include: {
           attributes: [],
           model: Models.transactions,
+          required: true,
           where: { status: "Success" },
         },
       },
@@ -220,7 +222,6 @@ const getLastRecurringBill = async (billId) => {
 
     return lastRecurringBill;
   } catch (error) {
-    console.log(error);
     return error.message;
   }
 };

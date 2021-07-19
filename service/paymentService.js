@@ -1,5 +1,6 @@
 const Models = require("../database/models");
 const storageService = require("../service/storageService");
+const receiptService = require("../service/receiptService");
 
 exports.payNewBill = async (transactionId, type, bankDestinationId) => {
   try {
@@ -31,8 +32,9 @@ exports.payNewBill = async (transactionId, type, bankDestinationId) => {
 };
 
 exports.bankTransferConfirmation = async (
+  billId,
   transactionId,
-  bankTransferId,
+  bankDestinationId,
   imageFile
 ) => {
   try {
@@ -48,11 +50,98 @@ exports.bankTransferConfirmation = async (
     const updateReceiptUrl = await Models.bank_transfers.update(
       { receipt_url: uploadReceipt },
       {
-        where: { id: bankTransferId },
+        where: { id: bankDestinationId },
       }
     );
 
-    return uploadReceipt;
+    const receipt = await receiptService.getReceipt(billId);
+    let recurringMessage = null;
+    if (receipt.hasOwnProperty("recurring") && receipt.recurring !== null)
+      recurringMessage = "Recurring Is Created";
+
+    return {
+      ...receipt,
+      paymentMessage: "Payment Is Successful",
+      recurringMessage,
+    };
+  } catch (error) {
+    return error.message;
+  }
+};
+
+exports.billerBankAccounts = async () => {
+  try {
+    const bankList = await Models.biller_bank_accounts.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+
+    if (bankList.length === 0) return 204;
+
+    return bankList;
+  } catch (error) {
+    return error.message;
+  }
+};
+
+exports.addNewPaymentCard = async (requestData, userId) => {
+  try {
+    const findCard = await Models.payment_cards.findOne({
+      where: { card_number: requestData.cardNumber },
+    });
+
+    if (findCard) return 202;
+
+    const addNewCard = await Models.payment_cards.create({
+      user_id: userId,
+      card_number: requestData.cardNumber,
+      card_holder_name: requestData.cardHolderName,
+      expire_date: requestData.expireDate,
+      cvv: requestData.cvv,
+      type: requestData.type,
+    });
+
+    return addNewCard;
+  } catch (error) {
+    return error.message;
+  }
+};
+
+exports.getPaymentCard = async (userId) => {
+  try {
+    const allCards = await Models.payment_cards.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      where: { user_id: userId },
+    });
+
+    if (allCards.length === 0) return 204;
+
+    return allCards;
+  } catch (error) {
+    return error.message;
+  }
+};
+
+exports.transactionFailed = async (billId, userId) => {
+  try {
+    const findBill = await Models.bills.findOne({
+      where: { user_id: userId },
+      include: {
+        model: Models.transactions,
+        attributes: [],
+        where: { bill_id: billId },
+      },
+    });
+
+    if (findBill === null) return 401;
+
+    const updateTransactionStatus = await Models.transactions.update(
+      { status: "Failed" },
+      {
+        where: { bill_id: billId },
+      }
+    );
+
+    return updateTransactionStatus;
   } catch (error) {
     return error.message;
   }

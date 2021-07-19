@@ -1,5 +1,6 @@
 const faker = require('faker');
 const moment = require('moment');
+const { Op } = require('sequelize');
 const Models = require('../database/models');
 
 exports.getTagihanAccInfo = async(idPel, userId) => {
@@ -12,22 +13,18 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
   const canPay = await checkRangePaymentDate();
   if(canPay !== null) error = canPay;
 
-  const lastPeriod = await findLastBill(idPel);
+  const paidBill = await findPaidBillTagihan(idPel);
+  if (paidBill !== null) error = "Electricity Service Already Paid";
 
   let period = [];
   let countMonth = await monthDiff(accInfo.period, new Date());
-    if (lastPeriod !== null) {
-      countMonth = await monthDiff(lastPeriod.tagihan_date, new Date());
-      const days = await diffDays(lastPeriod.tagihan_date.getDate());
-      if(countMonth < 2 && days <= 31) error = "Already Paid";
-    }
     if (countMonth !== 0) {
       for (let i = 0; i < (countMonth + 1); i++) {
         period.push(
-          `${new Date().getFullYear()}-${new Date().getMonth() - i}-20`
+          `${new Date().getFullYear()}-${new Date().getMonth() -i}-20`
         );
       }
-    } if (countMonth === 0) period = accInfo.period;
+    } if (countMonth === 0) period = moment(accInfo.period).format("YYYY-MM-DD");
     
   const activeStatus = await isActive(countMonth);
   if(activeStatus !== null) error = activeStatus;
@@ -37,11 +34,11 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
   const kwH = accInfo.this_month_stand_meter - accInfo.last_month_stand_meter;
   const bill = kwH * accInfo.cost_per_kwh;
 
-  let fixBill = 1;
+  let fixBill = 0;
   (countMonth !== 0) ? fixBill = countMonth * bill : fixBill =  bill ;
   
   const admin_fee = 3000;
-  const total = fixBill + admin_fee + late_payment_fee; 
+  const total = fixBill + admin_fee + late_payment_fee
 
   const pin = await findPin(userId);
 
@@ -49,8 +46,7 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
     IDPEL: accInfo.customer_number,
     Name: accInfo.name,
     Tarif_Daya: `${accInfo.rates}/${accInfo.power}`,
-    // Bulan_Tahun: `${accInfo.period.toLocaleString('default',{month: 'long'})} ${accInfo.period.getFullYear()} - `,
-    Bulan_Tahun: `${period}`,  
+    Bulan_Tahun: `${(period)}`,  
     Stand_Meter: `${accInfo.this_month_stand_meter}-${accInfo.last_month_stand_meter}`,
     Bill: fixBill,
     Admin: admin_fee,
@@ -85,6 +81,10 @@ exports.getTokenAccInfo = async(nomorMeter, price, userId) => {
   let accInfo = await Models.Electricities.findOne({
     where: {meter_number: nomorMeter}
   });
+  let error = null;
+  const paidBill = await findPaidBillToken(nomorMeter);
+  if (paidBill !== null) error = "Electricity Service Already Paid";
+
   accInfo = accInfo.dataValues;
   const PPJ = 0.074 * price;
   const token = price - PPJ;
@@ -105,7 +105,7 @@ exports.getTokenAccInfo = async(nomorMeter, price, userId) => {
     Total: Total,
     PIN: `${pin.dataValues.pin}`
   };
-  return accInfo;
+  return {accInfo, error};
 }
 
 exports.createTagihanBill = async(obj, userId) => {
@@ -147,7 +147,6 @@ exports.createTagihanBill = async(obj, userId) => {
     Late_Payment_Fee: obj.data.Late_Payment_Fee,
     Total: obj.data.Total,
     PIN: obj.data.PIN,
-    notificationMessage: "Payment Created",
   };
 
   const transaction = await Models.transactions.create({
@@ -157,7 +156,7 @@ exports.createTagihanBill = async(obj, userId) => {
   });
 
   if (obj.recurringBilling.status === true) {
-    let date_billed = await getRecurringDate (obj.recurringBilling.period, obj.recurringBilling.dayOfWeek)
+    let date_billed = await getRecurringDate (obj.recurringBilling.period, obj.recurringBilling.dayOfWeek, obj.recurringBilling.recurringDate)
     const due_date = new Date(date_billed).setDate(20);
 
     const checkLastRecurring = await findLastRecurringBill(bill.id);
@@ -177,9 +176,7 @@ exports.createTagihanBill = async(obj, userId) => {
           date_billed,
           due_date,
         },
-        { 
-          where: {id: checkLastRecurring.id} 
-        }
+        {where: {id: checkLastRecurring.id}}
       );
     }
   }
@@ -202,10 +199,17 @@ exports.createTagihanBill = async(obj, userId) => {
     account_bank: bankAccountDetails.account_bank,
     account_name: bankAccountDetails.account_name,
     account_number: bankAccountDetails.account_number,
-    // receipt_url: ""
   };
 
-  return {data: tagihan_bill_details, bankTransferDetails};
+  const data = {
+    bill_id: bill.id,
+    transaction_id: transaction.id,
+    tagihan_bill_details,
+    bankTransferDetails,
+    notificationMessage: "Payment Created"
+  }
+
+  return data;
 };
 
 exports.createTokenBill = async (obj, userId) => {
@@ -253,7 +257,7 @@ exports.createTokenBill = async (obj, userId) => {
   });
   
   if (obj.recurringBilling.status === true) {
-    let date_billed = await getRecurringDate(obj.recurringBilling.period, obj.recurringBilling.dayOfWeek)
+    let date_billed = await getRecurringDate(obj.recurringBilling.period, obj.recurringBilling.dayOfWeek, obj.recurringBilling.recurringDate)
 
     const checkLastRecurring = await findLastRecurringBill(bill.id);
     if(!checkLastRecurring) {
@@ -303,7 +307,6 @@ exports.createTokenBill = async (obj, userId) => {
     account_number: bankAccountDetails.account_number,
   };
 
-  token_bill_details = token_bill_details.dataValues;
   token_bill_details = {
     No_Meter: obj.data.No_Meter,
     IDPEL: obj.data.IDPEL,
@@ -314,10 +317,16 @@ exports.createTokenBill = async (obj, userId) => {
     Admin: obj.data.Admin,
     Total: obj.data.Total,
     PIN: obj.data.PIN,
-    notificationMessage: "Payment Created",
   };
 
-  return {data: token_bill_details, bankTransferDetails};
+  const data = {
+    bill_id: bill.id,
+    transaction_id: transaction.id,
+    token_bill_details,
+    bankTransferDetails,
+    notificationMessage: "Payment Created"
+  }
+  return data;
 }
 
 const checkRangePaymentDate = async() => {
@@ -352,20 +361,11 @@ const findLastRecurringBill = async(billId) => {
     if(recurringBills !== null) return recurringBills; 
   };
 
-const findLastBill = async(customer_number) => {
+const findLastPeriod = async(customer_number) => {
   let tagihanBills = await Models.pln_tagihan_bills.findOne({
     attributes: ["tagihan_date"],
     where: {customer_number: customer_number},
-    order: [["tagihan_date","DESC"]],
-    include: {
-      model: Models.bills,
-      attributes: [],
-      include: {
-        model: Models.transactions,
-        attributes: [],
-        where: { status: "Success"}
-      }
-    }
+    order: [["tagihan_date","DESC"]]
   });
   if (tagihanBills === null) return null;
   return tagihanBills;
@@ -381,8 +381,8 @@ const monthDiff = async(d1, d2) => {
 
 const isActive = async(diffMonth) => {
   let message = null
-  if(diffMonth >= 3) {
-    message = "Aliran listrik diputus";
+  if(diffMonth > 2) {
+    message = "Your Electricity Service Not Active. Please Contact The Office For Further Information";
   } 
   return message;
 }
@@ -409,10 +409,10 @@ const findPin = async(userId) => {
   return pin;
 }
 
-const getRecurringDate = async(period, day) => {
+const getRecurringDate = async(period, day, recurringDate) => {
   let date_billed = null;
-  if(period === "Year") date_billed = moment(new Date()).add(1, "y").format("YYYY/MM/DD");
-  if(period === "Month") date_billed = moment(new Date()).add(1, "M").format("YYYY/MM/DD");
+  if(period === "Year") date_billed = recurringDate;
+  if(period === "Month") date_billed = recurringDate;
   if(period === "Week") {
     let dayNow = new Date().getDay();
     let diff = 0;
@@ -431,3 +431,40 @@ const getRecurringDate = async(period, day) => {
   return date_billed;
 }
 
+const findPaidBillTagihan = async (customer_number) => {
+  const lastBill = await Models.pln_tagihan_bills.findOne({
+    where: {customer_number},
+    order: [["tagihan_date", "DESC"]]
+  });
+  if(!lastBill) return null
+  const paidBill = await Models.transactions.findOne({
+    attributes: ["bill_id", "status"],
+    where: {
+      [Op.and]: [
+        { bill_id: lastBill.id },
+        { status: "Success" }
+      ]
+    },
+    order: [["transaction_date", "DESC"]],
+  }) 
+  return paidBill;
+}
+
+const findPaidBillToken = async (customer_number) => {
+  const lastBill = await Models.pln_token_bills.findOne({
+    where: {meter_number: customer_number},
+    order: [["createdAt", "DESC"]]  
+  });
+  if(!lastBill) return null
+  const paidBill = await Models.transactions.findOne({
+    attributes: ["bill_id", "status"],
+    where: {
+      [Op.and]: [
+        { bill_id: lastBill.id },
+        { status: "Success" }
+      ]
+    },
+    order: [["transaction_date", "DESC"]],
+  }) 
+  return paidBill;
+}

@@ -121,9 +121,9 @@ exports.createTransactionPayment = async (transaction_id, type) => {
   return transactionPayment;
 };
 
-exports.findBankAccountInfo = async (account_bank) => {
+exports.findBankAccountInfo = async (id) => {
   const bankAccountInfo = await biller_bank_accounts.findOne({
-    where: { account_bank },
+    where: { id },
   });
 
   return bankAccountInfo;
@@ -151,16 +151,18 @@ exports.findRecurringBilling = async (bill_id) => {
 
 const moment = require("moment");
 
-exports.createRecurringBilling = async (bill_id, period, date, payment_due) => {
+exports.createRecurringBilling = async (bill_id, period, recurringDate, payment_due) => {
   const now = new Date();
   const billingDate = new Date();
   // const billingDate = new Date(date);
 
-  const date_billed = new Date(
-    billingDate.getFullYear(),
-    billingDate.getMonth() + 1,
-    billingDate.getDate()
-  );
+  // const date_billed = new Date(
+  //   billingDate.getFullYear(),
+  //   billingDate.getMonth() + 1,
+  //   billingDate.getDate()
+  // );
+
+  const date_billed = recurringDate;
 
   const due_date = new Date(now.getFullYear(), now.getMonth() + 1, payment_due);
 
@@ -175,15 +177,17 @@ exports.createRecurringBilling = async (bill_id, period, date, payment_due) => {
   return newRecurringBilling;
 };
 
-exports.updateRecurringBilling = async (bill_id, period, date, payment_due) => {
+exports.updateRecurringBilling = async (bill_id, period, recurringDate, payment_due) => {
   const now = new Date();
-  const billingDate = new Date(date);
+  // const billingDate = new Date(date);
 
-  const date_billed = new Date(
-    billingDate.getFullYear(),
-    billingDate.getMonth() + 1,
-    billingDate.getDate()
-  );
+  // const date_billed = new Date(
+  //   billingDate.getFullYear(),
+  //   billingDate.getMonth() + 1,
+  //   billingDate.getDate()
+  // );
+
+  const date_billed = recurringDate;
 
   const due_date = new Date(now.getFullYear(), now.getMonth() + 1, payment_due);
   const recurringBilling = await recurring_billings.update(

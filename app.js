@@ -8,6 +8,7 @@ const port = process.env.PORT || 3000;
 
 const mobileRoute = require("./routes/mobileRoute");
 const authRoute = require("./routes/authenticationRoute");
+const userRoute = require("./routes/userRoute");
 const landlineRoutes = require("./routes/landlineRoutes");
 const electricityRoutes = require("./routes/electicityRoutes");
 const homeServiceRoute = require("./routes/homeserviceRoute");
@@ -32,6 +33,7 @@ server.get("/", (req, res) => {
 });
 
 server.use("/api/biller", authRoute);
+server.use("/api/biller/user", userRoute);
 server.use("/api/biller/landline/bill", landlineRoutes);
 server.use("/api/biller/electricity/bill", electricityRoutes);
 server.use("/api/biller/home", homeServiceRoute);

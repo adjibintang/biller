@@ -14,8 +14,8 @@ exports.getTagihanAccInfo = async (req, res) => {
 
     const {data: accInfo, error} = await electricityService.getTagihanAccInfo(idPel,user_id);
     if(error !== null){
-      res.status(500).json({
-        statusText: "Internal Server Error",
+      res.status(202).json({
+        statusText: "Accepted",
         message: error
       })
     }
@@ -31,7 +31,7 @@ exports.getTagihanAccInfo = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("🦄 ~ file: electricityController.js ~ line 35 ~ exports.getTagihanAccInfo= ~ error", error)
+    console.log("🦄 ~ file: electricityController.js ~ line 36 ~ exports.getTagihanAccInfo= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: error.message
@@ -95,13 +95,18 @@ exports.getTokenAccInfo = async (req, res) => {
       });
     } 
 
-    const accInfo = await electricityService.getTokenAccInfo(nomor_meter, price, user_id);
-
-    if(accInfo === null) {
+    const {accInfo, error} = await electricityService.getTokenAccInfo(nomor_meter, price, user_id);
+    if(error !== null){
+      res.status(202).json({
+        statusText: "Accepted",
+        message: error
+        });
+      }
+    if(accInfo === null){
       res.status(204).json({
-        statusText: "No Content",
+      statusText: "No Content",
       });
-    } 
+    }
     res.status(200).json({
       statusText: "OK",
       message: "Success Get Electricity Account Info",
@@ -109,11 +114,12 @@ exports.getTokenAccInfo = async (req, res) => {
       });
     
   } catch (error) {
+    console.log("🦄 ~ file: electricityController.js ~ line 118 ~ exports.getTokenAccInfo= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: "Failed To Get Electricity Account Info"
     });
-  }
+  }    
 };
 
 exports.postTagihanBill = async (req, res) => {
@@ -127,11 +133,11 @@ exports.postTagihanBill = async (req, res) => {
       });
     } 
 
-    let {data: accInfo, bankTransferDetails} = await electricityService.createTagihanBill(req.body, user_id);
+    let data = await electricityService.createTagihanBill(req.body, user_id);
 
-    bankTransferDetails.Total = accInfo.Total;
+    data.bankTransferDetails.Total = data.tagihan_bill_details.Total;
 
-    if(accInfo === null || bankTransferDetails === null) {
+    if(data.tagihan_bill_details === null || data.bankTransferDetails === null) {
       res.status(204).json({
         statusText: "No Content",
       });
@@ -139,7 +145,7 @@ exports.postTagihanBill = async (req, res) => {
       res.status(200).json({
         statusText: "OK",
         message: "Success to Get Electricity Account Info",
-        data: {accInfo, bankTransferDetails}
+        data: data
       });
     }
   } catch (error) {
@@ -154,17 +160,17 @@ exports.postTokenBill = async (req,res) => {
   try {
     const user_id = req.user.id;
 
-    if(!req.body.data.No_Meter || !req.body.recurringBilling.period) {
+    if(!req.body.data.No_Meter) {
       res.status(400).json({
         statusText: "Bad Request",
         message: "Failed to Get Electricity Account Info"
       });
     } 
 
-    let {data: accInfo, bankTransferDetails} = await electricityService.createTokenBill(req.body, user_id);
-    bankTransferDetails.Total = accInfo.Total;
+    let data = await electricityService.createTokenBill(req.body, user_id);
+    data.bankTransferDetails.Total = data.token_bill_details.Total;
 
-    if(accInfo === null || bankTransferDetails === null) {
+    if(data.token_bill_details === null || data.bankTransferDetails === null) {
       res.status(204).json({
         statusText: "No Content"
       });
@@ -172,7 +178,7 @@ exports.postTokenBill = async (req,res) => {
       res.status(200).json({
         statusText: "OK",
         message: "Success to Get Electricity Account Info",
-        data: {accInfo, bankTransferDetails}
+        data: data
       });
     }
 

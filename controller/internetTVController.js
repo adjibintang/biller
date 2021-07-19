@@ -45,7 +45,11 @@ exports.getInternetAccountInfo = async (req, res) => {
       );
 
       if (account.period - lastPaymentDeadline > 0) {
-        return res.send("Already paid for this month fee");
+        return res.status(202).send({
+          statusCode: 202,
+          statusText: "Accepted",
+          message: "Already paid for this month fee",
+        });
       }
 
       const checklatePayment = await internetTVService.latePaymentcheck(
@@ -53,9 +57,12 @@ exports.getInternetAccountInfo = async (req, res) => {
       );
 
       if (checklatePayment >= 3) {
-        return res.send(
-          "Your service is inactive. Please contact your provider for further information."
-        );
+        return res.status(202).send({
+          statusCode: 202,
+          statusText: "Accepted",
+          message:
+            "Your service is inactive. Please contact your provider for further information.",
+        });
       }
 
       const periodPayment = await internetTVService.periodPayment(
@@ -122,7 +129,11 @@ exports.createInternetTVBill = async (req, res) => {
       );
 
       if (account.period - lastPaymentDeadline > 0) {
-        return res.send("Already paid for this month fee");
+        return res.status(202).send({
+          statusCode: 202,
+          statusText: "Accepted",
+          message: "Already paid for this month fee",
+        });
       }
 
       const checklatePayment = await internetTVService.latePaymentcheck(
@@ -130,9 +141,12 @@ exports.createInternetTVBill = async (req, res) => {
       );
 
       if (checklatePayment >= 3) {
-        return res.send(
-          "Your service is inactive. Please contact your provider for further information."
-        );
+        return res.status(202).send({
+          statusCode: 202,
+          statusText: "Accepted",
+          message:
+            "Your service is inactive. Please contact your provider for further information.",
+        });
       } else {
         const bill = await internetTVService.createBill(req.user.dataValues.id);
 
@@ -172,9 +186,11 @@ exports.createInternetTVBill = async (req, res) => {
         let recurring_billing;
         if (req.body.recurringBilling.status === true) {
           if (req.body.recurringBilling.period != "Month")
-            return res.send(
-              "Wrong input for period recurring billing. This service can only be paid once a month"
-            );
+            return res.status(202).send({
+              statusText: "Accepted",
+              message:
+                "Wrong input for period recurring billing. This service can only be paid once a month",
+            });
           recurring_billing = await internetTVService.findRecurringBilling(
             bill.id
           );
@@ -183,57 +199,66 @@ exports.createInternetTVBill = async (req, res) => {
             recurringBilling = await internetTVService.createRecurringBilling(
               bill.id,
               req.body.recurringBilling.period,
-              req.body.recurringBilling.date,
+              req.body.recurringBilling.recurringDate,
               account.payment_due.getDate()
             );
           } else {
             recurring_billing = await internetTVService.updateRecurringBilling(
               bill.id,
               req.body.recurringBilling.period,
-              req.body.recurringBilling.date,
+              req.body.recurringBilling.recurringDate,
               account.payment_due.getDate()
             );
           }
         }
 
-        res.send({
-          payment_details: {
-            total: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.bill_fee) +
-                parseInt(internetTVBill.bill_fee) * checklatePayment +
-                parseInt(internetTVBill.late_payment_fee) * checklatePayment +
+        res.status(200).send({
+          statusCode: 200,
+          statusText: "OK",
+          message: "Success Create Bill",
+          data: {
+            billId: bill.id,
+            transactionId: transaction.id,
+            payment_details: {
+              total: `Rp ${new Intl.NumberFormat("id").format(
+                parseInt(internetTVBill.bill_fee) +
+                  parseInt(internetTVBill.bill_fee) * checklatePayment +
+                  parseInt(internetTVBill.late_payment_fee) * checklatePayment +
+                  parseInt(internetTVBill.admin_fee)
+              )},00`,
+              bank: bankAccountInfo.account_bank,
+              account_name: bankAccountInfo.account_name,
+              account_number: bankAccountInfo.account_number,
+              bank_id: bankAccountInfo.id,
+            },
+            bill_details: {
+              bill: `Rp ${new Intl.NumberFormat("id").format(
+                parseInt(internetTVBill.bill_fee)
+              )},00`,
+              no_customer: account.customer_number,
+              name: account.name,
+              address: account.address,
+              provider: internetTVBill.provider,
+              period: req.body.data.payment_period,
+              bill: `Rp ${new Intl.NumberFormat("id").format(
+                parseInt(internetTVBill.bill_fee)
+              )},00`,
+              admin: `Rp ${new Intl.NumberFormat("id").format(
                 parseInt(internetTVBill.admin_fee)
-            )},00`,
-            bank: bankAccountInfo.account_bank,
-            account_name: bankAccountInfo.account_name,
-            account_number: bankAccountInfo.account_number,
+              )},00`,
+              late_payment: `Rp ${new Intl.NumberFormat("id").format(
+                parseInt(internetTVBill.late_payment_fee) * checklatePayment
+              )},00`,
+              total: `Rp ${new Intl.NumberFormat("id").format(
+                parseInt(internetTVBill.bill_fee) +
+                  parseInt(internetTVBill.bill_fee) * checklatePayment +
+                  parseInt(internetTVBill.late_payment_fee) * checklatePayment +
+                  parseInt(internetTVBill.admin_fee)
+              )},00`,
+            },
+            pin: req.body.data.pin,
+            notificationMessage: "Payment Created",
           },
-          bill_details: {
-            bill: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.bill_fee)
-            )},00`,
-            no_customer: account.customer_number,
-            name: account.name,
-            address: account.address,
-            provider: internetTVBill.provider,
-            period: req.body.data.payment_period,
-            bill: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.bill_fee)
-            )},00`,
-            admin: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.admin_fee)
-            )},00`,
-            late_payment: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.late_payment_fee) * checklatePayment
-            )},00`,
-            total: `Rp ${new Intl.NumberFormat("id").format(
-              parseInt(internetTVBill.bill_fee) +
-                parseInt(internetTVBill.bill_fee) * checklatePayment +
-                parseInt(internetTVBill.late_payment_fee) * checklatePayment +
-                parseInt(internetTVBill.admin_fee)
-            )},00`,
-          },
-          pin: req.body.data.pin,
         });
       }
     }
@@ -242,7 +267,7 @@ exports.createInternetTVBill = async (req, res) => {
     res.status(500).send({
       statusCode: 500,
       statusText: "Internal Server Error",
-      message: "Failed tp Create Bill",
+      message: "Failed to Create Bill",
     });
   }
 };

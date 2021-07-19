@@ -1,5 +1,6 @@
 const Models = require("../database/models");
 const paymentService = require("../service/paymentService");
+const dateService = require("moment");
 
 exports.getPeriod = async () => {
   try {
@@ -18,7 +19,7 @@ exports.getPeriod = async () => {
     return error.message;
   }
 };
-exports.getCustomerInfo = async (vaNumber, month) => {
+exports.getCustomerInfo = async (vaNumber, month, userPin) => {
   try {
     const accountInfo = await Models.Bpjss.findOne({
       where: { va_number: vaNumber },
@@ -42,15 +43,11 @@ exports.getCustomerInfo = async (vaNumber, month) => {
       howMany = period.length;
     } else {
       const dayDifference = dayDiff(lastPeriod, new Date(period[0]));
-      if (
-        (dayDifference > 1 && new Date().getDate() > 10) ||
-        (dayDifference === 0 && new Date().getDate() > 10)
-      )
+      if (dayDifference > 1 && new Date().getDate() > 10)
         return {
-          isActive: false,
-          isPay: false,
+          status: 202,
           message:
-            "Your Account is Disabled, Please Contact The Office For Further Information",
+            "Your BPJS Service Not Active, Please Contact The Office For Further Information",
         };
 
       if (
@@ -58,7 +55,10 @@ exports.getCustomerInfo = async (vaNumber, month) => {
           new Date(period[period.length - 1]).getTime() ||
         lastPeriod.getTime() >= new Date(period[period.length - 1]).getTime()
       )
-        return "Already Paid";
+        return {
+          status: 202,
+          message: "BPJS Service Already Paid",
+        };
 
       howMany =
         new Date(period[period.length - 1]).getMonth() +
@@ -69,6 +69,7 @@ exports.getCustomerInfo = async (vaNumber, month) => {
     let bill = await (accountInfo.cost * accountInfo.family_member * howMany);
 
     return {
+      pin: userPin,
       noVa: accountInfo.va_number,
       fullName: accountInfo.name,
       branch: accountInfo.branch,
@@ -90,30 +91,29 @@ exports.newBill = async (requestData, userId) => {
     const period = requestData.period;
 
     let howMany = period.length;
+    let monthDifference;
+
     if (lastPeriod !== null) {
       howMany =
         new Date(period[period.length - 1]).getMonth() +
         1 -
         (lastPeriod.getMonth() + 1);
-      const dayDifference = dayDiff(lastPeriod, new Date(period[0]));
-      if (
-        (dayDifference > 1 && new Date().getDate() > 10) ||
-        (dayDifference === 0 && new Date().getDate() > 10)
-      )
-        return {
-          isActive: false,
-          isPay: false,
-          message:
-            "Your Account is Disabled, Please Contact The Office For Further Information",
-        };
 
-      if (dayDifference === 0)
-        return {
-          isActive: true,
-          isPay: false,
-          message: "This Service Already Paid",
-        };
+      monthDifference = monthDiff(lastPeriod, new Date(period[0]));
     }
+
+    if (monthDifference > 1 && new Date().getDate() > 10)
+      return {
+        status: 202,
+        message:
+          "Your BPJS Service Not active, Please Contact The Office For Further Information",
+      };
+
+    if (monthDifference === 0 && new Date().getDate() > 10)
+      return {
+        status: 202,
+        message: "BPJS Service Already Paid",
+      };
 
     if (
       (requestData.recurringBilling.status === true &&
@@ -122,8 +122,7 @@ exports.newBill = async (requestData, userId) => {
         new Date(requestData.recurringBilling.createDate).getDate() > 10)
     ) {
       return {
-        isActive: true,
-        isPay: false,
+        status: 202,
         message: "This Service Can Only Be Paid Monthly Before 10th",
       };
     }
@@ -151,24 +150,26 @@ exports.newBill = async (requestData, userId) => {
     });
 
     let recurringBill = null;
-    if (requestData.recurringBilling.status === true) {
-      let recurringDate = new Date(requestData.recurringBilling.createDate);
 
+    if (requestData.recurringBilling.status === true) {
       const lastRecurringBill = await getLastRecurringBill(createBill.id);
+
+      let dueDate = new Date(requestData.recurringBilling.createDate);
+      dueDate.setDate(10);
 
       if (lastRecurringBill === null) {
         recurringBill = await Models.recurring_billings.create({
           bill_id: createBill.id,
           period: requestData.recurringBilling.period,
-          date_billed: `${recurringDate.getFullYear()}-${
-            recurringDate.getMonth() + 2
-          }-${recurringDate.getDate()}`,
-          due_date: null,
+          date_billed: requestData.recurringBilling.createDate,
+          due_date: dueDate,
         });
       } else {
         recurringBill = await Models.recurring_billings.update(
           {
-            date_billed: recurringDate,
+            period: requestData.recurringBilling.period,
+            date_billed: requestData.recurringBilling.createDate,
+            due_date: dueDate,
           },
           {
             where: { id: lastRecurringBill.id },
@@ -183,7 +184,7 @@ exports.newBill = async (requestData, userId) => {
     } else {
       recurringDetail = {
         period: recurringBill.period,
-        recurringDate: recurringBill.date_billed,
+        recurringDate: requestData.recurringBilling.createDate,
       };
     }
 
@@ -197,8 +198,6 @@ exports.newBill = async (requestData, userId) => {
     }
 
     return {
-      isActive: true,
-      isPay: true,
       billId: createBill.id,
       paymentDetail: { transactionId: createTransaction.id, ...payBill },
       billDetail: {
@@ -212,7 +211,7 @@ exports.newBill = async (requestData, userId) => {
         total: requestData.total,
       },
       recurringDetail,
-      notificationMessage: "Payment Created",
+      paymentMessage: "Payment Created",
     };
   } catch (error) {
     return error.message;
@@ -237,7 +236,6 @@ const getLastRecurringBill = async (billId) => {
 
     return lastRecurringBill;
   } catch (error) {
-    console.log(error);
     return error.message;
   }
 };
@@ -246,22 +244,21 @@ const findLastBill = async (vaNumber) => {
   try {
     const lastBill = await Models.bpjs_bills.findOne({
       attributes: ["payment_period"],
-      where: { va_number: vaNumber },
-      order: [["payment_period", "DESC"]],
       include: {
         model: Models.bills,
-        attributes: [],
+        required: true,
         include: {
-          attributes: [],
           model: Models.transactions,
+          attributes: ["status"],
           where: { status: "Success" },
+          required: true,
         },
       },
+      where: { va_number: vaNumber },
+      order: [["payment_period", "DESC"]],
     });
 
-    if (lastBill === null) return null;
-
-    return lastBill.dataValues.payment_period;
+    return lastBill === null ? null : lastBill.dataValues.payment_period;
   } catch (error) {
     return error.message;
   }
@@ -275,31 +272,10 @@ const dayDiff = (d1, d2) => {
 };
 
 const monthDiff = (d1, d2) => {
-  let months;
-  months = (d2.getFullYear() - d1.getFullYear()) * 12;
-  months -= d1.getMonth() + 1;
-  months += d2.getMonth();
-  return months <= 0 ? 0 : months;
-};
+  d1 = dateService(d1);
+  d2 = dateService(d2);
 
-const getReccuringDate = async (period, date) => {
-  try {
-    let reccuringDate;
-    if (period === "Year")
-      recurringDate = `${date.getFullYear() + 1}-${
-        date.getMonth() + 1
-      }-${date.getDate()}`;
+  const difference = d2.diff(d1, "months");
 
-    if (period === "Month")
-      recurringDate = `${date.getFullYear()}-${
-        date.getMonth() + 2
-      }-${date.getDate()}`;
-
-    if (period === "Week")
-      recurringDate = await getNextDayOfWeek(date, date.getDay());
-
-    return new Date(recurringDate);
-  } catch (error) {
-    return error.message;
-  }
+  return difference;
 };

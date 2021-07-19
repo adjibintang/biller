@@ -126,52 +126,76 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          user_id: 4, // Listrik Token Bank Transfer Confirmation // id : 21
+          user_id: 4, // Listrik Token Payment Success // id : 21
           bill_type: "Listrik-Token",
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
-          user_id: 4, // Listrik Tagihan Bank Transfer Confirmation // id : 22
+          user_id: 4, // Listrik Tagihan Payment Success // id : 22
           bill_type: "Listrik-Tagihan",
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().setTime(
+            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          ),
         },
         {
-          user_id: 4, // Mobile Pulsa Bank Transfer Confirmation // id : 23
+          user_id: 4, // Mobile Pulsa Payment Success // id : 23
           bill_type: "Mobile-Pulsa",
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().setTime(
+            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          ),
         },
         {
-          user_id: 4, // Mobile Internet Bank Transfer Confirmation // id : 24
+          user_id: 4, // Mobile Internet Payment Success // id : 24
           bill_type: "Mobile-Internet",
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().setTime(
+            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          ),
         },
         {
-          user_id: 4, // Landline Bank Transfer Confirmation // id : 25
+          user_id: 4, // Landline Payment Success // id : 25
           bill_type: "Landline",
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
-          user_id: 4, // Internet-TV Bank Transfer Confirmation // id : 26
+          user_id: 4, // Internet-TV Payment Success // id : 26
           bill_type: "Internet-TV",
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().setTime(
+            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          ),
         },
         {
-          user_id: 4, // PDAM Bank Transfer Confirmation // id : 27
+          user_id: 4, // PDAM Payment Success // id : 27
           bill_type: "PDAM",
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().setTime(
+            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          ),
         },
         {
-          user_id: 4, // BPJS Bank Transfer Confirmation // id : 28
+          user_id: 4, // BPJS Payment Success // id : 28
           bill_type: "BPJS",
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().setTime(
+            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          ),
         },
       ],
       {}

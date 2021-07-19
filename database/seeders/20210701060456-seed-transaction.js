@@ -124,6 +124,98 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          bill_id: 21,
+          transaction_date: new Date(),
+          status: "Success",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          bill_id: 22,
+          transaction_date: new Date().setTime(
+            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          ),
+          status: "Success",
+          createdAt: new Date().setTime(
+            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          ),
+        },
+        {
+          bill_id: 23,
+          transaction_date: new Date().setTime(
+            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          ),
+          status: "Success",
+          createdAt: new Date().setTime(
+            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          ),
+        },
+        {
+          bill_id: 24,
+          transaction_date: new Date().setTime(
+            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          ),
+          status: "Success",
+          createdAt: new Date().setTime(
+            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          ),
+        },
+        {
+          bill_id: 25,
+          transaction_date: new Date(),
+          status: "Success",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          bill_id: 26,
+          transaction_date: new Date().setTime(
+            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          ),
+          status: "Success",
+          createdAt: new Date().setTime(
+            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          ),
+        },
+        {
+          bill_id: 27,
+          transaction_date: new Date().setTime(
+            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          ),
+          status: "Success",
+          createdAt: new Date().setTime(
+            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          ),
+        },
+        {
+          bill_id: 28,
+          transaction_date: new Date().setTime(
+            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          ),
+          status: "Success",
+          createdAt: new Date().setTime(
+            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          ),
+          updatedAt: new Date().setTime(
+            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          ),
+        },
       ],
       {}
     );

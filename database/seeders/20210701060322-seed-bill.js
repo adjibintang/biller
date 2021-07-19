@@ -134,31 +134,31 @@ module.exports = {
         {
           user_id: 4, // Listrik Tagihan Payment Success // id : 22
           bill_type: "Listrik-Tagihan",
-          createdAt: new Date().setTime(
-            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          createdAt: new Date(
+            new Date().setTime(new Date().getTime() - 6 * 24 * 60 * 60 * 1000)
           ),
-          updatedAt: new Date().setTime(
-            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          updatedAt: new Date(
+            new Date().setTime(new Date().getTime() - 6 * 24 * 60 * 60 * 1000)
           ),
         },
         {
           user_id: 4, // Mobile Pulsa Payment Success // id : 23
           bill_type: "Mobile-Pulsa",
-          createdAt: new Date().setTime(
-            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          createdAt: new Date(
+            new Date().setTime(new Date().getTime() - 20 * 24 * 60 * 60 * 1000)
           ),
-          updatedAt: new Date().setTime(
-            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          updatedAt: new Date(
+            new Date().setTime(new Date().getTime() - 20 * 24 * 60 * 60 * 1000)
           ),
         },
         {
           user_id: 4, // Mobile Internet Payment Success // id : 24
           bill_type: "Mobile-Internet",
-          createdAt: new Date().setTime(
-            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          createdAt: new Date(
+            new Date().setTime(new Date().getTime() - 60 * 24 * 60 * 60 * 1000)
           ),
-          updatedAt: new Date().setTime(
-            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          updatedAt: new Date(
+            new Date().setTime(new Date().getTime() - 60 * 24 * 60 * 60 * 1000)
           ),
         },
         {
@@ -170,31 +170,31 @@ module.exports = {
         {
           user_id: 4, // Internet-TV Payment Success // id : 26
           bill_type: "Internet-TV",
-          createdAt: new Date().setTime(
-            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          createdAt: new Date(
+            new Date().setTime(new Date().getTime() - 6 * 24 * 60 * 60 * 1000)
           ),
-          updatedAt: new Date().setTime(
-            date.getTime() - 6 * 24 * 60 * 60 * 1000
+          updatedAt: new Date(
+            new Date().setTime(new Date().getTime() - 6 * 24 * 60 * 60 * 1000)
           ),
         },
         {
           user_id: 4, // PDAM Payment Success // id : 27
           bill_type: "PDAM",
-          createdAt: new Date().setTime(
-            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          createdAt: new Date(
+            new Date().setTime(new Date().getTime() - 20 * 24 * 60 * 60 * 1000)
           ),
-          updatedAt: new Date().setTime(
-            date.getTime() - 20 * 24 * 60 * 60 * 1000
+          updatedAt: new Date(
+            new Date().setTime(new Date().getTime() - 20 * 24 * 60 * 60 * 1000)
           ),
         },
         {
           user_id: 4, // BPJS Payment Success // id : 28
           bill_type: "BPJS",
-          createdAt: new Date().setTime(
-            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          createdAt: new Date(
+            new Date().setTime(new Date().getTime() - 60 * 24 * 60 * 60 * 1000)
           ),
-          updatedAt: new Date().setTime(
-            date.getTime() - 60 * 24 * 60 * 60 * 1000
+          updatedAt: new Date(
+            new Date().setTime(new Date().getTime() - 60 * 24 * 60 * 60 * 1000)
           ),
         },
       ],

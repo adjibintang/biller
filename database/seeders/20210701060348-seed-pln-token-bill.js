@@ -36,10 +36,10 @@ module.exports = {
           ref: faker.datatype.uuid(),
           kwh: 32,
           stroom_per_token: 46000,
-          token: 50000,
-          ppj: 3700,
+          token: 185200,
+          ppj: 14800,
           admin_fee: 1500,
-          total: 51200,
+          total: 201500,
           stroom_code: Math.floor(
             100000 + Math.random() * 90000000000000000000
           ),

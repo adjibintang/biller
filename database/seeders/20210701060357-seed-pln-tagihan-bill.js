@@ -50,8 +50,12 @@ module.exports = {
           admin_fee: 3000,
           late_payment_fee: 0,
           total: 107000,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date(
+            new Date().setTime(new Date().getTime() - 6 * 24 * 60 * 60 * 1000)
+          ),
+          updatedAt: new Date(
+            new Date().setTime(new Date().getTime() - 6 * 24 * 60 * 60 * 1000)
+          ),
         },
       ],
       {}

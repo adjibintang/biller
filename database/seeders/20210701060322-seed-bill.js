@@ -125,6 +125,54 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          user_id: 4, // Listrik Token Bank Transfer Confirmation // id : 21
+          bill_type: "Listrik-Token",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 4, // Listrik Tagihan Bank Transfer Confirmation // id : 22
+          bill_type: "Listrik-Tagihan",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 4, // Mobile Pulsa Bank Transfer Confirmation // id : 23
+          bill_type: "Mobile-Pulsa",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 4, // Mobile Internet Bank Transfer Confirmation // id : 24
+          bill_type: "Mobile-Internet",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 4, // Landline Bank Transfer Confirmation // id : 25
+          bill_type: "Landline",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 4, // Internet-TV Bank Transfer Confirmation // id : 26
+          bill_type: "Internet-TV",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 4, // PDAM Bank Transfer Confirmation // id : 27
+          bill_type: "PDAM",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          user_id: 4, // BPJS Bank Transfer Confirmation // id : 28
+          bill_type: "BPJS",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

@@ -46,7 +46,7 @@ exports.getCustomerInfo = async (customerNumber, userPin) => {
       period.push(`${date.getFullYear()}-${date.getMonth()}-20`);
       date.getDate() > 25 ? (latePaymentFee = 15000) : (latePaymentFee = 0);
     } else {
-      countMonth = await monthDiff(lastPeriod, new Date());
+      countMonth = await monthDiff(new Date(lastPeriod), new Date());
       latePaymentFee = await getLatePaymentFee(customerNumber);
 
       if (countMonth >= 3)
@@ -212,10 +212,12 @@ const getLastRecurringBill = async (billId) => {
       include: {
         model: Models.bills,
         attributes: [],
+        required: true,
         include: {
           attributes: [],
           model: Models.transactions,
           where: { status: "Success" },
+          required: true,
         },
       },
     });
@@ -249,22 +251,21 @@ const findLastBill = async (customerNumber) => {
   try {
     const lastBill = await Models.pdam_bills.findOne({
       attributes: ["period"],
-      where: { customer_number: customerNumber },
-      order: [["period", "DESC"]],
       include: {
         model: Models.bills,
-        attributes: [],
+        required: true,
         include: {
-          attributes: [],
           model: Models.transactions,
+          attributes: [],
           where: { status: "Success" },
+          required: true,
         },
       },
+      where: { customer_number: customerNumber },
+      order: [["period", "DESC"]],
     });
 
-    if (lastBill === null) return null;
-
-    return lastBill.dataValues.period;
+    return lastBill === null ? null : lastBill.dataValues.period;
   } catch (error) {
     return error.message;
   }
@@ -275,7 +276,7 @@ const getLatePaymentFee = async (customerNumber) => {
     const lastBill = await findLastBill(customerNumber);
 
     if (lastBill !== null) {
-      const monthDifference = await monthDiff(lastBill, new Date());
+      const monthDifference = await monthDiff(new Date(lastBill), new Date());
       let result;
       if (monthDifference === 3) return (result = 15000 * 3);
       if (monthDifference === 2) return (result = 15000 * 2);

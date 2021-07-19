@@ -201,24 +201,6 @@ const getBpjsReceipt = async (billId) => {
   }
 };
 
-const getPdamReceipt = async (bill_id) => {
-  try {
-    const pdamReceipt = await Models.pdam_bills.findOne({
-      where: { bill_id },
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-    });
-
-    const recurring = await getReccuringBill(bill_id);
-
-    return {
-      receipt: pdamReceipt,
-      recurring,
-    };
-  } catch (error) {
-    return error.message;
-  }
-};
-
 const getReccuringBill = async (bill_id) => {
   try {
     const recurringBill = await Models.recurring_billings.findOne({

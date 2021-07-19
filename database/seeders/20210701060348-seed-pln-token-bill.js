@@ -26,6 +26,26 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          bill_id: 21,
+          meter_number: 1498223465,
+          customer_number: 314329011883,
+          name: "Jojon Frans",
+          rates: "R1",
+          power: "1300V",
+          ref: faker.datatype.uuid(),
+          kwh: 32,
+          stroom_per_token: 46000,
+          token: 50000,
+          ppj: 3700,
+          admin_fee: 1500,
+          total: 51200,
+          stroom_code: Math.floor(
+            100000 + Math.random() * 90000000000000000000
+          ),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

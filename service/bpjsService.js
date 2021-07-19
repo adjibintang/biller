@@ -43,10 +43,7 @@ exports.getCustomerInfo = async (vaNumber, month, userPin) => {
       howMany = period.length;
     } else {
       const dayDifference = dayDiff(lastPeriod, new Date(period[0]));
-      if (
-        (dayDifference > 1 && new Date().getDate() > 10) ||
-        (dayDifference === 0 && new Date().getDate() > 10)
-      )
+      if (dayDifference > 1 && new Date().getDate() > 10)
         return {
           status: 202,
           message:
@@ -239,7 +236,6 @@ const getLastRecurringBill = async (billId) => {
 
     return lastRecurringBill;
   } catch (error) {
-    console.log(error);
     return error.message;
   }
 };
@@ -248,22 +244,21 @@ const findLastBill = async (vaNumber) => {
   try {
     const lastBill = await Models.bpjs_bills.findOne({
       attributes: ["payment_period"],
-      where: { va_number: vaNumber },
-      order: [["payment_period", "DESC"]],
       include: {
         model: Models.bills,
-        attributes: [],
+        required: true,
         include: {
-          attributes: [],
           model: Models.transactions,
+          attributes: ["status"],
           where: { status: "Success" },
+          required: true,
         },
       },
+      where: { va_number: vaNumber },
+      order: [["payment_period", "DESC"]],
     });
 
-    if (lastBill === null) return null;
-
-    return lastBill.dataValues.payment_period;
+    return lastBill === null ? null : lastBill.dataValues.payment_period;
   } catch (error) {
     return error.message;
   }

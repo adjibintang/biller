@@ -24,7 +24,7 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
           `${new Date().getFullYear()}-${new Date().getMonth() -i}-20`
         );
       }
-    } if (countMonth === 0) period = moment(accInfo.period).format("YYYY-MM-DD");
+    } if (countMonth === 0) period.push(moment(accInfo.period).format("YYYY-MM-DD"));
     
   const activeStatus = await isActive(countMonth);
   if(activeStatus !== null) error = activeStatus;
@@ -46,7 +46,7 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
     IDPEL: accInfo.customer_number,
     Name: accInfo.name,
     Tarif_Daya: `${accInfo.rates}/${accInfo.power}`,
-    Bulan_Tahun: `${(period)}`,  
+    Bulan_Tahun: period,  
     Stand_Meter: `${accInfo.this_month_stand_meter}-${accInfo.last_month_stand_meter}`,
     Bill: fixBill,
     Admin: admin_fee,

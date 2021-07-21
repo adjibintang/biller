@@ -17,11 +17,8 @@ const bpjsRoute = require("./routes/bpjsRoute");
 const paymentRoute = require("./routes/paymentRoute");
 const receiptRoute = require("./routes/receiptRoute");
 const internetTVRoute = require("./routes/internetTVRoute");
-<<<<<<< HEAD
 const historyRoute = require("./routes/historyRoute");
-=======
 const notificationRoute = require("./routes/notificationRoute");
->>>>>>> 49236421f0b355015126196ed47b7e95ae8d809f
 
 server.use(logger("dev"));
 server.use(cors());

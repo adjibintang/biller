@@ -1,16 +1,16 @@
-const internetTVController = require("../controller/internetTvController");
+const historyController = require("../controller/historyController");
 const middleware = require("../middleware/authMiddleware");
 const router = require("express").Router();
 
 router.get(
-  "/options/:service_id",
+  "/all",
   middleware.userAuthorization,
-  internetTVController.getInternetTVOptions
-);
-router.get(
-  "/information",
-  middleware.userAuthorization,
-  internetTVController.getInternetAccountInfo
+  historyController.getAllHistory
 );
 
+router.get(
+  "/filter/:time",
+  middleware.userAuthorization,
+  historyController.filterHistory
+);
 module.exports = router;

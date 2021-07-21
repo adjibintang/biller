@@ -17,6 +17,7 @@ const bpjsRoute = require("./routes/bpjsRoute");
 const paymentRoute = require("./routes/paymentRoute");
 const receiptRoute = require("./routes/receiptRoute");
 const internetTVRoute = require("./routes/internetTVRoute");
+const historyRoute = require("./routes/historyRoute");
 const notificationRoute = require("./routes/notificationRoute");
 
 server.use(logger("dev"));
@@ -43,6 +44,7 @@ server.use("/api/biller/payment", paymentRoute);
 server.use("/api/biller/receipt", receiptRoute);
 server.use("/api/biller/internet_TV", internetTVRoute);
 server.use("/api/biller/mobile/bill", mobileRoute);
+server.use("/api/biller/history", historyRoute);
 server.use("/api/biller/notification", notificationRoute);
 
 server.all("*", (req, res) => {

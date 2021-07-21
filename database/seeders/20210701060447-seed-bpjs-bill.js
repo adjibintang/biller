@@ -44,6 +44,23 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          bill_id: 28,
+          va_number: "0005040039858",
+          full_name: "John Doe",
+          branch: "Malang",
+          payment_period: "2021-07-10 00:00:00",
+          total_month: 1,
+          bill_fee: 400000,
+          admin_fee: 2500,
+          total: 402500,
+          createdAt: new Date(
+            new Date().setTime(new Date().getTime() - 60 * 24 * 60 * 60 * 1000)
+          ),
+          updatedAt: new Date(
+            new Date().setTime(new Date().getTime() - 60 * 24 * 60 * 60 * 1000)
+          ),
+        },
       ],
       {}
     );

@@ -113,6 +113,28 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          bill_id: 27, // Late Pay 2 Month
+          customer_number: "03948492029",
+          name: "Elbertina Peaker",
+          period: "2021-06-20",
+          total_month: 1,
+          last_month_stand_meter: 425,
+          this_month_stand_meter: 432,
+          usage: 7,
+          bill_fee: 49000,
+          admin_fee: 2500,
+          ppn: 0,
+          stamp_cost: 0,
+          late_payment_fee: 0,
+          total: 51500,
+          createdAt: new Date(
+            new Date().setTime(new Date().getTime() - 20 * 24 * 60 * 60 * 1000)
+          ),
+          updatedAt: new Date(
+            new Date().setTime(new Date().getTime() - 20 * 24 * 60 * 60 * 1000)
+          ),
+        },
       ],
       {}
     );

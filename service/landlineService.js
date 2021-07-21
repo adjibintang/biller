@@ -23,7 +23,7 @@ exports.getAccInfo = async(telephoneNumber, userId) => {
           `${new Date().getFullYear()}-${new Date().getMonth() - i}-25`
         );
       }
-    } if(countMonth === 0) period = moment(accInfo.period).format("YYYY-MM-DD");
+    } if(countMonth === 0) period.push(moment(accInfo.period).format("YYYY-MM-DD"));
 
   const activeStatus = await isActive(countMonth);
   if(activeStatus !== null) error = activeStatus;
@@ -39,7 +39,7 @@ exports.getAccInfo = async(telephoneNumber, userId) => {
 
   accInfo = {
     No_Telephone: telephoneNumber,
-    Period: `${period}`,
+    Period: period,
     Bill: fixBill,
     Admin: admin_fee,
     Late_Payment_Fee: late_payment_fee,

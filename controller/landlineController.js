@@ -56,23 +56,32 @@ exports.postLandlineBill = async (req, res) => {
         message: "Failed to Get Electricity Account Info"
       });
     }
-    let data = await landlineService.createLandlineBill(req.body, user_id);
-      
-    data.bankTransferDetails.Total = data.landline_bill_details.Total ;
 
-    if(data.landline_bill_details === null || data.bankTransferDetails === null) {
-      res.status(204).json({
-        statusText: "No Content",
-      });
+    const canPay = await landlineService.checkRangePaymentDate();
+    if(canPay === null){
+
+      let data = await landlineService.createLandlineBill(req.body, user_id);
+      
+      data.bankTransferDetails.Total = data.landline_bill_details.Total ;
+
+      if(data.landline_bill_details === null || data.bankTransferDetails === null) {
+        res.status(204).json({
+          statusText: "No Content",
+        });
+      } else {
+        res.status(200).json({
+          statusText: "OK",
+          message: "Success to Get Electricity Account Info",
+          data: data
+        });
+      }
     } else {
-      res.status(200).json({
-        statusText: "OK",
-        message: "Success to Get Electricity Account Info",
-        data: data
+      res.status(202).json({
+        statusText: "Accepted",
+        message: "User not in Payment Range"
       });
     }
   } catch (error) {
-    console.log("🦄 ~ file: landlineController.js ~ line 76 ~ exports.postLandlineBill= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: error.message

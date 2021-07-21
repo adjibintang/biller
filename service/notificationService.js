@@ -130,7 +130,7 @@ const findService = async(type, billId) => {
   }
 
   if(type === "Internet-TV"){
-    service = await Models.landline_bills.findOne({
+    service = await Models.internet_tv_bills.findOne({
       where: { bill_id: billId },
       attributes: ["provider","customer_number", "total"],
       order: [["updatedAt","DESC"]]

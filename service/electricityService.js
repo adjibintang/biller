@@ -10,8 +10,8 @@ exports.getTagihanAccInfo = async(idPel, userId) => {
   accInfo = accInfo.dataValues;
   let error = null;
 
-  const canPay = await checkRangePaymentDate();
-  if(canPay !== null) error = canPay;
+  // const canPay = await checkRangePaymentDate();
+  // if(canPay !== null) error = canPay;
 
   const paidBill = await findPaidBillTagihan(idPel);
   if (paidBill !== null) error = "Electricity Service Already Paid";
@@ -329,7 +329,7 @@ exports.createTokenBill = async (obj, userId) => {
   return data;
 }
 
-const checkRangePaymentDate = async() => {
+exports.checkRangePaymentDate = async() => {
   let message = null;
   const now = new Date().getDate();
   if(now > 20){

@@ -7,7 +7,7 @@ router.get(
   middleware.userAuthorization,
   internetTVController.getInternetTVOptions
 );
-router.post(
+router.get(
   "/information",
   middleware.userAuthorization,
   internetTVController.getInternetAccountInfo

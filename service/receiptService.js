@@ -1,11 +1,11 @@
 const Models = require("../database/models");
 const { Op } = require("sequelize");
 
-exports.getReceipt = async (billId) => {
+exports.getReceipt = async (bill_id) => {
   try {
     const getServiceType = await Models.bills.findOne({
       attributes: ["bill_type"],
-      where: { id: billId },
+      where: { id: bill_id },
       include: {
         model: Models.transactions,
         attributes: [],
@@ -37,7 +37,7 @@ exports.getReceipt = async (billId) => {
       return getPdamReceipt(billId);
 
     if (getServiceType.dataValues.bill_type === "BPJS")
-      return getBpjsReceipt(billId);
+      return getBpjsReceipt(bill_id);
 
     return null;
   } catch (error) {
@@ -170,7 +170,7 @@ const getPdamReceipt = async (billId) => {
 const getBpjsReceipt = async (billId) => {
   try {
     const bpjsReceipt = await Models.bpjs_bills.findOne({
-      where: { bill_id: billId },
+      where: { bill_id },
       attributes: { exclude: ["createdAt", "updatedAt"] },
     });
 
@@ -201,10 +201,10 @@ const getBpjsReceipt = async (billId) => {
   }
 };
 
-const getReccuringBill = async (billId) => {
+const getReccuringBill = async (bill_id) => {
   try {
     const recurringBill = await Models.recurring_billings.findOne({
-      where: { bill_id: billId },
+      where: { bill_id },
       attributes: {
         exclude: ["createdAt", "updatedAt", "is_delete"],
       },

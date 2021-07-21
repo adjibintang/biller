@@ -227,7 +227,12 @@ exports.groupTransactionDate = async (array) => {
     return r;
   }, Object.create(null));
 
-  return result;
+  let keys = Object.keys(result);
+  let values = Object.values(result);
+
+  const arr = keys.map((value, index) => ({ [value]: values[index] }));
+
+  return arr;
 };
 
 const filterToday = async (array) => {

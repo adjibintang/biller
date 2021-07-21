@@ -6,10 +6,16 @@ exports.getSubscription = async (req, res) => {
       req.user.id
     );
 
+    const getActiveSubscription =
+      await subscriptionService.getActiveSubscription(req.user.id);
+
     return res.status(200).json({
       statusText: "Ok",
       message: "Success Get Subscription",
-      data: getOngoingPurchase,
+      data: {
+        ongoingPurchace: getOngoingPurchase,
+        activeSubscription: getActiveSubscription,
+      },
     });
   } catch (error) {
     console.log(error);

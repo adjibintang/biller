@@ -9,8 +9,8 @@ exports.getAccInfo = async(telephoneNumber, userId) => {
   accInfo = accInfo.dataValues;
   let error = null;
 
-  const canPay = await checkRangePaymentDate();
-  if(canPay !== null) error = canPay;
+  // const canPay = await checkRangePaymentDate();
+  // if(canPay !== null) error = canPay;
 
   const paidBill = await findPaidBill(telephoneNumber);
   if (paidBill !== null) error = "Landline Service Already Paid";
@@ -145,7 +145,7 @@ exports.createLandlineBill = async (obj, userId) => {
   return data;
 };
 
-const checkRangePaymentDate = async() => {
+exports.checkRangePaymentDate = async() => {
   let message = null
   const now = new Date().getDate();
   if(now > 25 || now < 5){

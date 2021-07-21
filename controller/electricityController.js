@@ -23,7 +23,7 @@ exports.getTagihanAccInfo = async (req, res) => {
       res.status(204).json({
         statusText: "No Content",
       });
-    } else {
+    } else { 
     res.status(200).json({
       statusText: "OK",
       message: "Success to Get Electricity Account Info",
@@ -31,7 +31,6 @@ exports.getTagihanAccInfo = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("🦄 ~ file: electricityController.js ~ line 36 ~ exports.getTagihanAccInfo= ~ error", error)
     res.status(500).json({
       statusText: "Internal Server Error",
       message: error.message
@@ -133,19 +132,27 @@ exports.postTagihanBill = async (req, res) => {
       });
     } 
 
-    let data = await electricityService.createTagihanBill(req.body, user_id);
+    const canPay = await electricityService.checkRangePaymentDate(); 
+    if(canPay === null){ 
+      let data = await electricityService.createTagihanBill(req.body, user_id);
 
-    data.bankTransferDetails.Total = data.tagihan_bill_details.Total;
+      data.bankTransferDetails.Total = data.tagihan_bill_details.Total;
 
-    if(data.tagihan_bill_details === null || data.bankTransferDetails === null) {
-      res.status(204).json({
-        statusText: "No Content",
-      });
+      if(data.tagihan_bill_details === null || data.bankTransferDetails === null) {
+        res.status(204).json({
+          statusText: "No Content",
+        });
+      } else {
+        res.status(200).json({
+          statusText: "OK",
+          message: "Success to Get Electricity Account Info",
+          data: data
+        });
+      }
     } else {
-      res.status(200).json({
-        statusText: "OK",
-        message: "Success to Get Electricity Account Info",
-        data: data
+      res.status(202).json({
+        statusText: "Accepted",
+        message: "User not in Payment Range"
       });
     }
   } catch (error) {

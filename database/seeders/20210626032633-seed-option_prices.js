@@ -186,6 +186,15 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          option_id: 5,
+          price_id: 5,
+          provider: "Telkomsel",
+          package_name: "Halo 20Gb",
+          description: "Paket Pascabayar 20Gb",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

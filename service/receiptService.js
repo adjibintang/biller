@@ -170,7 +170,7 @@ const getPdamReceipt = async (billId) => {
 const getBpjsReceipt = async (billId) => {
   try {
     const bpjsReceipt = await Models.bpjs_bills.findOne({
-      where: { bill_id },
+      where: { bill_id: billId },
       attributes: { exclude: ["createdAt", "updatedAt"] },
     });
 
@@ -201,10 +201,10 @@ const getBpjsReceipt = async (billId) => {
   }
 };
 
-const getReccuringBill = async (bill_id) => {
+const getReccuringBill = async (billId) => {
   try {
     const recurringBill = await Models.recurring_billings.findOne({
-      where: { bill_id },
+      where: { bill_id: billId },
       attributes: {
         exclude: ["createdAt", "updatedAt", "is_delete"],
       },

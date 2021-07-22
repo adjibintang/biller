@@ -14,11 +14,26 @@ exports.getSubscription = async (req, res) => {
       message: "Success Get Subscription",
       data: {
         ongoingPurchace: getOngoingPurchase,
-        activeSubscription: getActiveSubscription,
+        subscription: getActiveSubscription,
       },
     });
   } catch (error) {
-    console.log(error);
+    return res.sendStatus(500);
+  }
+};
+
+exports.cancelSubscription = async (req, res) => {
+  try {
+    const cancelSubscriptionResult =
+      await subscriptionService.cancelSubscription(req.body.billsId);
+
+    if (cancelSubscriptionResult == 404) return res.sendStatus(404);
+
+    return res.status(201).json({
+      statusText: "Created",
+      message: "Success Cancel Subscription",
+    });
+  } catch (error) {
     return res.sendStatus(500);
   }
 };

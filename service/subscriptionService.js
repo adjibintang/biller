@@ -1,6 +1,6 @@
-const { x } = require("joi");
 const Models = require("../database/models");
 const receiptService = require("../service/receiptService");
+const moment = require("moment");
 
 exports.getOngoingPurchase = async (userId) => {
   try {
@@ -16,7 +16,6 @@ exports.getOngoingPurchase = async (userId) => {
 
     return { billList: [...billDetail], total: ongoingTotal };
   } catch (error) {
-    console.log(error);
     return error.message;
   }
 };
@@ -24,8 +23,32 @@ exports.getOngoingPurchase = async (userId) => {
 exports.getActiveSubscription = async (userId) => {
   try {
     const recurringBillList = await findRecurringBill(userId);
+    const filterByDate = await groupByDate(recurringBillList.map((x) => x));
 
-    return { billList: [...recurringBillList] };
+    return filterByDate;
+  } catch (error) {
+    return error.message;
+  }
+};
+
+exports.cancelSubscription = async (billsId) => {
+  try {
+    for (let i = 0; i <= billsId.length; i++) {
+      const findSubscription = await Models.recurring_billings.findOne({
+        where: { bill_id: billsId[i] },
+      });
+
+      if (findSubscription === null) return 404;
+
+      const sotfDelete = await Models.recurring_billings.update(
+        {
+          is_delete: true,
+        },
+        { where: { bill_id: billsId[i] } }
+      );
+    }
+
+    return;
   } catch (error) {
     return error.message;
   }
@@ -34,12 +57,12 @@ exports.getActiveSubscription = async (userId) => {
 const findRecurringBill = async (userId) => {
   try {
     const billList = await Models.recurring_billings.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt", "is_delete"] },
+      attributes: [["id", "recurringId"], "bill_id", "period", "date_billed"],
+      where: { is_delete: false },
       include: {
         model: Models.bills,
         attributes: ["bill_type"],
         where: { user_id: userId },
-        group: "period",
         required: true,
         include: {
           model: Models.transactions,
@@ -50,7 +73,178 @@ const findRecurringBill = async (userId) => {
       },
     });
 
-    return billList;
+    let result = [];
+
+    billList.forEach((element) => {
+      result.push({
+        recurringId: element.dataValues.recurringId,
+        id: element.dataValues.bill_id,
+        bill_type: element.dataValues.bill.dataValues.bill_type,
+        period: element.dataValues.period,
+        dateBilled: element.dataValues.date_billed,
+      });
+    });
+
+    return result;
+  } catch (error) {
+    return error.message;
+  }
+};
+
+const groupByDate = async (billList) => {
+  try {
+    let resultWeek = [];
+    let resultMonth = [];
+    let resultYear = [];
+
+    const detail = await findDetails(billList);
+
+    for (let i = 0; i < billList.length; i++) {
+      if (billList[i].period === "Week") {
+        const detail = await findDetails(billList);
+
+        resultWeek.push({
+          recurringId: billList[i].recurringId,
+          billId: billList[i].id,
+          type: detail[i].type,
+          customerNumber: detail[i].customerNumber,
+          total: detail[i].total,
+          bill_type: billList[i].billType,
+          period: billList[i].period,
+          dateBilled: moment(billList[i].dateBilled).format("YYYY-MM-DD"),
+        });
+      }
+      if (billList[i].period === "Month") {
+        const detail = await findDetails(billList);
+
+        resultMonth.push({
+          recurringId: billList[i].recurringId,
+          billId: billList[i].id,
+          type: detail[i].type,
+          customerNumber: detail[i].customerNumber,
+          total: detail[i].total,
+          bill_type: billList[i].billType,
+          period: billList[i].period,
+          dateBilled: moment(billList[i].dateBilled).format("YYYY-MM-DD"),
+        });
+      }
+      if (billList[i].period === "Year") {
+        const detail = await findDetails(billList);
+        resultYear.push({
+          recurringId: billList[i].recurringId,
+          billId: billList[i].id,
+          type: detail[i].type,
+          customerNumber: detail[i].customerNumber,
+          total: detail[i].total,
+          bill_type: billList[i].billType,
+          period: billList[i].period,
+          dateBilled: moment(billList[i].dateBilled).format("YYYY-MM-DD"),
+        });
+      }
+    }
+
+    a = resultWeek.reduce(function (r, a) {
+      r[a.dateBilled] = r[a.dateBilled] || [];
+      r[a.dateBilled].push(a);
+      return r;
+    }, Object.create(null));
+
+    let subscription = {};
+
+    subscription.late = a;
+
+    b = resultMonth.reduce(function (r, a) {
+      r[a.dateBilled] = r[a.dateBilled] || [];
+      r[a.dateBilled].push(a);
+      return r;
+    }, Object.create(null));
+
+    c = resultYear.reduce(function (r, a) {
+      r[a.dateBilled] = r[a.dateBilled] || [];
+      r[a.dateBilled].push(a);
+      return r;
+    }, Object.create(null));
+
+    let week = {};
+
+    let weekTempLate = [];
+    let weekTempPay = [];
+    let weekTempPlaned = [];
+
+    for (i in a) {
+      for (j in i) {
+        if (a[i][j] === undefined) continue;
+
+        let now = moment();
+        let billedDate = moment(a[i][j].dateBilled);
+
+        const dayDiff = now.diff(billedDate, "days");
+
+        if (dayDiff >= 1) weekTempLate.push(a[i][j]);
+
+        if (dayDiff > -5) weekTempPay.push(a[i][j]);
+
+        if (dayDiff < -5) weekTempPlaned.push(a[i][j]);
+      }
+
+      week.late = weekTempLate;
+      week.pay = weekTempPay;
+      week.planed = weekTempPlaned;
+    }
+
+    let month = {};
+
+    let monthTempLate = [];
+    let monthTempPay = [];
+    let monthTempPlaned = [];
+
+    for (i in b) {
+      for (j in i) {
+        if (b[i][j] === undefined) continue;
+
+        let now = moment();
+        let billedDate = moment(a[i][j].dateBilled);
+
+        const dayDiff = now.diff(billedDate, "days");
+
+        if (dayDiff >= 1) monthTempLate.push(b[i][j]);
+
+        if (dayDiff > -5) monthTempPay.push(b[i][j]);
+
+        if (dayDiff < -5) monthTempPlaned.push(b[i][j]);
+      }
+      month.late = monthTempLate;
+      month.pay = monthTempPay;
+      month.planed = monthTempPlaned;
+    }
+
+    let year = {};
+
+    let yearTempLate = [];
+    let yearTempPay = [];
+    let yearTempPlaned = [];
+
+    for (i in c) {
+      for (j in i) {
+        if (c[i][j] === undefined) continue;
+
+        let now = moment();
+        let billedDate = moment(a[i][j].dateBilled);
+
+        const dayDiff = now.diff(billedDate, "days");
+
+        if (dayDiff >= 1) yearTempLate.push(c[i][j]);
+
+        if (dayDiff > -5) yearTempPay.push(c[i][j]);
+
+        if (dayDiff < -5) yearTempPlaned.push(c[i][j]);
+      }
+      year.late = yearTempLate;
+      year.pay = yearTempPay;
+      year.planed = yearTempPlaned;
+    }
+
+    return [{ week }, { month }, { year }];
   } catch (error) {
     return error.message;
   }
@@ -97,6 +291,11 @@ const findDetails = async (billList) => {
 
       if (billList[i].bill_type === "Mobile-Internet") {
         const result = await mobileDetail(billList[i].id, "Internet");
+        billDetails.push(result);
+      }
+
+      if (billList[i].bill_type === "Mobile-Pasca") {
+        const result = await mobileDetail(billList[i].id, "Pasca Bayar");
         billDetails.push(result);
       }
 

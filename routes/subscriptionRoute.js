@@ -8,4 +8,10 @@ subscriptionRoute.get(
   subscriptionController.getSubscription
 );
 
+subscriptionRoute.put(
+  "/cancel",
+  userAuthorization,
+  subscriptionController.cancelSubscription
+);
+
 module.exports = subscriptionRoute;

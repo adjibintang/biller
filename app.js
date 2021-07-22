@@ -19,6 +19,7 @@ const receiptRoute = require("./routes/receiptRoute");
 const internetTVRoute = require("./routes/internetTVRoute");
 const historyRoute = require("./routes/historyRoute");
 const notificationRoute = require("./routes/notificationRoute");
+const subscriptionRoute = require("./routes/subscriptionRoute");
 
 server.use(logger("dev"));
 server.use(cors());
@@ -46,6 +47,7 @@ server.use("/api/biller/internet_TV", internetTVRoute);
 server.use("/api/biller/mobile/bill", mobileRoute);
 server.use("/api/biller/history", historyRoute);
 server.use("/api/biller/notification", notificationRoute);
+server.use("/api/biller/subscription", subscriptionRoute);
 
 server.all("*", (req, res) => {
   res.status(404).json({
